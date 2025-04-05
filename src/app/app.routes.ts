@@ -4,6 +4,7 @@ import { RegisterComponent } from './features/auth/register/register.component';
 import { HomePageComponent } from './features/home/home-page/home-page.component';
 import { UserDashboardComponent } from './features/dashboard/user-dashboard/user-dashboard.component';
 import { CleanerDashboardComponent } from './features/dashboard/cleaner-dashboard/cleaner-dashboard.component';
+import { AuthLayoutComponent } from './features/auth/auth-layout/auth-layout.component';
 
 export const routes: Routes = [
   {
@@ -11,13 +12,21 @@ export const routes: Routes = [
     component: HomePageComponent,
   },
   {
-    path: 'login',
-    component: LoginComponent,
+    path: '',
+    component: AuthLayoutComponent,
+    children: [
+      { path: 'login', component: LoginComponent },
+      { path: 'register', component: RegisterComponent },
+    ],
   },
-  {
-    path: 'register',
-    component: RegisterComponent,
-  },
+  // {
+  //   path: 'login',
+  //   component: LoginComponent,
+  // },
+  // {
+  //   path: 'register',
+  //   component: RegisterComponent,
+  // },
   {
     path: 'dashboard/user',
     component: UserDashboardComponent,
