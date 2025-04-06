@@ -13,3 +13,8 @@ body {
   --color-deepblue-500: #083f87;
   --color-blacknavy: #020f21;
 }
+
+@custom-variant xsm @media (width <= 575.98px);
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

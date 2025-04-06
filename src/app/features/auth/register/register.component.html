@@ -1,1 +1,22 @@
-<p>register works!</p>
+<form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+  <div class="w-1/2 mx-auto flex flex-col gap-8">
+
+    <div class="flex gap-8">
+      <app-input placeholder="Name" name="formName" [required]="true" [(ngModel)]="formName" />
+
+      <app-input placeholder="Surname" name="formSurname" [required]="true" [(ngModel)]="formSurname" />
+    </div>
+
+    <app-input placeholder="Email" name="formEmail" [required]="true" [(ngModel)]="formEmail" />
+
+    <app-input placeholder="Password" name="formPassword" [required]="true" [(ngModel)]="formPassword" />
+
+    <app-input placeholder="Confirm Password" name="formConfirmPassword" [required]="true"
+      [(ngModel)]="formConfirmPassword" />
+
+    <app-button type="submit">
+      Register
+    </app-button>
+
+  </div>
+</form>

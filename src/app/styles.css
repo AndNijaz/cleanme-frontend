@@ -11,5 +11,7 @@ body {
 
 @theme {
   --color-deepblue-500: #083f87;
+  --color-deepblue-400: #0d65d9;
+  --color-deepblue-300: #3d84e1;
   --color-blacknavy: #020f21;
 }

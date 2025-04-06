@@ -1,0 +1,16 @@
+<section class="relative min-h-screen bg-gradient-to-b from-deepblue-500 to-blacknavy overflow-hidden">
+
+  <app-big-ellipse
+    [class]="'absolute pointer-events-none max-xl:-left-1/5 max-xl:top-1/10 max-lg:-left-1/6 max-lg:top-1/6 max-md:-left-1/8 max-md:top-1/3 max-sm:-left max-sm:top-2/3'" />
+  <app-small-ellipse
+    [class]="'absolute pointer-events-none right-0 top-0 max-xl:right max-xl:top max-lg:right max-lg:top max-md:-right-6 max-md:-top-6 max-sm:-right-24 max-sm:-top-24'" />
+
+  <app-container>
+    <app-card>
+      <router-outlet />
+    </app-card>
+  </app-container>
+
+
+
+</section>
