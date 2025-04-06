@@ -1,0 +1,11 @@
+<div class="flex flex-col w-full">
+  <input type="text" [placeholder]="placeholder" [class]="getClass" [name]="name" [value]="ngModel"
+    (input)="onInput($event)" (blur)="onBlur($event)" [required]="required" />
+
+  @if(showError){
+
+  <div class="text-red-500 text-xs mt-1">
+    {{ placeholder }} is required.
+  </div>
+  }
+</div>
