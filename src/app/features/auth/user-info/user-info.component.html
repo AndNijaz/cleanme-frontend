@@ -1,13 +1,23 @@
 <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="h-full flex justify-center w-full">
   <div class="w-1/2 mx-auto flex flex-col gap-8 max-xl:w-3/5 max-lg:w-4/5 max-md:w-full">
+
     <h2 class="text-3xl font-semibold text-center mt-8 mb-4">User Info</h2>
+
     <input type="file" id="fileInput" class="hidden" onchange="console.log('pegisu')" />
     <label for="fileInput"
-      class="cursor-pointer bg-deepblue-200 text-gray-600 w-24 h-24 rounded-full flex items-center justify-center mx-auto">
+      class="cursor-pointer bg-deepblue-200 text-gray-600 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb">
       Add Photo
     </label>
 
+    <div class="flex gap-8 max-md:gap-2">
+      <app-input placeholder="Name" name="formName" [required]="true" [(ngModel)]="formName" />
 
+      <app-input placeholder="Surname" name="formSurname" [required]="true" [(ngModel)]="formSurname" />
+    </div>
+
+    <app-input placeholder="Address" name="address" [required]="true" [(ngModel)]="formAddress" class="!flex-0" />
+    <app-input placeholder="Phone Number" name="phoneNumber" [required]="true" [(ngModel)]="formPhoneNumber"
+      class="!flex-0" />
 
 
   </div>
