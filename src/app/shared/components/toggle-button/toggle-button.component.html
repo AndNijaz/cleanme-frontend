@@ -1,9 +1,9 @@
 <div class="flex rounded-full overflow-hidden border border-blue-400 shadow-sm">
-  <button type="button" [class]="`w-full bg-gradient-to-b px-3 py-6 text-2xl text-gray-600
+  <button type="button" [class]="`w-full bg-gradient-to-b px-3 py-6 max-md:px-2 max-md:py-4 max-md:text-base text-2xl text-gray-600
     rounded-full ${selectedOption === 0 ? 'from-deepblue-500 to-blacknavy text-white' : ''}`"
     (click)="setSelectOption(0)">{{options[0]}}</button>
 
-  <button type="button" [class]="`w-full bg-gradient-to-b px-3 py-6  text-2xl text-gray-600
+  <button type="button" [class]="`w-full bg-gradient-to-b px-3 py-6  max-md:px-1 max-md:py-2 max-md:text-base text-2xl text-gray-600
   rounded-full ${selectedOption === 1 ? 'from-deepblue-500 to-blacknavy text-white' : ''}`"
     (click)="setSelectOption(1)">{{options[1]}}</button>
 </div>

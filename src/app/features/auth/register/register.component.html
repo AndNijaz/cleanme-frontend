@@ -1,11 +1,11 @@
-<form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="h-full flex justify-center items-center">
-  <div class="w-1/2 mx-auto flex flex-col gap-8">
-    <div class="mb-8">
+<form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="h-full flex justify-center items-center w-full">
+  <div class="w-1/2 mx-auto flex flex-col gap-8 max-xl:w-3/5 max-lg:w-4/5 max-md:w-full">
+    <div class="mb-8 px-24 max-md:px-4 max-md:mb-4">
       <app-toggle-button [options]="['User', 'Cleaner']" (toggleUserType)="setSelectedProfileType($event)" />
     </div>
 
 
-    <div class="flex gap-8">
+    <div class="flex gap-8 max-md:gap-2">
       <app-input placeholder="Name" name="formName" [required]="true" [(ngModel)]="formName" />
 
       <app-input placeholder="Surname" name="formSurname" [required]="true" [(ngModel)]="formSurname" />
@@ -16,10 +16,9 @@
     <app-input placeholder="Password" name="formPassword" [required]="true" [(ngModel)]="formPassword" />
 
     <app-input placeholder="Confirm Password" name="formConfirmPassword" [required]="true"
-
       [(ngModel)]="formConfirmPassword" class="mb-0.5" />
 
-    <p class="text-red-500 text-center mt-1 mb-4">
+    <p class="text-red-500 text-center mt-1 mb-4 max-md:mb-2">
       {{ errorMessage }}
     </p>
 
