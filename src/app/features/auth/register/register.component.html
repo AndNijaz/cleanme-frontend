@@ -4,6 +4,7 @@
       <app-toggle-button [options]="['User', 'Cleaner']" (toggleUserType)="setSelectedProfileType($event)" />
     </div>
 
+
     <div class="flex gap-8">
       <app-input placeholder="Name" name="formName" [required]="true" [(ngModel)]="formName" />
 
@@ -15,6 +16,7 @@
     <app-input placeholder="Password" name="formPassword" [required]="true" [(ngModel)]="formPassword" />
 
     <app-input placeholder="Confirm Password" name="formConfirmPassword" [required]="true"
+
       [(ngModel)]="formConfirmPassword" class="mb-0.5" />
 
     <p class="text-red-500 text-center mt-1 mb-4">
@@ -26,7 +28,6 @@
         Register
       </app-button>
     </div>
-
 
   </div>
 </form>

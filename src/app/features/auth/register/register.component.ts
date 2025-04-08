@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { FormsModule } from '@angular/forms';
+
 import { ToggleButtonComponent } from '../../../shared/components/toggle-button/toggle-button.component';
 
 @Component({
@@ -17,11 +18,13 @@ import { ToggleButtonComponent } from '../../../shared/components/toggle-button/
   templateUrl: './register.component.html',
 })
 export class RegisterComponent {
+
   formName: string = '';
   formSurname: string = '';
   formEmail: string = '';
   formPassword: string = '';
   formConfirmPassword: string = '';
+
   selectedProfileType: string = 'user';
 
   errorMessage: string = '';
@@ -57,11 +60,13 @@ export class RegisterComponent {
       return;
     }
 
+
     console.log('Name:', this.formName);
     console.log('Surname:', this.formSurname);
     console.log('Email:', this.formEmail);
     console.log('Password:', this.formPassword);
     console.log('Confirm Password:', this.formConfirmPassword);
+
     console.log('User Type:', this.selectedProfileType);
   }
 
@@ -73,5 +78,6 @@ export class RegisterComponent {
   private isValidEmail(email: string): boolean {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
+
   }
 }
