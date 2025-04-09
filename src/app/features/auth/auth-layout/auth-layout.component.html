@@ -6,7 +6,8 @@
     [class]="'absolute pointer-events-none right-0 top-0 max-xl:right max-xl:top max-lg:right max-lg:top max-md:-right-6 max-md:-top-6 max-sm:-right-24 max-sm:-top-24'" />
 
 
-  <div class="h-screen flex items-center">
+  <div
+    [class]="`h-screen flex items-center ${this.routerURL === 'register' ? 'w-full' : 'w-3/5 mx-auto max-xl:w-4/5' }`">
     <app-container class="h-[90vh] w-full">
       <app-card class="h-full w-full">
         <router-outlet />

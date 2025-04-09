@@ -5,6 +5,7 @@ import { HomePageComponent } from './features/home/home-page/home-page.component
 import { UserDashboardComponent } from './features/dashboard/user-dashboard/user-dashboard.component';
 import { CleanerDashboardComponent } from './features/dashboard/cleaner-dashboard/cleaner-dashboard.component';
 import { AuthLayoutComponent } from './features/auth/auth-layout/auth-layout.component';
+import { UserInfoComponent } from './features/auth/user-info/user-info.component';
 
 export const routes: Routes = [
   {
@@ -17,6 +18,7 @@ export const routes: Routes = [
     children: [
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
+      { path: 'register-post', component: UserInfoComponent },
     ],
   },
   {
