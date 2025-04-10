@@ -26,7 +26,7 @@
           (blur)="locationControl.markAsTouched()"
         >
         <div
-          *ngIf="locationControl.invalid && (locationControl.touched || locationControl.dirty)"
+          *ngIf="locationControl.invalid && (locationControl.touched || locationControl.dirty || submitted)"
           class="mt-1 text-sm text-red-600"
         >
           Location is required
