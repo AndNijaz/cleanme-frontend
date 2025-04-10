@@ -9,6 +9,7 @@ import { ServiceCardComponent } from './service-card/service-card.component';
 import { ServiceDescriptionCardComponent } from './service-description-card/service-description-card.component';
 import { AvailabilityComponent } from './availability/availability.component';
 import { CleanerInfoService } from '../../../core/services/cleaner-info.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cleaner-info',
@@ -27,6 +28,8 @@ import { CleanerInfoService } from '../../../core/services/cleaner-info.service'
   templateUrl: './cleaner-info.component.html',
 })
 export class CleanerInfoComponent {
+  constructor(private router: Router) {}
+
   activeStep: number = 1;
 
   formPhone: string = '';
@@ -96,24 +99,13 @@ export class CleanerInfoComponent {
   }
 
   onSubmit() {
-    console.log('Form submitted with the following data:');
-    console.log(this.descriptions);
-    console.log('Selected services:', this.selectedServices);
-    console.log('Phone:', this.formPhone);
-    console.log('Address:', this.formAddress);
-    console.log('Hourly Rate:', this.hourlyRate);
-    console.log('Distance:', this.distance);
-    console.log('Accept Policy:', this.acceptPolicy);
-    console.log('Selected services:', this.selectedServices);
-    console.log('zamkal');
     if (this.descriptions.length === 0) return;
     if (this.selectedServices.length === 0) return;
     if (this.formPhone.trim() === '') return;
     if (this.formAddress.trim() === '') return;
     if (+this.formCurrency <= 0) return;
     if (+this.formDistance <= 0) return;
-    // if (!this.acceptPolicy) return;
-    // Submit the form data to the server or perform any other action
+
     console.log('Form submitted with the following data:');
     console.log(this.descriptions);
     console.log('Selected services:', this.selectedServices);
@@ -123,6 +115,8 @@ export class CleanerInfoComponent {
     console.log('Distance:', this.formDistance);
     console.log('Accept Policy:', this.acceptPolicy);
     console.log('Selected services:', this.selectedServices);
+
+    this.router.navigate(['/dashboard/cleaner']);
   }
 
   validateStep(step: number): boolean {

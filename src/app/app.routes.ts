@@ -24,7 +24,7 @@ export const routes: Routes = [
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
       { path: 'register-post', component: UserInfoComponent },
-      { path: 'cleaner-post-1', component: CleanerInfoComponent },
+      { path: 'cleaner-post', component: CleanerInfoComponent },
     ],
   },
   {
