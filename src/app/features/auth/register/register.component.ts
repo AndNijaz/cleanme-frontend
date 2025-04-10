@@ -5,6 +5,7 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
 import { FormsModule } from '@angular/forms';
 
 import { ToggleButtonComponent } from '../../../shared/components/toggle-button/toggle-button.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -18,7 +19,6 @@ import { ToggleButtonComponent } from '../../../shared/components/toggle-button/
   templateUrl: './register.component.html',
 })
 export class RegisterComponent {
-
   formName: string = '';
   formSurname: string = '';
   formEmail: string = '';
@@ -29,7 +29,11 @@ export class RegisterComponent {
 
   errorMessage: string = '';
 
-  constructor(private httpClient: HttpClient, private destroyRef: DestroyRef) {}
+  constructor(
+    private httpClient: HttpClient,
+    private destroyRef: DestroyRef,
+    private router: Router
+  ) {}
 
   onSubmit() {
     this.errorMessage = '';
@@ -60,7 +64,6 @@ export class RegisterComponent {
       return;
     }
 
-
     console.log('Name:', this.formName);
     console.log('Surname:', this.formSurname);
     console.log('Email:', this.formEmail);
@@ -68,6 +71,12 @@ export class RegisterComponent {
     console.log('Confirm Password:', this.formConfirmPassword);
 
     console.log('User Type:', this.selectedProfileType);
+
+    if (this.selectedProfileType === 'user') {
+      this.router.navigate(['/register-post']);
+    } else if (this.selectedProfileType === 'cleaner') {
+      this.router.navigate(['/cleaner-post']);
+    }
   }
 
   setSelectedProfileType(event: number) {
@@ -78,6 +87,5 @@ export class RegisterComponent {
   private isValidEmail(email: string): boolean {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
-
   }
 }

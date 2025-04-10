@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-info',
@@ -10,6 +11,8 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
   templateUrl: './user-info.component.html',
 })
 export class UserInfoComponent {
+  constructor(private router: Router) {}
+
   formName: string = '';
   formSurname: string = '';
   formPhoneNumber: string = '';
@@ -22,5 +25,7 @@ export class UserInfoComponent {
     console.log(this.formPhoneNumber);
     console.log(this.formAddress);
     console.log(this.acceptPolicy);
+
+    this.router.navigate(['/dashboard/user']);
   }
 }
