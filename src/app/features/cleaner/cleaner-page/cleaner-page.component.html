@@ -1,0 +1,57 @@
+<div class="p-12 flex flex-col items-center justify-center min-h-screen bg-[#CED9E7]">
+  <div class="w-full max-w-3xl">
+  <h2 class="text-2xl font-semibold mb-4 text-[#083F87]">Find a time that suits you</h2>
+
+  <form [formGroup]="mainForm" (ngSubmit)="onSubmit()"
+        class="flex flex-col gap-6 w-full max-w-3xl bg-white rounded-3xl p-8">
+
+    <!-- 1) Date Selector -->
+    <div class="p-6 bg-white rounded-2xl shadow-sm">
+    <div class="font-semibold mb-4 text-lg text-gray-800 "><span>Date</span></div>
+    <app-date-selector [control]="dateControl"></app-date-selector>
+  </div>
+    <!-- 2) Time Selector -->
+    <app-time-selector [control]="timeControl"></app-time-selector>
+
+    <!-- 3) Location Input -->
+
+    <div class="p-6 bg-white rounded-2xl shadow-sm">
+      <div class="font-semibold mb-4 text-lg text-gray-800">Location</div>
+      <div class="relative w-full">
+        <input
+          type="text"
+          formControlName="location"
+          placeholder="Enter your address"
+          class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          (blur)="locationControl.markAsTouched()"
+        >
+        <div
+          *ngIf="locationControl.invalid && (locationControl.touched || locationControl.dirty)"
+          class="mt-1 text-sm text-red-600"
+        >
+          Location is required
+        </div>
+      </div>
+    </div>
+
+    <!-- Comment Input -->
+    <div class="p-6 bg-white rounded-2xl shadow-sm mt-4">
+      <div class="font-semibold mb-4 text-lg text-gray-800">Comment</div>
+      <div class="relative w-full">
+        <label for="comment" class="sr-only">Add a comment to the cleaner</label>
+        <textarea
+          id="comment"
+          formControlName="comment"
+          placeholder="Any additional info?"
+          rows="4"
+          class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        ></textarea>
+      </div>
+    </div>
+    <!-- 5) Submit Button -->
+    <button   type="submit"  class="mx-auto w-fit px-4 py-2 bg-[#0d65d9] text-white rounded-3xl">
+      Submit
+    </button>
+  </form>
+</div>
+</div>
