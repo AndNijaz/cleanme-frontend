@@ -19,4 +19,18 @@ export class AvailabilityComponent {
     { name: 'Saturday', selected: true, from: null, to: null },
     { name: 'Sunday', selected: true, from: null, to: null },
   ];
+
+  /**
+   * Validates that for each selected day a valid "from" and "to" date is provided.
+   */
+  isValid(): boolean {
+    for (const day of this.days) {
+      if (day.selected) {
+        if (!day.from || !day.to) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 }

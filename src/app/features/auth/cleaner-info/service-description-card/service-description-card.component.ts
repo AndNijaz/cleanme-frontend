@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 export class ServiceDescriptionCardComponent {
   @Input() src!: string;
   @Input() title!: string;
+  @Input() error: boolean = false;
 
   @Input() description!: string;
   @Output() descriptionChange = new EventEmitter<string>();
