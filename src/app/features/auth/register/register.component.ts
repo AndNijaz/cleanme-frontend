@@ -44,8 +44,13 @@ export class RegisterComponent {
   selectedProfileType: string = 'user';
 
   errorMessage: string = '';
+  showPassword: boolean = false;
 
   submitted = false;
+
+  toggleShowPassword() {
+    this.showPassword = !this.showPassword;
+  }
 
   onSubmit() {
     this.submitted = true;
