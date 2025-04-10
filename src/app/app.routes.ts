@@ -7,6 +7,10 @@ import { CleanerDashboardComponent } from './features/dashboard/cleaner-dashboar
 import { AuthLayoutComponent } from './features/auth/auth-layout/auth-layout.component';
 import { UserInfoComponent } from './features/auth/user-info/user-info.component';
 import { CleanerInfoComponent } from './features/auth/cleaner-info/cleaner-info.component';
+import {DateSelectorComponent} from './shared/components/date-selector/date-selector.component';
+import {TimeSelectorComponent} from './shared/components/time-selector/time-selector.component';
+import {CleanerPageComponent} from './features/cleaner/cleaner-page/cleaner-page.component';
+
 
 export const routes: Routes = [
   {
@@ -40,6 +44,14 @@ export const routes: Routes = [
     component: HomePageComponent,
   },
   {
+    path: 'date', //delete later
+    component: DateSelectorComponent,
+  },
+  {
+    path: 'time', //delete later
+    component: TimeSelectorComponent,
+  },
+  {
     path: 'cleaners',
     component: HomePageComponent,
   },
@@ -47,6 +59,11 @@ export const routes: Routes = [
     path: 'cleaner/:id',
     component: HomePageComponent,
   },
+  {
+    path: 'cleanerpage',
+    component: CleanerPageComponent,
+  },
+
   {
     path: 'book',
     component: HomePageComponent,
