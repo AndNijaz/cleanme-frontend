@@ -8,7 +8,6 @@ import { CommonModule } from '@angular/common';
 import { ServiceCardComponent } from './service-card/service-card.component';
 import { ServiceDescriptionCardComponent } from './service-description-card/service-description-card.component';
 import { AvailabilityComponent } from './availability/availability.component';
-import { CleanerInfoService } from '../../../core/services/cleaner-info.service';
 import { Router } from '@angular/router';
 import { LineErrorComponent } from './line-error/line-error.component';
 
@@ -32,7 +31,9 @@ import { LineErrorComponent } from './line-error/line-error.component';
 export class CleanerInfoComponent {
   constructor(private router: Router) {}
 
-  @ViewChild(AvailabilityComponent) availabilityComp!: AvailabilityComponent;
+  @ViewChild('availabilityComp') availabilityComp!: AvailabilityComponent;
+
+  availabilityData: any[] = [];
 
   activeStep: number = 1;
 
@@ -103,11 +104,17 @@ export class CleanerInfoComponent {
 
   onNextStep() {
     if (this.validateStep(this.activeStep)) {
+      // If moving from step 3, capture the availability data
+      if (this.activeStep === 3 && this.availabilityComp) {
+        this.availabilityData =
+          this.availabilityComp.getFormattedAvailability();
+      }
       this.activeStep++;
     } else {
       console.warn('Step validation failed. Cannot proceed.');
     }
   }
+
   onPreviousStep() {
     this.activeStep--;
   }
@@ -115,20 +122,30 @@ export class CleanerInfoComponent {
   onSubmit() {
     if (!this.validateStep(4)) return;
 
-    const availabilityData = this.availabilityComp?.days || [];
-    console.log('Availability:', availabilityData);
+    // Get latest availability data to ensure we have the most up-to-date version
+    if (this.availabilityComp) {
+      this.availabilityData = this.availabilityComp.getFormattedAvailability();
+    }
 
-    console.log('Form submitted with the following data:');
-    console.log(this.descriptions);
-    console.log('Selected services:', this.selectedServices);
-    console.log('Phone:', this.formPhone);
-    console.log('Address:', this.formAddress);
-    console.log('Hourly Rate:', this.formCurrency);
-    console.log('Distance:', this.formDistance);
-    console.log('Accept Policy:', this.acceptPolicy);
-    console.log('Selected services:', this.selectedServices);
-    console.log('Availability:', availabilityData);
+    // Create final submission data object
+    const submissionData = {
+      services: this.selectedServices,
+      descriptions: this.descriptions,
+      contactInfo: {
+        phone: this.formPhone,
+        address: this.formAddress,
+      },
+      billing: {
+        hourlyRate: this.formCurrency,
+        maxDistance: this.formDistance,
+      },
+      availability: this.availabilityData,
+      acceptedPolicy: this.acceptPolicy,
+    };
 
+    console.log('Form submitted with the following data:', submissionData);
+
+    // Navigate to dashboard
     this.router.navigate(['/dashboard/cleaner']);
   }
 
@@ -153,10 +170,22 @@ export class CleanerInfoComponent {
         }
         break;
       case 3:
+        this.step3Error = '';
         if (this.availabilityComp && !this.availabilityComp.isValid()) {
           this.step3Error =
             'Please set valid availability for all selected days.';
           valid = false;
+        } else if (this.availabilityComp) {
+          // Update availability data when validating
+          this.availabilityData =
+            this.availabilityComp.getFormattedAvailability();
+
+          // Ensure at least one day is selected
+          if (this.availabilityData.length === 0) {
+            this.step3Error =
+              'Please select at least one day and set valid time range.';
+            valid = false;
+          }
         }
         break;
       case 4:

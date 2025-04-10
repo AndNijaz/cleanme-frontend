@@ -1,16 +1,11 @@
 <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="h-full flex justify-center w-full overflow-scroll">
-
-
   <div class="w-full mx-auto flex flex-col gap-8 max-xl:w-full max-lg:w-full max-md:w-full mt-8">
-
     <h2 class="text-3xl font-semibold text-center">Cleaner Info</h2>
 
-    <div class="w-full absolute top-0 left-0 h-[25%]  z-50"></div>
+    <div class="w-full absolute top-0 left-0 h-[25%] z-50"></div>
 
     <p-stepper [(value)]="activeStep" class="w-full">
       <p-step-list>
-
-
         <p-step [value]="1" class="flex flex-row flex-auto gap-2">
           <ng-template #content let-activateCallback="activateCallback" let-value="value">
             <button class="bg-transparent border-0 inline-flex flex-col gap-2" (click)="activateCallback()">
@@ -62,7 +57,6 @@
             </button>
           </ng-template>
         </p-step>
-
       </p-step-list>
 
       <p-step-panels>
@@ -85,8 +79,6 @@
             </div>
 
             <app-line-error [error]="step1Error" />
-
-
           </ng-template>
         </p-step-panel>
 
@@ -106,7 +98,6 @@
               }
             </div>
 
-
             <app-line-error [error]="step2Error" />
           </ng-template>
         </p-step-panel>
@@ -118,9 +109,7 @@
               </span>slots when you are open for bookings.
             </p>
             <div>
-
-              <app-availability />
-
+              <app-availability #availabilityComp (availabilityChange)="availabilityData = $event" />
             </div>
 
             <app-line-error [error]="step3Error" />
@@ -132,6 +121,7 @@
             <p class="block text-gray-500 text-sm mb-8">
               *Provide your contact details, pricing per hour, and how far from your location you are willing to work
               (in kilometers).
+            </p>
             <div class="px-8">
               <app-input placeholder="Phone Number" name="phone-number" [required]="true" [(ngModel)]="formPhone"
                 class="mb-4" />
@@ -146,13 +136,9 @@
                     Privacy Policy.
                   </a>
                 </label>
-
-
-
               </div>
 
               <div class="flex gap-8 max-sm:flex-col">
-
                 <div class="flex items-center gap-4">
                   <p>
                     Hourly Rate
@@ -167,28 +153,24 @@
                   <app-input placeholder="km" name="distance" [required]="true" [(ngModel)]="formDistance"
                     class="w-24" />
                 </div>
-
               </div>
-
             </div>
 
             <app-line-error [error]="step4Error" />
           </ng-template>
         </p-step-panel>
-
       </p-step-panels>
     </p-stepper>
 
     <div class="text-center">
-      @if(activeStep > 1){ <app-button type="button" (clicked)="onPreviousStep()">Previous Step</app-button>
+      @if(activeStep > 1){
+      <app-button type="button" (clicked)="onPreviousStep()">Previous Step</app-button>
       }
-      @if(activeStep <4){ <app-button type="button" (clicked)="onNextStep()">Next Step</app-button>
+      @if(activeStep < 4){ <app-button type="button" (clicked)="onNextStep()">Next Step</app-button>
         }
-        @if(activeStep >=4){
+        @if(activeStep >= 4){
         <app-button type="submit">Finish</app-button>
         }
-
     </div>
-
   </div>
 </form>
