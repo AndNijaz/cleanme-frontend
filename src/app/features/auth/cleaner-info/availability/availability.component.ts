@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
-import { CalendarModule } from 'primeng/calendar';
-import { FormsModule } from '@angular/forms';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-availability',
   templateUrl: './availability.component.html',
   standalone: true,
-  imports: [CheckboxModule, CalendarModule, FormsModule],
+  imports: [CheckboxModule, DatePickerModule, FormsModule, ReactiveFormsModule],
 })
 export class AvailabilityComponent {
   days = [
