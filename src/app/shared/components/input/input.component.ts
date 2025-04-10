@@ -78,4 +78,9 @@ export class InputComponent implements ControlValueAccessor {
     this.touched = true;
     this.onTouched();
   }
+
+  markAsTouched() {
+    this.touched = true;
+    this.onTouched(); // Notify Angular
+  }
 }

@@ -1,8 +1,15 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 
 import { ToggleButtonComponent } from '../../../shared/components/toggle-button/toggle-button.component';
 import { Router } from '@angular/router';
@@ -19,6 +26,15 @@ import { Router } from '@angular/router';
   templateUrl: './register.component.html',
 })
 export class RegisterComponent {
+  constructor(
+    private httpClient: HttpClient,
+    private destroyRef: DestroyRef,
+    private router: Router
+  ) {}
+
+  @ViewChildren(InputComponent) inputs!: QueryList<InputComponent>;
+  @ViewChild('registerForm') registerForm!: NgForm;
+
   formName: string = '';
   formSurname: string = '';
   formEmail: string = '';
@@ -29,13 +45,17 @@ export class RegisterComponent {
 
   errorMessage: string = '';
 
-  constructor(
-    private httpClient: HttpClient,
-    private destroyRef: DestroyRef,
-    private router: Router
-  ) {}
+  submitted = false;
 
   onSubmit() {
+    this.submitted = true;
+    if (this.registerForm) {
+      this.registerForm.control.markAllAsTouched();
+      this.registerForm.control.markAsDirty();
+    }
+
+    this.inputs.forEach((input) => input.markAsTouched());
+
     this.errorMessage = '';
 
     if (
