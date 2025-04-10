@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { FormsModule } from '@angular/forms';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
@@ -8,8 +8,8 @@ import { CommonModule } from '@angular/common';
 import { ServiceCardComponent } from './service-card/service-card.component';
 import { ServiceDescriptionCardComponent } from './service-description-card/service-description-card.component';
 import { AvailabilityComponent } from './availability/availability.component';
-import { CleanerInfoService } from '../../../core/services/cleaner-info.service';
 import { Router } from '@angular/router';
+import { LineErrorComponent } from './line-error/line-error.component';
 
 @Component({
   selector: 'app-cleaner-info',
@@ -24,11 +24,16 @@ import { Router } from '@angular/router';
     ServiceCardComponent,
     ServiceDescriptionCardComponent,
     AvailabilityComponent,
+    LineErrorComponent,
   ],
   templateUrl: './cleaner-info.component.html',
 })
 export class CleanerInfoComponent {
   constructor(private router: Router) {}
+
+  @ViewChild('availabilityComp') availabilityComp!: AvailabilityComponent;
+
+  availabilityData: any[] = [];
 
   activeStep: number = 1;
 
@@ -53,9 +58,14 @@ export class CleanerInfoComponent {
     { src: 'icon-3.svg', text: 'Floor Cleaning' },
   ];
 
-  handleServiceClicked(serviceName: string) {
-    const index = this.selectedServices.indexOf(serviceName);
+  step1Error: string = '';
+  step2Error: string = '';
+  step3Error: string = '';
+  step4Error: string = '';
 
+  handleServiceClicked(serviceName: string) {
+    this.step1Error = '';
+    const index = this.selectedServices.indexOf(serviceName);
     if (index > -1) {
       this.selectedServices.splice(index, 1);
       this.descriptions = this.descriptions.filter(
@@ -69,13 +79,15 @@ export class CleanerInfoComponent {
     }
   }
 
-  activateCallback(step: number) {
-    this.activeStep = step;
-    if (this.validateStep(step)) {
-      this.activeStep = step;
-    } else {
-      console.warn('Step validation failed. Cannot proceed.');
+  activateCallback(targetStep: number) {
+    // Validate all steps leading up to the target step.
+    for (let step = 1; step < targetStep; step++) {
+      if (!this.validateStep(step)) {
+        alert(`Please complete step ${step} before proceeding.`);
+        return;
+      }
     }
+    this.activeStep = targetStep;
   }
 
   descriptions: { title: string; description: string }[] = [];
@@ -92,79 +104,117 @@ export class CleanerInfoComponent {
 
   onNextStep() {
     if (this.validateStep(this.activeStep)) {
+      // If moving from step 3, capture the availability data
+      if (this.activeStep === 3 && this.availabilityComp) {
+        this.availabilityData =
+          this.availabilityComp.getFormattedAvailability();
+      }
       this.activeStep++;
     } else {
       console.warn('Step validation failed. Cannot proceed.');
     }
   }
 
+  onPreviousStep() {
+    this.activeStep--;
+  }
+
   onSubmit() {
-    if (this.descriptions.length === 0) return;
-    if (this.selectedServices.length === 0) return;
-    if (this.formPhone.trim() === '') return;
-    if (this.formAddress.trim() === '') return;
-    if (+this.formCurrency <= 0) return;
-    if (+this.formDistance <= 0) return;
+    if (!this.validateStep(4)) return;
 
-    console.log('Form submitted with the following data:');
-    console.log(this.descriptions);
-    console.log('Selected services:', this.selectedServices);
-    console.log('Phone:', this.formPhone);
-    console.log('Address:', this.formAddress);
-    console.log('Hourly Rate:', this.formCurrency);
-    console.log('Distance:', this.formDistance);
-    console.log('Accept Policy:', this.acceptPolicy);
-    console.log('Selected services:', this.selectedServices);
+    // Get latest availability data to ensure we have the most up-to-date version
+    if (this.availabilityComp) {
+      this.availabilityData = this.availabilityComp.getFormattedAvailability();
+    }
 
+    // Create final submission data object
+    const submissionData = {
+      services: this.selectedServices,
+      descriptions: this.descriptions,
+      contactInfo: {
+        phone: this.formPhone,
+        address: this.formAddress,
+      },
+      billing: {
+        hourlyRate: this.formCurrency,
+        maxDistance: this.formDistance,
+      },
+      availability: this.availabilityData,
+      acceptedPolicy: this.acceptPolicy,
+    };
+
+    console.log('Form submitted with the following data:', submissionData);
+
+    // Navigate to dashboard
     this.router.navigate(['/dashboard/cleaner']);
   }
 
   validateStep(step: number): boolean {
+    let valid = true;
+
+    // Reset the error for the step before running validations.
     switch (step) {
       case 1:
-        // Step 1: At least 1 service selected
+        this.step1Error = '';
         if (this.selectedServices.length === 0) {
-          alert('Please select at least one service.');
-          return false;
+          this.step1Error = 'Please select at least one service.';
+          valid = false;
         }
-        return true;
-
+        break;
       case 2:
-        // Step 2: Each selected service must have a description
+        this.step2Error = '';
         if (this.descriptions.some((desc) => !desc.description.trim())) {
-          alert('Please provide descriptions for all selected services.');
-          return false;
+          this.step2Error =
+            'Please provide descriptions for all selected services.';
+          valid = false;
         }
-        return true;
-
+        break;
       case 3:
-        // Step 3: Availability validation
-        // (Assuming you will add availability fields inside AvailabilityComponent and expose validation method)
-        // For now, assume it’s always valid.
-        return true;
+        this.step3Error = '';
+        if (this.availabilityComp && !this.availabilityComp.isValid()) {
+          this.step3Error =
+            'Please set valid availability for all selected days.';
+          valid = false;
+        } else if (this.availabilityComp) {
+          // Update availability data when validating
+          this.availabilityData =
+            this.availabilityComp.getFormattedAvailability();
 
+          // Ensure at least one day is selected
+          if (this.availabilityData.length === 0) {
+            this.step3Error =
+              'Please select at least one day and set valid time range.';
+            valid = false;
+          }
+        }
+        break;
       case 4:
-        // Step 4: Phone, Address, Policy Acceptance, Hourly Rate, Distance
+        this.step4Error = '';
         if (!this.formPhone.trim() || !this.formAddress.trim()) {
-          alert('Phone and Address are required.');
-          return false;
+          this.step4Error = 'Phone and Address are required.';
+          valid = false;
         }
         if (!this.acceptPolicy) {
-          alert('You must accept the Privacy Policy.');
-          return false;
+          this.step4Error +=
+            (this.step4Error ? ' ' : '') +
+            'You must accept the Privacy Policy.';
+          valid = false;
         }
-        if (this.hourlyRate <= 0) {
-          alert('Please enter a valid hourly rate.');
-          return false;
+        if (+this.formCurrency <= 0) {
+          this.step4Error +=
+            (this.step4Error ? ' ' : '') + 'Please enter a valid hourly rate.';
+          valid = false;
         }
-        if (this.distance <= 0) {
-          alert('Please enter a valid distance.');
-          return false;
+        if (+this.formDistance <= 0) {
+          this.step4Error +=
+            (this.step4Error ? ' ' : '') + 'Please enter a valid distance.';
+          valid = false;
         }
-        return true;
-
+        break;
       default:
-        return true;
+        break;
     }
+
+    return valid;
   }
 }

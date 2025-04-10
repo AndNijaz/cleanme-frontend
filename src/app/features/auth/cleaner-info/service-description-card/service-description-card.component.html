@@ -5,7 +5,9 @@
   </div>
 
   <textarea [ngModel]="description" (ngModelChange)="onDescriptionChange($event)" placeholder="Write Description..."
-    class="border-0 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none resize-none p-1"
-    rows="3"></textarea>
+    class="border-0 border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none resize-none p-1" rows="3"
+    [ngClass]="{'border-red-500 focus:border-red-500': error, 'border-gray-300 focus:border-blue-500': !error}"
+    rows="3">
+    ></textarea>
 
 </div>

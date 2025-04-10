@@ -12,6 +12,7 @@ export class ServiceCardComponent {
   @Input() text!: string; // Text to display
   @Input() class?: string;
   @Input() selected: boolean = false;
+  @Input() error: boolean = false;
 
   @Output() cardClicked = new EventEmitter<string>(); // Emits the text when clicked
 
