@@ -67,7 +67,6 @@ export class CleanerInfoComponent {
   }
 
   activateCallback(step: number) {
-    console.log('kurac');
     this.activeStep = step;
     if (this.validateStep(step)) {
       this.activeStep = step;
