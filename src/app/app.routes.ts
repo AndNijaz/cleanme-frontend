@@ -11,6 +11,8 @@ import { DateSelectorComponent } from './shared/components/date-selector/date-se
 import { TimeSelectorComponent } from './shared/components/time-selector/time-selector.component';
 import { CleanerPageComponent } from './features/cleaner/cleaner-page/cleaner-page.component';
 import { ServiceReservationPageComponent } from './features/cleaner/service-reservation-page/service-reservation-page.component';
+import {UserProfilePageComponent} from './features/profile-page/user-profile-page/user-profile-page.component';
+import {CleanerProfilePageComponent} from './features/profile-page/cleaner-profile-page/cleaner-profile-page.component';
 
 export const routes: Routes = [
   {
@@ -37,11 +39,11 @@ export const routes: Routes = [
   },
   {
     path: 'profile/user',
-    component: HomePageComponent,
+    component: UserProfilePageComponent,
   },
   {
     path: 'profile/cleaner',
-    component: HomePageComponent,
+    component: CleanerProfilePageComponent,
   },
   {
     path: 'date', //delete later

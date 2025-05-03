@@ -1,0 +1,17 @@
+<div class="flex items-center gap-4">
+  <div
+    class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden"
+  >
+    <ng-container *ngIf="photoUrl; else placeholder">
+      <img
+        [src]="photoUrl"
+        alt="Profile Photo"
+        class="w-full h-full object-cover"
+      />
+    </ng-container>
+    <ng-template #placeholder>
+      <span class="text-xs text-gray-500">Add Profile Photo</span>
+    </ng-template>
+  </div>
+  <span class="text-2xl font-semibold">{{ name }}</span>
+</div>

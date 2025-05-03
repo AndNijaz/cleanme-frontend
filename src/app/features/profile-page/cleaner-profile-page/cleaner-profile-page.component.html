@@ -1,0 +1,117 @@
+<div class="bg-gradient-to-r from-[#E4F0FF] to-[#FFFFFF] min-h-screen">
+  <!-- Dashboard Navbar -->
+  <app-navbar variant="dashboard"></app-navbar>
+
+  <!-- Heading -->
+  <h1 class="text-4xl font-semibold text-[#2563eb] mt-8 mb-2 max-w-5xl mx-auto">
+    Cleaner Profile
+  </h1>
+
+  <div class="max-w-5xl mx-auto mt-8 p-6 bg-white rounded-2xl shadow-md">
+    <div
+      class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
+    >
+      <!-- Profile Header (name + photo) -->
+      <app-profile-page-header
+        [name]="'Ime Prezime'"
+        [photoUrl]="'public/template-picture.png'"
+      ></app-profile-page-header>
+
+      <!-- Location and Bio -->
+      <div class="flex-1">
+        <div class="text-gray-600">Sarajevo 123</div>
+        <div class="mt-2 text-sm text-gray-700">
+          "Pedantna, pouzdana i brza – čišćenje mi nije posao, nego
+          zadovoljstvo. Imam više od 4 godine iskustva u održavanju stanova i
+          poslovnih prostora..."
+        </div>
+      </div>
+
+      <!-- Reserve Button -->
+      <button
+        class="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-6 py-2 rounded-full shadow"
+      >
+        Rezerviši
+      </button>
+    </div>
+    <div class="flex flex-col md:flex-row justify-between mt-6 gap-6">
+      <!-- Cleaning Zones -->
+      <div>
+        <div class="font-semibold">Cleaning Zones</div>
+        <ul class="list-disc ml-5 text-sm text-gray-700">
+          <li>Novo Sarajevo</li>
+          <li>Centar</li>
+          <li>Stari Grad</li>
+        </ul>
+      </div>
+
+      <!-- Price per hour -->
+      <div>
+        <div class="font-semibold">Price per hour</div>
+        <div class="flex items-center gap-2 text-yellow-500 font-bold text-lg">
+          <span>15 BAM</span>
+        </div>
+        <div class="text-xs text-gray-500">minimum: 2h</div>
+      </div>
+
+      <!-- Rating -->
+      <div>
+        <div class="font-semibold">Rating</div>
+        <div class="flex items-center gap-2">
+          <span class="text-yellow-400">★</span>
+          <span>4.3/5.0</span>
+          <a href="#" class="text-xs text-blue-500 underline">(20 reviews)</a>
+        </div>
+        <div class="text-xs text-gray-500">outstanding</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service Overview -->
+  <div class="max-w-5xl mx-auto mt-8">
+    <div class="bg-white rounded-2xl shadow-md p-6">
+      <div class="font-semibold text-lg mb-4">Service Overview</div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Service Card Example -->
+        <div class="flex flex-col items-start">
+          <div class="text-3xl text-blue-600 mb-2">🏠</div>
+          <div class="font-semibold">Deep House Cleaning</div>
+          <div class="text-xs text-gray-600 mt-1">
+            Temeljito čišćenje svih površina: Uključuje brisanje i dezinfekciju
+            svih površina, uključujući podove, zidove, prozore, i druge vidljive
+            površine...
+          </div>
+        </div>
+
+        <!-- Repeat for other services, changing icon/title/text as needed -->
+        <div class="flex flex-col items-start">
+          <div class="text-3xl text-blue-600 mb-2">🧹</div>
+          <div class="font-semibold">Floor Cleaning</div>
+          <div class="text-xs text-gray-600 mt-1">
+            Temeljito čišćenje svih površina: Uključuje brisanje i dezinfekciju
+            svih površina, uključujući podove, zidove, prozore, i druge vidljive
+            površine...
+          </div>
+        </div>
+        <div class="flex flex-col items-start">
+          <div class="text-3xl text-blue-600 mb-2">🏢</div>
+          <div class="font-semibold">Office Cleaning</div>
+          <div class="text-xs text-gray-600 mt-1">
+            Temeljito čišćenje svih površina: Uključuje brisanje i dezinfekciju
+            svih površina, uključujući podove, zidove, prozore, i druge vidljive
+            površine...
+          </div>
+        </div>
+        <div class="flex flex-col items-start">
+          <div class="text-3xl text-blue-600 mb-2">🪟</div>
+          <div class="font-semibold">Window Cleaning</div>
+          <div class="text-xs text-gray-600 mt-1">
+            Temeljito čišćenje svih površina: Uključuje brisanje i dezinfekciju
+            svih površina, uključujući podove, zidove, prozore, i druge vidljive
+            površine...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
