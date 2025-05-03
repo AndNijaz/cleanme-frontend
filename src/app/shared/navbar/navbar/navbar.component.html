@@ -2,12 +2,25 @@
 <div class="max-w-7xl flex justify-between items-center py-4 mx-auto px-12">
   <div class="text-2xl font-bold text-yellow-400">CleanMe</div>
 
-  <div class="flex items-center gap-4">
+  <!-- Default Navbar -->
+  <div *ngIf="variant === 'default'" class="flex items-center gap-4">
     <a href="#home" class="text-gray-700 font-medium">Home</a>
     <a routerLink="/register">
-      <app-button type="button" class="from-yellow-400 to-yellow-400 text-black">
+      <app-button
+        type="button"
+        class="from-yellow-400 to-yellow-400 text-black"
+      >
         Start Now
       </app-button>
     </a>
+  </div>
+
+  <!-- Dashboard Navbar -->
+  <div *ngIf="variant === 'dashboard'" class="flex items-center gap-4">
+    <span class="text-gray-700 font-medium">Notification</span>
+    <app-button type="button" class="from-yellow-300 to-yellow-300 text-black">
+      Dashboardd
+    </app-button>
+    <div class="h-10 w-10 bg-gray-200 rounded-full"></div>
   </div>
 </div>

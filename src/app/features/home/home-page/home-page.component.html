@@ -1,25 +1,41 @@
-<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded-md" role="alert">
+<div
+  class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded-md"
+  role="alert"
+>
   <p class="font-bold">Disclaimer</p>
-  <p>This navigation is temporary for viewing the work of Nijaza and Nikola and will be deleted later</p>
+  <p>
+    This navigation is temporary for viewing the work of Nijaza and Nikola and
+    will be deleted later
+  </p>
 </div>
-
 
 <nav class="bg-gray-100 p-4 shadow-md rounded-md mb-4">
   <div class="flex items-center justify-between">
     <div class="flex space-x-6">
       <a routerLink="/" class="text-blue-600 hover:underline">Home (Nijaz)</a>
-      <a routerLink="/register" class="text-blue-600 hover:underline">Register (Nijaz)</a>
-      <a routerLink="/register-post" class="text-blue-600 hover:underline">Register Post (Nijaz)</a>
-      <a routerLink="/cleaner-post" class="text-blue-600 hover:underline">Cleaner Post (Nijaz)</a>
-      <a routerLink="/login" class="text-blue-600 hover:underline">Login (Alen)</a>
-      <a routerLink="/cleaner/1" class="text-blue-600 hover:underline">Cleaner Reservation One (Nikola)</a>
-      <a routerLink="/cleaner/1/reserve" class="text-blue-600 hover:underline">Cleaner Reservation Two (Nikola)</a>
+      <a routerLink="/register" class="text-blue-600 hover:underline"
+        >Register (Nijaz)</a
+      >
+      <a routerLink="/register-post" class="text-blue-600 hover:underline"
+        >Register Post (Nijaz)</a
+      >
+      <a routerLink="/cleaner-post" class="text-blue-600 hover:underline"
+        >Cleaner Post (Nijaz)</a
+      >
+      <a routerLink="/login" class="text-blue-600 hover:underline"
+        >Login (Alen)</a
+      >
+      <a routerLink="/cleaner/1" class="text-blue-600 hover:underline"
+        >Cleaner Reservation One (Nikola)</a
+      >
+      <a routerLink="/cleaner/1/reserve" class="text-blue-600 hover:underline"
+        >Cleaner Reservation Two (Nikola)</a
+      >
     </div>
   </div>
 </nav>
 
-
-<app-navbar />
+<app-navbar [variant]="'default'" />
 <app-hero-section />
 <app-call-to-action />
 <app-footer />
