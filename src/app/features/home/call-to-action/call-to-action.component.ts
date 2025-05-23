@@ -7,5 +7,6 @@ import { RouterModule } from '@angular/router';
   selector: 'app-call-to-action',
   imports: [ContainerComponent, ButtonComponent, RouterModule],
   templateUrl: './call-to-action.component.html',
+  standalone: true
 })
 export class CallToActionComponent {}

@@ -11,6 +11,7 @@ import { DateSelectorComponent } from './shared/components/date-selector/date-se
 import { TimeSelectorComponent } from './shared/components/time-selector/time-selector.component';
 import { CleanerPageComponent } from './features/cleaner/cleaner-page/cleaner-page.component';
 import { ServiceReservationPageComponent } from './features/cleaner/service-reservation-page/service-reservation-page.component';
+import {TermsAndConditionsComponent} from './features/terms-and-conditions/terms-and-conditions.component';
 
 export const routes: Routes = [
   {
@@ -25,6 +26,7 @@ export const routes: Routes = [
       { path: 'register', component: RegisterComponent },
       { path: 'register-post', component: UserInfoComponent },
       { path: 'cleaner-post', component: CleanerInfoComponent },
+      { path: 'terms', component: TermsAndConditionsComponent },
     ],
   },
   {
@@ -86,10 +88,6 @@ export const routes: Routes = [
   },
   {
     path: 'rate/:reservationId',
-    component: HomePageComponent,
-  },
-  {
-    path: 'terms',
     component: HomePageComponent,
   },
   { path: '**', redirectTo: '' },
