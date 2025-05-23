@@ -13,6 +13,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 
 import { ToggleButtonComponent } from '../../../shared/components/toggle-button/toggle-button.component';
 import { Router } from '@angular/router';
+import {AuthService, RegisterRequest} from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -29,8 +30,9 @@ export class RegisterComponent {
   constructor(
     private httpClient: HttpClient,
     private destroyRef: DestroyRef,
-    private router: Router
-  ) {}
+    private router: Router,
+    private authService: AuthService,
+) {}
 
   @ViewChildren(InputComponent) inputs!: QueryList<InputComponent>;
   @ViewChild('registerForm') registerForm!: NgForm;
@@ -54,6 +56,7 @@ export class RegisterComponent {
 
   onSubmit() {
     this.submitted = true;
+
     if (this.registerForm) {
       this.registerForm.control.markAllAsTouched();
       this.registerForm.control.markAsDirty();
@@ -89,20 +92,33 @@ export class RegisterComponent {
       return;
     }
 
-    console.log('Name:', this.formName);
-    console.log('Surname:', this.formSurname);
-    console.log('Email:', this.formEmail);
-    console.log('Password:', this.formPassword);
-    console.log('Confirm Password:', this.formConfirmPassword);
+    const registerData: RegisterRequest = {
+      firstName: this.formName.trim(),
+      lastName: this.formSurname.trim(),
+      email: this.formEmail.trim(),
+      password: this.formPassword,
+      userType: this.selectedProfileType === 'user' ? 'CLIENT' : 'CLEANER',
+    };
 
-    console.log('User Type:', this.selectedProfileType);
+    console.log(registerData);
 
-    if (this.selectedProfileType === 'user') {
-      this.router.navigate(['/register-post']);
-    } else if (this.selectedProfileType === 'cleaner') {
-      this.router.navigate(['/cleaner-post']);
-    }
+    this.authService.register(registerData).subscribe({
+      next: (res) => {
+        this.authService.saveAuthData(res);
+        console.log(res);
+
+        if (res.userType === 'CLIENT') {
+          this.router.navigate(['/register-post']);
+        } else {
+          this.router.navigate(['/cleaner-post']);
+        }
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.message || 'Registration failed.';
+      },
+    });
   }
+
 
   setSelectedProfileType(event: number) {
     if (event === 0) this.selectedProfileType = 'user';
