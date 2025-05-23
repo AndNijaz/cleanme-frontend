@@ -39,7 +39,6 @@ export class UserInfoComponent {
     console.log(this.formSurname);
     console.log(this.formPhoneNumber);
     console.log(this.formAddress);
-    console.log(this.acceptPolicy);
 
     this.router.navigate(['/dashboard/user']);
   }

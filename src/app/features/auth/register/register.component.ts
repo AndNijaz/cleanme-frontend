@@ -40,6 +40,8 @@ export class RegisterComponent {
   formName: string = '';
   formSurname: string = '';
   formEmail: string = '';
+  formAddress: string = '';
+  formPhoneNumber: string = '';
   formPassword: string = '';
   formConfirmPassword: string = '';
 
@@ -70,6 +72,8 @@ export class RegisterComponent {
       !this.formName.trim() ||
       !this.formSurname.trim() ||
       !this.formEmail.trim() ||
+      !this.formAddress.trim() ||
+      !this.formPhoneNumber.trim() ||
       !this.formPassword.trim() ||
       !this.formConfirmPassword.trim()
     ) {
@@ -96,6 +100,8 @@ export class RegisterComponent {
       firstName: this.formName.trim(),
       lastName: this.formSurname.trim(),
       email: this.formEmail.trim(),
+      address: this.formAddress.trim(),
+      phoneNumber: this.formPhoneNumber.trim(),
       password: this.formPassword,
       userType: this.selectedProfileType === 'user' ? 'CLIENT' : 'CLEANER',
     };
@@ -108,7 +114,7 @@ export class RegisterComponent {
         console.log(res);
 
         if (res.userType === 'CLIENT') {
-          this.router.navigate(['/register-post']);
+          this.router.navigate(['/dashboard/user']);
         } else {
           this.router.navigate(['/cleaner-post']);
         }
