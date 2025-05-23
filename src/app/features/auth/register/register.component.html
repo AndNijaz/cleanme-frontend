@@ -4,14 +4,19 @@
       <app-toggle-button [options]="['User', 'Cleaner']" (toggleUserType)="setSelectedProfileType($event)" />
     </div>
 
-    <div class="flex flex-col items-center gap-2">
-      <input type="file" id="fileInput" class="hidden" (change)="onFileSelected($event)" />
-      <label for="fileInput"
-             class="cursor-pointer bg-deepblue-200 text-gray-600 w-24 h-24 rounded-full flex items-center justify-center">
-        Add Photo
-      </label>
-      <img *ngIf="selectedImageUrl" [src]="selectedImageUrl" class="w-16 h-16 rounded-full object-cover" alt="Preview" />
-    </div>
+
+<!--    NASTIMAJ DA NE GURA SVE VAN OKVIRA POROZRA, msm da je overflow neki hidden ili nesto - logika je ok-->
+
+<!--    <div class="flex flex-col items-center gap-2">-->
+<!--      <input type="file" id="fileInput" class="hidden" (change)="onFileSelected($event)" />-->
+<!--      <label for="fileInput"-->
+<!--             class="cursor-pointer bg-deepblue-200 text-gray-600 w-24 h-24 rounded-full flex items-center justify-center">-->
+<!--        Add Photo-->
+<!--      </label>-->
+<!--      <img *ngIf="selectedImageUrl" [src]="selectedImageUrl" class="w-16 h-16 rounded-full object-cover" alt="Preview" />-->
+<!--    </div>-->
+
+
 
 
     <div class="flex gap-8 max-md:gap-2">
