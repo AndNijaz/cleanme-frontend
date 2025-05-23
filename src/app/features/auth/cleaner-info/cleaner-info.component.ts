@@ -10,6 +10,7 @@ import { ServiceDescriptionCardComponent } from './service-description-card/serv
 import { AvailabilityComponent } from './availability/availability.component';
 import { Router } from '@angular/router';
 import { LineErrorComponent } from './line-error/line-error.component';
+import {AuthService} from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-cleaner-info',
@@ -29,7 +30,7 @@ import { LineErrorComponent } from './line-error/line-error.component';
   templateUrl: './cleaner-info.component.html',
 })
 export class CleanerInfoComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   @ViewChild('availabilityComp') availabilityComp!: AvailabilityComponent;
 
@@ -37,9 +38,6 @@ export class CleanerInfoComponent {
 
   activeStep: number = 1;
 
-  formPhone: string = '';
-  formAddress: string = '';
-  acceptPolicy: boolean = false;
   hourlyRate: number = 0;
   distance: number = 0;
 
@@ -127,26 +125,21 @@ export class CleanerInfoComponent {
       this.availabilityData = this.availabilityComp.getFormattedAvailability();
     }
 
-    // Create final submission data object
-    const submissionData = {
-      services: this.selectedServices,
-      descriptions: this.descriptions,
-      contactInfo: {
-        phone: this.formPhone,
-        address: this.formAddress,
-      },
-      billing: {
-        hourlyRate: this.formCurrency,
-        maxDistance: this.formDistance,
-      },
+    const cleanerId = this.authService.getAuthData().userId;
+
+    const request = {
+      cleanerId: cleanerId!,
+      servicesOffered: this.selectedServices.join(', '),
+      hourlyRate: +this.formCurrency,
       availability: this.availabilityData,
-      acceptedPolicy: this.acceptPolicy,
+      bio: this.descriptions.map((d) => `${d.title}: ${d.description}`),
     };
 
-    console.log('Form submitted with the following data:', submissionData);
+    this.authService.setupCleaner(request).subscribe({
+      next: () => this.router.navigate(['/dashboard/cleaner']),
+      error: (err) => console.error('Cleaner setup failed:', err),
+    });
 
-    // Navigate to dashboard
-    this.router.navigate(['/dashboard/cleaner']);
   }
 
   validateStep(step: number): boolean {
@@ -190,16 +183,6 @@ export class CleanerInfoComponent {
         break;
       case 4:
         this.step4Error = '';
-        if (!this.formPhone.trim() || !this.formAddress.trim()) {
-          this.step4Error = 'Phone and Address are required.';
-          valid = false;
-        }
-        if (!this.acceptPolicy) {
-          this.step4Error +=
-            (this.step4Error ? ' ' : '') +
-            'You must accept the Privacy Policy.';
-          valid = false;
-        }
         if (+this.formCurrency <= 0) {
           this.step4Error +=
             (this.step4Error ? ' ' : '') + 'Please enter a valid hourly rate.';

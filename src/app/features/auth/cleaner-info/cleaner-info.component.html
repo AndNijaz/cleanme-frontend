@@ -119,25 +119,10 @@
         <p-step-panel [value]="4">
           <ng-template #content let-activateCallback="activateCallback">
             <p class="block text-gray-500 text-sm mb-8">
-              *Provide your contact details, pricing per hour, and how far from your location you are willing to work
+              *Provide pricing per hour and how far from your location you are willing to work
               (in kilometers).
             </p>
             <div class="px-8">
-              <app-input placeholder="Phone Number" name="phone-number" [required]="true" [(ngModel)]="formPhone"
-                class="mb-4" />
-              <app-input placeholder="Address" name="address" [required]="true" [(ngModel)]="formAddress"
-                class="mb-4" />
-              <div class="flex items-center gap-2 text-sm mb-4">
-                <input type="checkbox" id="acceptPolicy" name="acceptPolicy" [(ngModel)]="acceptPolicy" required
-                  class="w-4 h-4 accent-deepblue-300" />
-                <label for="acceptPolicy" class="flex items-center">
-                  Accept
-                  <a href="/privacy-policy" class="text-deepblue-300 underline ml-1" target="_blank">
-                    Privacy Policy.
-                  </a>
-                </label>
-              </div>
-
               <div class="flex gap-8 max-sm:flex-col">
                 <div class="flex items-center gap-4">
                   <p>
@@ -145,6 +130,7 @@
                   </p>
                   <app-input placeholder="BAM" name="currency" [required]="true" [(ngModel)]="formCurrency"
                     class="w-24" />
+                  <label class="-ml-2">BAM</label>
                 </div>
                 <div class="flex items-center gap-4">
                   <p>
@@ -152,6 +138,7 @@
                   </p>
                   <app-input placeholder="km" name="distance" [required]="true" [(ngModel)]="formDistance"
                     class="w-24" />
+                  <label class="-ml-2">km</label>
                 </div>
               </div>
             </div>

@@ -40,6 +40,8 @@ export class RegisterComponent {
   formName: string = '';
   formSurname: string = '';
   formEmail: string = '';
+  formAddress: string = '';
+  formPhoneNumber: string = '';
   formPassword: string = '';
   formConfirmPassword: string = '';
 
@@ -49,6 +51,8 @@ export class RegisterComponent {
   showPassword: boolean = false;
 
   submitted = false;
+
+  selectedImageUrl: string | null = null;
 
   toggleShowPassword() {
     this.showPassword = !this.showPassword;
@@ -70,6 +74,8 @@ export class RegisterComponent {
       !this.formName.trim() ||
       !this.formSurname.trim() ||
       !this.formEmail.trim() ||
+      !this.formAddress.trim() ||
+      !this.formPhoneNumber.trim() ||
       !this.formPassword.trim() ||
       !this.formConfirmPassword.trim()
     ) {
@@ -96,6 +102,8 @@ export class RegisterComponent {
       firstName: this.formName.trim(),
       lastName: this.formSurname.trim(),
       email: this.formEmail.trim(),
+      address: this.formAddress.trim(),
+      phoneNumber: this.formPhoneNumber.trim(),
       password: this.formPassword,
       userType: this.selectedProfileType === 'user' ? 'CLIENT' : 'CLEANER',
     };
@@ -108,7 +116,7 @@ export class RegisterComponent {
         console.log(res);
 
         if (res.userType === 'CLIENT') {
-          this.router.navigate(['/register-post']);
+          this.router.navigate(['/dashboard/user']);
         } else {
           this.router.navigate(['/cleaner-post']);
         }
@@ -117,6 +125,11 @@ export class RegisterComponent {
         this.errorMessage = err.error?.message || 'Registration failed.';
       },
     });
+
+    // NOTE: selectedImageUrl trenutno se koristi samo za prikaz preview slike.
+    // Kada se bude spajalo sa backendom, potrebno je:
+    // 1. uploadati na storage (Heroku??) i čuvati URL u bazi.
+
   }
 
 
@@ -128,5 +141,17 @@ export class RegisterComponent {
   private isValidEmail(email: string): boolean {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.selectedImageUrl = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 }

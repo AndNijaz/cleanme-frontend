@@ -11,6 +11,8 @@ export interface RegisterRequest {
   email: string;
   password: string;
   userType: UserType;
+  address: string;
+  phoneNumber: string;
 }
 
 export interface LoginRequest {
@@ -24,14 +26,16 @@ export interface AuthResponse {
   firstName: string;
   lastName: string;
   userType: UserType;
+  address: string;
+  phoneNumber: string;
 }
 
 export interface CleanerSetupRequest {
   cleanerId: string;
   servicesOffered: string;
   hourlyRate: number;
-  availability: string;
-  bio: string;
+  availability: { [day: string]: { from: string; to: string } }[];
+  bio: string[];
 }
 
 @Injectable({ providedIn: 'root' })

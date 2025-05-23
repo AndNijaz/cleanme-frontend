@@ -23,8 +23,8 @@ export class AvailabilityComponent {
       name: 'Monday',
       shortName: 'mon',
       selected: true,
-      from: new Date(),
-      to: new Date(),
+      from: new Date(new Date().setHours(9, 0, 0, 0)),
+      to: new Date(new Date().setHours(17, 0, 0, 0)),
     },
     {
       name: 'Tuesday',
@@ -47,15 +47,23 @@ export class AvailabilityComponent {
       from: null,
       to: null,
     },
-    { name: 'Friday', shortName: 'fri', selected: true, from: null, to: null },
+    { name: 'Friday',
+      shortName: 'fri',
+      selected: false,
+      from: null,
+      to: null },
     {
       name: 'Saturday',
       shortName: 'sat',
-      selected: true,
+      selected: false,
       from: null,
       to: null,
     },
-    { name: 'Sunday', shortName: 'sun', selected: true, from: null, to: null },
+    { name: 'Sunday',
+      shortName: 'sun',
+      selected: false,
+      from: null,
+      to: null },
   ];
 
   @Output() availabilityChange = new EventEmitter<any[]>();

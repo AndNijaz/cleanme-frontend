@@ -20,7 +20,6 @@ export class UserInfoComponent {
   formSurname: string = '';
   formPhoneNumber: string = '';
   formAddress: string = '';
-  acceptPolicy: boolean = false;
 
   onSubmit() {
     if (this.registerForm) {
@@ -39,7 +38,6 @@ export class UserInfoComponent {
     console.log(this.formSurname);
     console.log(this.formPhoneNumber);
     console.log(this.formAddress);
-    console.log(this.acceptPolicy);
 
     this.router.navigate(['/dashboard/user']);
   }
