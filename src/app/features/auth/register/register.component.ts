@@ -100,10 +100,12 @@ export class RegisterComponent {
       userType: this.selectedProfileType === 'user' ? 'CLIENT' : 'CLEANER',
     };
 
+    console.log(registerData);
 
     this.authService.register(registerData).subscribe({
       next: (res) => {
         this.authService.saveAuthData(res);
+        console.log(res);
 
         if (res.userType === 'CLIENT') {
           this.router.navigate(['/register-post']);

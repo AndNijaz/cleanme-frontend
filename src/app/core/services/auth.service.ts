@@ -36,7 +36,8 @@ export interface CleanerSetupRequest {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly BASE_URL = '/auth';
+  private readonly BASE_URL = 'http://localhost:8080/auth';
+
 
   constructor(private http: HttpClient, private router: Router) {}
 
