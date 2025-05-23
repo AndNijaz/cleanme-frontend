@@ -52,6 +52,8 @@ export class RegisterComponent {
 
   submitted = false;
 
+  selectedImageUrl: string | null = null;
+
   toggleShowPassword() {
     this.showPassword = !this.showPassword;
   }
@@ -123,6 +125,11 @@ export class RegisterComponent {
         this.errorMessage = err.error?.message || 'Registration failed.';
       },
     });
+
+    // NOTE: selectedImageUrl trenutno se koristi samo za prikaz preview slike.
+    // Kada se bude spajalo sa backendom, potrebno je:
+    // 1. uploadati na storage (Heroku??) i čuvati URL u bazi.
+
   }
 
 
@@ -134,5 +141,17 @@ export class RegisterComponent {
   private isValidEmail(email: string): boolean {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.selectedImageUrl = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 }

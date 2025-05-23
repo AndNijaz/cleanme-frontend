@@ -20,7 +20,6 @@ export class UserInfoComponent {
   formSurname: string = '';
   formPhoneNumber: string = '';
   formAddress: string = '';
-  acceptPolicy: boolean = false;
 
   onSubmit() {
     if (this.registerForm) {
