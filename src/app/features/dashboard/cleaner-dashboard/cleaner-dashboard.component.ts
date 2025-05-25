@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
   selector: 'app-cleaner-dashboard',
   imports: [],
   templateUrl: './cleaner-dashboard.component.html',
-  styleUrl: './cleaner-dashboard.component.css'
+  standalone: true
 })
 export class CleanerDashboardComponent {
 

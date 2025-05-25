@@ -32,6 +32,7 @@ export class InputComponent implements ControlValueAccessor {
   @Input() placeholder?: string;
   @Input() class?: string;
   @Input() required: boolean = false;
+  @Input() type: string = 'text';
 
   @Input() ngModel?: string;
   @Output() ngModelChange = new EventEmitter<string>();
@@ -39,11 +40,8 @@ export class InputComponent implements ControlValueAccessor {
   touched = false;
 
   get getClass() {
-    return `border-2 ${
-      this.showError ? 'border-red-500' : 'border-blue-400'
-    } rounded-lg p-2 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300 w-full flex-1 ${
-      this.class
-    }`;
+    return `border-2 ${this.showError ? 'border-red-500' : 'border-blue-400'}
+    rounded-lg p-2 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300 w-full flex-1 ${this.class}`;
   }
 
   get showError() {
@@ -77,5 +75,10 @@ export class InputComponent implements ControlValueAccessor {
   onBlur(event: any) {
     this.touched = true;
     this.onTouched();
+  }
+
+  markAsTouched() {
+    this.touched = true;
+    this.onTouched(); // Notify Angular
   }
 }

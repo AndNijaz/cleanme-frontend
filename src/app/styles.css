@@ -8,10 +8,19 @@ body {
 } */
 
 @import "tailwindcss";
+@plugin "tailwindcss-primeui";
 
 @theme {
+  --color-deepblue-600: #08408a;
   --color-deepblue-500: #083f87;
   --color-deepblue-400: #0d65d9;
   --color-deepblue-300: #3d84e1;
+  --color-deepblue-200: #0e6ff0;
   --color-blacknavy: #020f21;
+}
+
+@layer components {
+  .p-step:has(~ .p-step-active) .p-stepper-separator {
+    background-color: var(--color-deepblue-500) !important;
+  }
 }

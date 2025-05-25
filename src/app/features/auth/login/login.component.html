@@ -1,1 +1,41 @@
-<p>login works!</p>
+<form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="h-full flex justify-center items-center w-full">
+  <div class="w-1/2 mx-auto flex flex-col gap-8 max-xl:w-3/5 max-lg:w-4/5 max-md:w-full">
+
+    <app-input
+      placeholder="Email"
+      name="formEmail"
+      [required]="true"
+      [(ngModel)]="formEmail"
+    />
+
+    <div class="relative">
+      <app-input
+        placeholder="Password"
+        name="formPassword"
+        [required]="true"
+        [(ngModel)]="formPassword"
+        [type]="showPassword ? 'text' : 'password'"
+      />
+
+      <!-- Dugme za show/hide password -->
+      <button
+        type="button"
+        (click)="toggleShowPassword()"
+        class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm"
+      >
+        {{ showPassword ? 'Hide' : 'Show' }}
+      </button>
+    </div>
+
+    <p class="text-red-500 text-center mt-1 mb-4 max-md:mb-2">
+      {{ errorMessage }}
+    </p>
+
+    <div class="w-full text-center">
+      <app-button type="submit">
+        Login
+      </app-button>
+    </div>
+
+  </div>
+</form>

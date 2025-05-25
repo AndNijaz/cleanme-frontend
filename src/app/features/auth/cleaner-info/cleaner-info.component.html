@@ -1,0 +1,163 @@
+<form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="h-full flex justify-center w-full overflow-scroll">
+  <div class="w-full mx-auto flex flex-col gap-8 max-xl:w-full max-lg:w-full max-md:w-full mt-8">
+    <h2 class="text-3xl font-semibold text-center">Cleaner Info</h2>
+
+    <div class="w-full absolute top-0 left-0 h-[25%] z-50"></div>
+
+    <p-stepper [(value)]="activeStep" class="w-full">
+      <p-step-list>
+        <p-step [value]="1" class="flex flex-row flex-auto gap-2">
+          <ng-template #content let-activateCallback="activateCallback" let-value="value">
+            <button class="bg-transparent border-0 inline-flex flex-col gap-2" (click)="activateCallback()">
+              <span class="rounded-full w-8 h-8 inline-flex items-center justify-center" [ngClass]="{
+                              'bg-gradient-to-b from-[#0E6FF0] to-deepblue-500 text-white': value <= activeStep,
+                              'border-surface border-gray-200 border-2 text-gray-600': value > activeStep
+                          }">
+                {{value}}
+              </span>
+            </button>
+          </ng-template>
+        </p-step>
+
+        <p-step [value]="2" class="flex flex-row flex-auto gap-2">
+          <ng-template #content let-activateCallback="activateCallback" let-value="value">
+            <button class="bg-transparent border-0 inline-flex flex-col gap-2" (click)="activateCallback()">
+              <span class="rounded-full w-8 h-8 inline-flex items-center justify-center" [ngClass]="{
+                              'bg-gradient-to-b from-[#0E6FF0] to-[#08408A] text-white': value <= activeStep,
+                              'border-surface border-gray-200 border-2 text-gray-600': value > activeStep
+                          }">
+                {{value}}
+              </span>
+            </button>
+          </ng-template>
+        </p-step>
+
+        <p-step [value]="3" class="flex flex-row flex-auto gap-2">
+          <ng-template #content let-activateCallback="activateCallback" let-value="value">
+            <button class="bg-transparent border-0 inline-flex flex-col gap-2" (click)="activateCallback()">
+              <span class="rounded-full w-8 h-8 inline-flex items-center justify-center" [ngClass]="{
+                              'bg-gradient-to-b from-[#0E6FF0] to-deepblue-500 text-white': value <= activeStep,
+                              'border-surface border-gray-200 border-2 text-gray-600': value > activeStep
+                          }">
+                {{value}}
+              </span>
+            </button>
+          </ng-template>
+        </p-step>
+
+        <p-step [value]="4" class="flex flex-row flex-auto gap-2">
+          <ng-template #content let-activateCallback="activateCallback" let-value="value">
+            <button class="bg-transparent border-0 inline-flex flex-col gap-2" (click)="activateCallback()">
+              <span class="rounded-full w-8 h-8 inline-flex items-center justify-center" [ngClass]="{
+                              'bg-gradient-to-b from-[#0E6FF0] to-deepblue-500 text-white': value <= activeStep,
+                              'border-surface border-gray-200 border-2 text-gray-600': value > activeStep
+                          }">
+                {{value}}
+              </span>
+            </button>
+          </ng-template>
+        </p-step>
+      </p-step-list>
+
+      <p-step-panels>
+        <p-step-panel [value]="1">
+          <ng-template #content let-activateCallback="activateCallback">
+            <p class="block text-gray-500 text-sm mb-8">
+              *Choose up to 4 cleaning services you offer. <span class="text-deepblue-300 font-medium">Select all that
+                apply.</span>
+            </p>
+            <div class="p-4 flex justify-center">
+              <div class="">
+                <div class="grid grid-cols-2 gap-4 justify-items-center">
+                  @for (servicee of services; track $index) {
+                  <app-service-card [src]="servicee.src" [text]="servicee.text"
+                    [selected]="selectedServices.includes(servicee.text)" class="!w-full"
+                    (cardClicked)="handleServiceClicked($event)" [error]="step1Error ? true : false" />
+                  }
+                </div>
+              </div>
+            </div>
+
+            <app-line-error [error]="step1Error" />
+          </ng-template>
+        </p-step-panel>
+
+        <p-step-panel [value]="2">
+          <ng-template #content let-activateCallback="activateCallback">
+            <p class="block text-gray-500 text-sm mb-8">
+              *Describe what each selected service includes. For example, if you offer deep cleaning, mention whether it
+              covers kitchens, bathrooms, or appliances <span class="text-deepblue-300 font-medium">Be specific about
+                what clients can expect.</span>
+            </p>
+
+            <div class="grid grid-cols-2 gap-4">
+              @for(service of descriptions; track $index){
+              <app-service-description-card [(description)]="service.description" [title]="service.title"
+                [src]="getIcon(service.title)" [error]="step2Error ? true : false">
+              </app-service-description-card>
+              }
+            </div>
+
+            <app-line-error [error]="step2Error" />
+          </ng-template>
+        </p-step-panel>
+
+        <p-step-panel [value]="3">
+          <ng-template #content let-activateCallback="activateCallback">
+            <p class="block text-gray-500 text-sm mb-8">
+              *Set your available working hours.<span class="text-deepblue-300 font-medium"> Specify the days and time
+              </span>slots when you are open for bookings.
+            </p>
+            <div>
+              <app-availability #availabilityComp (availabilityChange)="availabilityData = $event" />
+            </div>
+
+            <app-line-error [error]="step3Error" />
+          </ng-template>
+        </p-step-panel>
+
+        <p-step-panel [value]="4">
+          <ng-template #content let-activateCallback="activateCallback">
+            <p class="block text-gray-500 text-sm mb-8">
+              *Provide pricing per hour and how far from your location you are willing to work
+              (in kilometers).
+            </p>
+            <div class="px-8">
+              <div class="flex gap-8 max-sm:flex-col">
+                <div class="flex items-center gap-4">
+                  <p>
+                    Hourly Rate
+                  </p>
+                  <app-input placeholder="BAM" name="currency" [required]="true" [(ngModel)]="formCurrency"
+                    class="w-24" />
+                  <label class="-ml-2">BAM</label>
+                </div>
+                <div class="flex items-center gap-4">
+                  <p>
+                    Distance
+                  </p>
+                  <app-input placeholder="km" name="distance" [required]="true" [(ngModel)]="formDistance"
+                    class="w-24" />
+                  <label class="-ml-2">km</label>
+                </div>
+              </div>
+            </div>
+
+            <app-line-error [error]="step4Error" />
+          </ng-template>
+        </p-step-panel>
+      </p-step-panels>
+    </p-stepper>
+
+    <div class="text-center">
+      @if(activeStep > 1){
+      <app-button type="button" (clicked)="onPreviousStep()">Previous Step</app-button>
+      }
+      @if(activeStep < 4){ <app-button type="button" (clicked)="onNextStep()">Next Step</app-button>
+        }
+        @if(activeStep >= 4){
+        <app-button type="submit">Finish</app-button>
+        }
+    </div>
+  </div>
+</form>

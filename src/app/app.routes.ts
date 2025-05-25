@@ -6,11 +6,18 @@ import { UserDashboardComponent } from './features/dashboard/user-dashboard/user
 import { CleanerDashboardComponent } from './features/dashboard/cleaner-dashboard/cleaner-dashboard.component';
 import { AuthLayoutComponent } from './features/auth/auth-layout/auth-layout.component';
 import { UserInfoComponent } from './features/auth/user-info/user-info.component';
+
+import { CleanerInfoComponent } from './features/auth/cleaner-info/cleaner-info.component';
+
 import { DateSelectorComponent } from './shared/components/date-selector/date-selector.component';
 import { TimeSelectorComponent } from './shared/components/time-selector/time-selector.component';
 import { CleanerPageComponent } from './features/cleaner/cleaner-page/cleaner-page.component';
 import { ServiceReservationPageComponent } from './features/cleaner/service-reservation-page/service-reservation-page.component';
+
 import { NotificationsComponent } from './features/notifications/notifications.component';
+
+import {TermsAndConditionsComponent} from './features/terms-and-conditions/terms-and-conditions.component';
+
 
 export const routes: Routes = [
   {
@@ -24,6 +31,8 @@ export const routes: Routes = [
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
       { path: 'register-post', component: UserInfoComponent },
+      { path: 'cleaner-post', component: CleanerInfoComponent },
+      { path: 'terms', component: TermsAndConditionsComponent },
     ],
   },
   {
@@ -55,8 +64,17 @@ export const routes: Routes = [
     component: HomePageComponent,
   },
   {
+
     path: 'notifications',
     component: NotificationsComponent,
+
+    path: 'cleaner/:id',
+    component: CleanerPageComponent,
+  },
+  {
+    path: 'cleaner/:id/reserve',
+    component: ServiceReservationPageComponent,
+
   },
   {
     path: 'cleaner/:id',
@@ -85,10 +103,6 @@ export const routes: Routes = [
   },
   {
     path: 'rate/:reservationId',
-    component: HomePageComponent,
-  },
-  {
-    path: 'terms',
     component: HomePageComponent,
   },
   { path: '**', redirectTo: '' },

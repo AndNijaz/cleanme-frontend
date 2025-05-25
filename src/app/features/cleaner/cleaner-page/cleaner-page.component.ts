@@ -11,15 +11,14 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-cleaner-page',
   templateUrl: './cleaner-page.component.html',
-  standalone: true,  // If you're using standalone components
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-
-     DateSelectorComponent,
+    DateSelectorComponent,
     TimeSelectorComponent
   ]
 })

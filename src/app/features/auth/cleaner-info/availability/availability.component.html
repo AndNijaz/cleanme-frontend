@@ -1,0 +1,19 @@
+<div class="flex flex-col gap-3 w-full max-w-lg mx-auto p-4 bg-white rounded-lg justify-between">
+  @for(day of days; track $index){
+  <div class="flex items-center border-2 rounded-lg p-3" [class.border-blue-500]="day.selected"
+    [class.border-gray-300]="!day.selected">
+
+    <p-checkbox [(ngModel)]="day.selected" binary="true" inputId="{{day.name}}"
+      (ngModelChange)="onTimeChange()"></p-checkbox>
+    <label [for]="day.name" class="ml-3 w-24 font-semibold">{{ day.name }}</label>
+
+    <p-datepicker [(ngModel)]="day.from" [timeOnly]="true" [disabled]="!day.selected" placeholder="from"
+      class="w-28 ml-2" (ngModelChange)="onTimeChange()"></p-datepicker>
+
+    <span class="mx-2 font-bold text-lg">:</span>
+
+    <p-datepicker [(ngModel)]="day.to" [timeOnly]="true" [disabled]="!day.selected" placeholder="to" class="w-28"
+      (ngModelChange)="onTimeChange()"></p-datepicker>
+  </div>
+  }
+</div>

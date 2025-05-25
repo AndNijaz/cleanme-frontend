@@ -1,10 +1,19 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 
 import { ToggleButtonComponent } from '../../../shared/components/toggle-button/toggle-button.component';
+import { Router } from '@angular/router';
+import {AuthService, RegisterRequest} from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -18,26 +27,55 @@ import { ToggleButtonComponent } from '../../../shared/components/toggle-button/
   templateUrl: './register.component.html',
 })
 export class RegisterComponent {
+  constructor(
+    private httpClient: HttpClient,
+    private destroyRef: DestroyRef,
+    private router: Router,
+    private authService: AuthService,
+) {}
+
+  @ViewChildren(InputComponent) inputs!: QueryList<InputComponent>;
+  @ViewChild('registerForm') registerForm!: NgForm;
 
   formName: string = '';
   formSurname: string = '';
   formEmail: string = '';
+  formAddress: string = '';
+  formPhoneNumber: string = '';
   formPassword: string = '';
   formConfirmPassword: string = '';
 
   selectedProfileType: string = 'user';
 
   errorMessage: string = '';
+  showPassword: boolean = false;
 
-  constructor(private httpClient: HttpClient, private destroyRef: DestroyRef) {}
+  submitted = false;
+
+  selectedImageUrl: string | null = null;
+
+  toggleShowPassword() {
+    this.showPassword = !this.showPassword;
+  }
 
   onSubmit() {
+    this.submitted = true;
+
+    if (this.registerForm) {
+      this.registerForm.control.markAllAsTouched();
+      this.registerForm.control.markAsDirty();
+    }
+
+    this.inputs.forEach((input) => input.markAsTouched());
+
     this.errorMessage = '';
 
     if (
       !this.formName.trim() ||
       !this.formSurname.trim() ||
       !this.formEmail.trim() ||
+      !this.formAddress.trim() ||
+      !this.formPhoneNumber.trim() ||
       !this.formPassword.trim() ||
       !this.formConfirmPassword.trim()
     ) {
@@ -60,15 +98,40 @@ export class RegisterComponent {
       return;
     }
 
+    const registerData: RegisterRequest = {
+      firstName: this.formName.trim(),
+      lastName: this.formSurname.trim(),
+      email: this.formEmail.trim(),
+      address: this.formAddress.trim(),
+      phoneNumber: this.formPhoneNumber.trim(),
+      password: this.formPassword,
+      userType: this.selectedProfileType === 'user' ? 'CLIENT' : 'CLEANER',
+    };
 
-    console.log('Name:', this.formName);
-    console.log('Surname:', this.formSurname);
-    console.log('Email:', this.formEmail);
-    console.log('Password:', this.formPassword);
-    console.log('Confirm Password:', this.formConfirmPassword);
+    console.log(registerData);
 
-    console.log('User Type:', this.selectedProfileType);
+    this.authService.register(registerData).subscribe({
+      next: (res) => {
+        this.authService.saveAuthData(res);
+        console.log(res);
+
+        if (res.userType === 'CLIENT') {
+          this.router.navigate(['/dashboard/user']);
+        } else {
+          this.router.navigate(['/cleaner-post']);
+        }
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.message || 'Registration failed.';
+      },
+    });
+
+    // NOTE: selectedImageUrl trenutno se koristi samo za prikaz preview slike.
+    // Kada se bude spajalo sa backendom, potrebno je:
+    // 1. uploadati na storage (Heroku??) i čuvati URL u bazi.
+
   }
+
 
   setSelectedProfileType(event: number) {
     if (event === 0) this.selectedProfileType = 'user';
@@ -78,6 +141,17 @@ export class RegisterComponent {
   private isValidEmail(email: string): boolean {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
+  }
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.selectedImageUrl = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 }

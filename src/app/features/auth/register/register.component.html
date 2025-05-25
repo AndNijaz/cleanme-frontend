@@ -5,6 +5,20 @@
     </div>
 
 
+<!--    NASTIMAJ DA NE GURA SVE VAN OKVIRA POROZRA, msm da je overflow neki hidden ili nesto - logika je ok-->
+
+<!--    <div class="flex flex-col items-center gap-2">-->
+<!--      <input type="file" id="fileInput" class="hidden" (change)="onFileSelected($event)" />-->
+<!--      <label for="fileInput"-->
+<!--             class="cursor-pointer bg-deepblue-200 text-gray-600 w-24 h-24 rounded-full flex items-center justify-center">-->
+<!--        Add Photo-->
+<!--      </label>-->
+<!--      <img *ngIf="selectedImageUrl" [src]="selectedImageUrl" class="w-16 h-16 rounded-full object-cover" alt="Preview" />-->
+<!--    </div>-->
+
+
+
+
     <div class="flex gap-8 max-md:gap-2">
       <app-input placeholder="Name" name="formName" [required]="true" [(ngModel)]="formName" />
 
@@ -13,10 +27,32 @@
 
     <app-input placeholder="Email" name="formEmail" [required]="true" [(ngModel)]="formEmail" />
 
-    <app-input placeholder="Password" name="formPassword" [required]="true" [(ngModel)]="formPassword" />
+    <app-input placeholder="Address" name="formAddress" [required]="true" [(ngModel)]="formAddress" />
 
-    <app-input placeholder="Confirm Password" name="formConfirmPassword" [required]="true"
-      [(ngModel)]="formConfirmPassword" class="mb-0.5" />
+    <app-input placeholder="Phone number" name="formPhoneNumber" [required]="true" [(ngModel)]="formPhoneNumber" />
+
+    <div class="relative">
+      <app-input placeholder="Password" name="formPassword" [required]="true" [(ngModel)]="formPassword"
+        [type]="showPassword ? 'text' : 'password'" />
+      <button type="button" (click)="toggleShowPassword()"
+        class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm">
+        {{ showPassword ? 'Hide' : 'Show' }}
+      </button>
+    </div>
+
+    <div class="relative">
+      <app-input placeholder="Confirm Password" name="formConfirmPassword" [required]="true"
+        [(ngModel)]="formConfirmPassword" class="mb-0.5" [type]="showPassword ? 'text' : 'password'" />
+      <button type="button" (click)="toggleShowPassword()"
+        class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm">
+        {{ showPassword ? 'Hide' : 'Show' }}
+      </button>
+    </div>
+
+    <p class="text-sm text-center text-gray-600">
+      By signing up, you agree to our
+      <a href="/terms" class="text-blue-500 hover:underline">Terms and Conditions</a>.
+    </p>
 
     <p class="text-red-500 text-center mt-1 mb-4 max-md:mb-2">
       {{ errorMessage }}
