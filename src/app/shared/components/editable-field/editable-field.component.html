@@ -1,0 +1,12 @@
+<!-- app-editable-field.component.html -->
+<div class="space-y-1 w-full">
+  <label class="text-sm text-gray-500">{{ label }}</label>
+
+  <ng-container *ngIf="editMode; else viewMode">
+    <input [(ngModel)]="model" class="border px-2 py-1 rounded w-full" [placeholder]="label" />
+  </ng-container>
+
+  <ng-template #viewMode>
+    <p class="text-gray-800">{{ model }}</p>
+  </ng-template>
+</div>

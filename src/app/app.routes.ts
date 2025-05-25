@@ -18,6 +18,8 @@ import { NotificationsComponent } from './features/notifications/notifications.c
 
 import { TermsAndConditionsComponent } from './features/terms-and-conditions/terms-and-conditions.component';
 import { PlatformLayoutComponent } from './shared/components/platform-layout/platform-layout.component';
+import { SharedProfileComponent } from './features/shared-profile/shared-profile.component';
+import { CleanerProfilePublicComponent } from './features/cleaner-profile-public/cleaner-profile-public.component';
 
 export const routes: Routes = [
   {
@@ -36,6 +38,10 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'yuki',
+    component: CleanerProfilePublicComponent,
+  },
+  {
     path: '',
     component: PlatformLayoutComponent,
     children: [
@@ -43,7 +49,11 @@ export const routes: Routes = [
         path: 'user',
         children: [
           { path: 'dashboard', component: UserDashboardComponent },
-          { path: 'profile', component: HomePageComponent },
+          {
+            path: 'profile',
+            component: SharedProfileComponent,
+            data: { userType: 'CLIENT' },
+          },
           { path: 'reservations', component: HomePageComponent },
           { path: 'favorites', component: HomePageComponent },
           { path: 'payments', component: HomePageComponent },
@@ -55,7 +65,12 @@ export const routes: Routes = [
         path: 'cleaner',
         children: [
           { path: 'dashboard', component: CleanerDashboardComponent },
-          { path: 'profile', component: HomePageComponent },
+          {
+            path: 'profile',
+            component: SharedProfileComponent,
+            data: { userType: 'CLIENT' },
+          },
+
           { path: 'jobs', component: HomePageComponent },
           { path: 'services', component: HomePageComponent },
           { path: 'availability', component: HomePageComponent },

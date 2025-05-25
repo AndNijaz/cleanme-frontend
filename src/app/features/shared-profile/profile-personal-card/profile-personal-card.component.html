@@ -1,0 +1,27 @@
+<div class="flex justify-between items-center">
+  <h3 class="font-semibold text-gray-800">Personal Information</h3>
+  <div class="space-x-2">
+    <button *ngIf="!isEditing" (click)="onToggleEdit.emit()"
+      class="text-sm text-gray-600 border px-3 py-1 rounded-lg hover:bg-gray-100">
+      Edit ✎
+    </button>
+    <button *ngIf="isEditing" (click)="onSave.emit()"
+      class="text-sm text-white bg-blue-600 px-3 py-1 rounded-lg hover:bg-blue-700">
+      Save
+    </button>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <ng-container *ngFor="let field of personalFields">
+    <div>
+      <p class="text-sm text-gray-500">{{ field.label }}</p>
+      <ng-container *ngIf="isEditing; else view">
+        <input [(ngModel)]="profile[field.key]" class="border px-2 py-1 rounded w-full" />
+      </ng-container>
+      <ng-template #view>
+        <p>{{ profile[field.key] }}</p>
+      </ng-template>
+    </div>
+  </ng-container>
+</div>

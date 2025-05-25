@@ -1,0 +1,27 @@
+<div class="flex flex-col gap-4">
+
+
+
+  <!-- Personal Info -->
+  <!-- <div class="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+    <app-profile-personal-card [profile]="profile" [isEditing]="isEditingPersonal"
+      (onToggleEdit)="toggleEdit('personal')" (onSave)="saveProfile('personal')" />
+  </div> -->
+  <app-gray-card>
+    <app-profile-overview-card [profile]="profile" [isEditing]="isEditingOverview"
+      (onToggleEdit)="toggleEdit('overview')" (onSave)="saveProfile('overview')" />
+  </app-gray-card>
+
+  <app-gray-card>
+
+    <app-profile-personal-card [profile]="profile" [isEditing]="isEditingPersonal"
+      (onToggleEdit)="toggleEdit('personal')" (onSave)="saveProfile('personal')" />
+  </app-gray-card>
+
+  <app-gray-card>
+    <app-profile-address-card [profile]="profile" [isEditing]="isEditingAddress" (onToggleEdit)="toggleEdit('address')"
+      (onSave)="saveProfile('address')" />
+  </app-gray-card>
+
+
+</div>
