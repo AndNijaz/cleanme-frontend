@@ -10,7 +10,7 @@ import { ServiceDescriptionCardComponent } from './service-description-card/serv
 import { AvailabilityComponent } from './availability/availability.component';
 import { Router } from '@angular/router';
 import { LineErrorComponent } from './line-error/line-error.component';
-import {AuthService} from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-cleaner-info',
@@ -125,7 +125,13 @@ export class CleanerInfoComponent {
       this.availabilityData = this.availabilityComp.getFormattedAvailability();
     }
 
-    const cleanerId = this.authService.getAuthData().userId;
+    const authData = this.authService.getAuthData();
+    if (!authData || !authData.userId) {
+      console.error('No authenticated user found');
+      return;
+    }
+
+    const cleanerId = authData.userId;
 
     const request = {
       cleanerId: cleanerId!,
@@ -139,7 +145,6 @@ export class CleanerInfoComponent {
       next: () => this.router.navigate(['/dashboard/cleaner']),
       error: (err) => console.error('Cleaner setup failed:', err),
     });
-
   }
 
   validateStep(step: number): boolean {

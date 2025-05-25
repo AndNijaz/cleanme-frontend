@@ -17,6 +17,7 @@ import { ServiceReservationPageComponent } from './features/cleaner/service-rese
 import { NotificationsComponent } from './features/notifications/notifications.component';
 
 import { TermsAndConditionsComponent } from './features/terms-and-conditions/terms-and-conditions.component';
+import { PlatformLayoutComponent } from './shared/components/platform-layout/platform-layout.component';
 
 export const routes: Routes = [
   {
@@ -35,73 +36,55 @@ export const routes: Routes = [
     ],
   },
   {
-    path: 'dashboard/user',
-    component: UserDashboardComponent,
+    path: '',
+    component: PlatformLayoutComponent,
+    children: [
+      {
+        path: 'user',
+        children: [
+          { path: 'dashboard', component: UserDashboardComponent },
+          { path: 'profile', component: HomePageComponent },
+          { path: 'reservations', component: HomePageComponent },
+          { path: 'favorites', component: HomePageComponent },
+          { path: 'payments', component: HomePageComponent },
+          { path: 'settings', component: HomePageComponent },
+        ],
+      },
+
+      {
+        path: 'cleaner',
+        children: [
+          { path: 'dashboard', component: CleanerDashboardComponent },
+          { path: 'profile', component: HomePageComponent },
+          { path: 'jobs', component: HomePageComponent },
+          { path: 'services', component: HomePageComponent },
+          { path: 'availability', component: HomePageComponent },
+          { path: 'reviews', component: HomePageComponent },
+          { path: 'earnings', component: HomePageComponent },
+          { path: 'settings', component: HomePageComponent },
+        ],
+      },
+
+      // 🧾 SHARED ROUTES
+      {
+        path: 'cleaners',
+        component: HomePageComponent,
+      },
+      {
+        path: 'cleaner/:id',
+        component: CleanerPageComponent,
+      },
+      {
+        path: 'cleaner/:id/reserve',
+        component: ServiceReservationPageComponent,
+      },
+    ],
   },
-  {
-    path: 'dashboard/cleaner',
-    component: CleanerDashboardComponent,
-  },
-  {
-    path: 'profile/user',
-    component: HomePageComponent,
-  },
-  {
-    path: 'profile/cleaner',
-    component: HomePageComponent,
-  },
-  {
-    path: 'date', //delete later
-    component: DateSelectorComponent,
-  },
-  {
-    path: 'time', //delete later
-    component: TimeSelectorComponent,
-  },
-  {
-    path: 'cleaners',
-    component: HomePageComponent,
-  },
+
   {
     path: 'notifications',
     component: NotificationsComponent,
   },
-  {
-    path: 'cleaner/:id',
-    component: CleanerPageComponent,
-  },
-  {
-    path: 'cleaner/:id/reserve',
-    component: ServiceReservationPageComponent,
-  },
-  {
-    path: 'cleaner/:id',
-    component: CleanerPageComponent,
-  },
-  {
-    path: 'cleaner/:id/reserve',
-    component: ServiceReservationPageComponent,
-  },
 
-  {
-    path: 'book',
-    component: HomePageComponent,
-  },
-  {
-    path: 'my-reservations',
-    component: HomePageComponent,
-  },
-  {
-    path: 'notifications',
-    component: HomePageComponent,
-  },
-  {
-    path: 'chat/:reservationId',
-    component: HomePageComponent,
-  },
-  {
-    path: 'rate/:reservationId',
-    component: HomePageComponent,
-  },
   { path: '**', redirectTo: '' },
 ];

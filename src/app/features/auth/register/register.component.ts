@@ -11,9 +11,12 @@ import { InputComponent } from '../../../shared/components/input/input.component
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { FormsModule, NgForm } from '@angular/forms';
 
-import { ToggleButtonComponent } from '../../../shared/components/toggle-button/toggle-button.component';
+import { ToggleButtonComponent } from '../../../shared/components/time-selector/toggle-button/toggle-button.component';
 import { Router } from '@angular/router';
-import {AuthService, RegisterRequest} from '../../../core/services/auth.service';
+import {
+  AuthService,
+  RegisterRequest,
+} from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -31,8 +34,8 @@ export class RegisterComponent {
     private httpClient: HttpClient,
     private destroyRef: DestroyRef,
     private router: Router,
-    private authService: AuthService,
-) {}
+    private authService: AuthService
+  ) {}
 
   @ViewChildren(InputComponent) inputs!: QueryList<InputComponent>;
   @ViewChild('registerForm') registerForm!: NgForm;
@@ -129,9 +132,7 @@ export class RegisterComponent {
     // NOTE: selectedImageUrl trenutno se koristi samo za prikaz preview slike.
     // Kada se bude spajalo sa backendom, potrebno je:
     // 1. uploadati na storage (Heroku??) i čuvati URL u bazi.
-
   }
-
 
   setSelectedProfileType(event: number) {
     if (event === 0) this.selectedProfileType = 'user';
