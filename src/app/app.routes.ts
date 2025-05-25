@@ -16,8 +16,7 @@ import { ServiceReservationPageComponent } from './features/cleaner/service-rese
 
 import { NotificationsComponent } from './features/notifications/notifications.component';
 
-import {TermsAndConditionsComponent} from './features/terms-and-conditions/terms-and-conditions.component';
-
+import { TermsAndConditionsComponent } from './features/terms-and-conditions/terms-and-conditions.component';
 
 export const routes: Routes = [
   {
@@ -64,17 +63,16 @@ export const routes: Routes = [
     component: HomePageComponent,
   },
   {
-
     path: 'notifications',
     component: NotificationsComponent,
-
+  },
+  {
     path: 'cleaner/:id',
     component: CleanerPageComponent,
   },
   {
     path: 'cleaner/:id/reserve',
     component: ServiceReservationPageComponent,
-
   },
   {
     path: 'cleaner/:id',
