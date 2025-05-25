@@ -3,7 +3,7 @@ import { ContainerComponent } from '../../components/container/container.compone
 
 @Component({
   selector: 'app-footer',
-  imports: [ContainerComponent],
+  imports: [],
   templateUrl: './footer.component.html',
   standalone: true,
 })

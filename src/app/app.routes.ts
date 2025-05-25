@@ -21,6 +21,8 @@ import { PlatformLayoutComponent } from './shared/components/platform-layout/pla
 import { SharedProfileComponent } from './features/shared-profile/shared-profile.component';
 import { CleanerProfilePublicComponent } from './features/cleaner-profile-public/cleaner-profile-public.component';
 import { CleanerPublicProfileComponent } from './features/cleaner/cleaner-public-profile/cleaner-public-profile';
+import { UserBookingsComponent } from './features/user/user-bookings/user-bookings.component';
+import { ReservationComponent } from './features/user/reservation/reservation.component';
 
 export const routes: Routes = [
   {
@@ -55,7 +57,7 @@ export const routes: Routes = [
             component: SharedProfileComponent,
             data: { userType: 'CLIENT' },
           },
-          { path: 'reservations', component: HomePageComponent },
+          { path: 'reservations', component: ReservationComponent },
           { path: 'favorites', component: HomePageComponent },
           { path: 'payments', component: HomePageComponent },
           { path: 'settings', component: HomePageComponent },
