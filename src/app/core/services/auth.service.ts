@@ -105,7 +105,7 @@ export class AuthService {
 
     // Mock fallback for development
     if (!role) {
-      return 'CLEANER'; // or 'CLEANER' if you're working on that flow
+      return 'CLIENT'; // or 'CLEANER' if you're working on that flow
     }
 
     return role;
