@@ -1,0 +1,11 @@
+<!-- Header -->
+<header class="bg-white/90 backdrop-blur-sm border-b border-black/10 p-4 sticky top-0 z-50">
+  <div class="flex justify-between items-center mx-auto px-8">
+    <h1 class="text-2xl font-bold text-yellow-500 drop-shadow-sm">CleanMe</h1>
+    <button *ngIf="showBrowseCleaners"
+      class="bg-white/20 border border-black/10 rounded-full px-4 py-2 text-sm text-gray-700 hover:bg-white/30 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 backdrop-blur-sm"
+      (click)="onBrowseCleaners()">
+      Browse Cleaners
+    </button>
+  </div>
+</header>

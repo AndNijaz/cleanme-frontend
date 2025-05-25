@@ -14,6 +14,7 @@ body {
   --color-deepblue-300: #0d65d9;
   --color-deepblue-200: #e4f0ff;
   --color-blacknavy: #020f21;
+  --font-display: "Poppins", sans-serif;
 }
 
 html,
@@ -22,5 +23,5 @@ body {
 }
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
 }

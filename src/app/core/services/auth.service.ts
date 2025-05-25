@@ -42,7 +42,6 @@ export interface CleanerSetupRequest {
 export class AuthService {
   private readonly BASE_URL = 'http://localhost:8080/auth';
 
-
   constructor(private http: HttpClient, private router: Router) {}
 
   // === REGISTER ===
@@ -67,15 +66,27 @@ export class AuthService {
     localStorage.setItem('userType', res.userType);
   }
 
-  getAuthData(): {
-    token: string | null;
-    userId: string | null;
-    userType: UserType | null;
-  } {
+  getAuthData(): AuthResponse | null {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    const userType = localStorage.getItem('userType') as UserType | null;
+    const firstName = localStorage.getItem('firstName') ?? '';
+    const lastName = localStorage.getItem('lastName') ?? '';
+    // const email = localStorage.getItem('email') ?? '';
+    const phoneNumber = localStorage.getItem('phoneNumber') ?? '';
+    const address = localStorage.getItem('address') ?? '';
+
+    if (!token || !userId || !userType) return null;
+
+    // return { token, userId, userType, firstName, lastName, email, address, phoneNumber };
     return {
-      token: localStorage.getItem('token'),
-      userId: localStorage.getItem('userId'),
-      userType: localStorage.getItem('userType') as UserType | null,
+      token,
+      userId,
+      userType,
+      firstName,
+      lastName,
+      address,
+      phoneNumber,
     };
   }
 
@@ -87,5 +98,16 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
+  }
+
+  getUserRole(): 'CLEANER' | 'CLIENT' {
+    const role = (localStorage.getItem('userType') as UserType | null) ?? null;
+
+    // Mock fallback for development
+    if (!role) {
+      return 'CLEANER'; // or 'CLEANER' if you're working on that flow
+    }
+
+    return role;
   }
 }

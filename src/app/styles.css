@@ -17,6 +17,7 @@ body {
   --color-deepblue-300: #3d84e1;
   --color-deepblue-200: #0e6ff0;
   --color-blacknavy: #020f21;
+  --font-display: "Poppins", sans-serif;
 }
 
 @layer components {
