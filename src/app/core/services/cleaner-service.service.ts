@@ -19,6 +19,20 @@ export interface PublicCleanerProfile {
   }[];
 }
 
+// This is your card model
+export interface CleanerCardModel {
+  id: string;
+  fullName: string;
+  rating: number;
+  reviewCount: number;
+  location: string;
+  shortBio: string;
+  services: string[];
+  price: number;
+  currency: string;
+  isFavorite?: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CleanerService {
   private readonly BASE_URL = 'http://localhost:8080/cleaner';
@@ -67,5 +81,47 @@ export class CleanerService {
         },
       ],
     });
+  }
+
+  getCleaners(): Observable<CleanerCardModel[]> {
+    // TODO: Replace with real API call
+    // return this.http.get<CleanerCardModel[]>('http://localhost:8080/api/cleaners');
+
+    // MOCK data (temporary)
+    return of([
+      {
+        id: '1',
+        fullName: 'Bahra Zedic',
+        rating: 4.8,
+        reviewCount: 128,
+        location: 'Bojnik, Otes, Bjelave, Dobrinja',
+        shortBio: 'Lorem Ipsum Dolor Sit Amet Latinski jezik Jak Bas',
+        services: ['Deep Cleaning', 'Window Washing'],
+        price: 100,
+        currency: '$',
+      },
+      {
+        id: '2',
+        fullName: 'Azra Mustafić',
+        rating: 4.6,
+        reviewCount: 95,
+        location: 'Ilidža, Grbavica',
+        shortBio: 'Pouzdana i tačna. Čistim stanove i poslovne prostore.',
+        services: ['Floor Cleaning', 'Deep Cleaning'],
+        price: 85,
+        currency: '$',
+      },
+      {
+        id: '3',
+        fullName: 'Emira Hodžić',
+        rating: 4.9,
+        reviewCount: 140,
+        location: 'Stup, Hrasno, Grbavica',
+        shortBio: 'Iskustvo od 5 godina. Koristim ekološka sredstva.',
+        services: ['Office Cleaning', 'Window Washing'],
+        price: 95,
+        currency: '$',
+      },
+    ]);
   }
 }

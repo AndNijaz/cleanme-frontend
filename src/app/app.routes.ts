@@ -20,7 +20,7 @@ import { TermsAndConditionsComponent } from './features/terms-and-conditions/ter
 import { PlatformLayoutComponent } from './shared/components/platform-layout/platform-layout.component';
 import { SharedProfileComponent } from './features/shared-profile/shared-profile.component';
 import { CleanerProfilePublicComponent } from './features/cleaner-profile-public/cleaner-profile-public.component';
-import {CleanerPublicProfileComponent} from './features/cleaner/cleaner-public-profile/cleaner-public-profile';
+import { CleanerPublicProfileComponent } from './features/cleaner/cleaner-public-profile/cleaner-public-profile';
 
 export const routes: Routes = [
   {
