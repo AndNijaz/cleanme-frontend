@@ -23,6 +23,7 @@ import { CleanerProfilePublicComponent } from './features/cleaner-profile-public
 import { CleanerPublicProfileComponent } from './features/cleaner/cleaner-public-profile/cleaner-public-profile';
 import { UserBookingsComponent } from './features/user/user-bookings/user-bookings.component';
 import { ReservationComponent } from './features/user/reservation/reservation.component';
+import { FavoritesComponent } from './features/user/favorites/favorites.component';
 
 export const routes: Routes = [
   {
@@ -58,7 +59,7 @@ export const routes: Routes = [
             data: { userType: 'CLIENT' },
           },
           { path: 'reservations', component: ReservationComponent },
-          { path: 'favorites', component: HomePageComponent },
+          { path: 'favorites', component: FavoritesComponent },
           { path: 'payments', component: HomePageComponent },
           { path: 'settings', component: HomePageComponent },
         ],

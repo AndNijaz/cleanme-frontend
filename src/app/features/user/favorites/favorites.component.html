@@ -1,0 +1,12 @@
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <h2 class="text-3xl tracking-wider font-semibold text-[#083F87] mb-6">My Favorite Cleaners</h2>
+
+  <div *ngIf="favorites.length === 0" class="text-center text-gray-500 py-10">
+    You don't have any favorite cleaners yet.
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <app-cleaner-card *ngFor="let cleaner of favorites" [cleaner]="cleaner"
+      (detailsClicked)="navigateToDetails(cleaner.id)" (toggleFavorite)="toggleFavorite($event)" />
+  </div>
+</div>
