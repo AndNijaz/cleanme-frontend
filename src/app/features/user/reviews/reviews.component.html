@@ -1,0 +1,15 @@
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <h2 class="text-3xl font-semibold text-[#083F87] mb-6 tracking-wide">My Reviews</h2>
+
+  <div *ngIf="isLoading" class="text-center text-gray-500 py-10">
+    Loading your reviews...
+  </div>
+
+  <div *ngIf="!isLoading && reviews.length === 0" class="text-center text-gray-500 py-10">
+    You haven’t written any reviews yet.
+  </div>
+
+  <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3" *ngIf="reviews.length > 0">
+    <app-reviews-card *ngFor="let review of reviews" [review]="review" />
+  </div>
+</div>

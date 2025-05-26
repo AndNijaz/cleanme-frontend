@@ -24,6 +24,7 @@ import { CleanerPublicProfileComponent } from './features/cleaner/cleaner-public
 import { UserBookingsComponent } from './features/user/user-bookings/user-bookings.component';
 import { ReservationComponent } from './features/user/reservation/reservation.component';
 import { FavoritesComponent } from './features/user/favorites/favorites.component';
+import { ReviewsComponent } from './features/user/reviews/reviews.component';
 
 export const routes: Routes = [
   {
@@ -60,6 +61,7 @@ export const routes: Routes = [
           },
           { path: 'reservations', component: ReservationComponent },
           { path: 'favorites', component: FavoritesComponent },
+          { path: 'reviews', component: ReviewsComponent },
           { path: 'payments', component: HomePageComponent },
           { path: 'settings', component: HomePageComponent },
         ],
