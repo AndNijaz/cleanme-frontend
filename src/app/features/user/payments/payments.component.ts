@@ -3,7 +3,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import {
   Payment,
   PaymentService,
-} from '../../../core/service/payments.service';
+} from '../../../core/services/payments.service';
 import { GrayCardComponent } from '../../../shared/components/gray-card/gray-card.component';
 import { CommonModule } from '@angular/common';
 
