@@ -25,6 +25,7 @@ import { UserBookingsComponent } from './features/user/user-bookings/user-bookin
 import { ReservationComponent } from './features/user/reservation/reservation.component';
 import { FavoritesComponent } from './features/user/favorites/favorites.component';
 import { ReviewsComponent } from './features/user/reviews/reviews.component';
+import { PaymentsComponent } from './features/user/payments/payments.component';
 
 export const routes: Routes = [
   {
@@ -62,7 +63,7 @@ export const routes: Routes = [
           { path: 'reservations', component: ReservationComponent },
           { path: 'favorites', component: FavoritesComponent },
           { path: 'reviews', component: ReviewsComponent },
-          { path: 'payments', component: HomePageComponent },
+          { path: 'payments', component: PaymentsComponent },
           { path: 'settings', component: HomePageComponent },
         ],
       },
