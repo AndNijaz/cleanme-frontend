@@ -23,4 +23,9 @@ export class UserBookingsComponent {
     message:
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris lacus neque, mattis ut dictum ut.',
   };
+
+  onLeaveReview() {
+    console.log('🔍 Leave a Review clicked for:', this.booking.cleanerName);
+    // TODO: route to /user/reviews or open modal
+  }
 }
