@@ -6,6 +6,7 @@ import {
 } from '../../../core/services/bookings.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { ReservationService } from '../../../core/services/reservation.service';
 
 @Component({
   selector: 'app-reservation',
@@ -19,12 +20,12 @@ export class ReservationComponent implements OnInit {
 
   constructor(
     private bookingService: BookingService,
-    private authService: AuthService
+    private authService: AuthService,
+    private reservationService: ReservationService
   ) {}
 
   ngOnInit(): void {
-    const userId = this.authService.getAuthData()?.userId ?? ''; // empty string for mock
-    this.bookingService.getUserBookings(userId).subscribe({
+    this.reservationService.getUserBookings().subscribe({
       next: (data) => {
         this.bookings = data;
         this.isLoading = false;

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -19,7 +19,8 @@ export class CleanerPublicProfileComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private cleanerService: CleanerService
+    private cleanerService: CleanerService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -33,6 +34,12 @@ export class CleanerPublicProfileComponent implements OnInit {
           console.error('Failed to load cleaner profile:', err);
         },
       });
+    }
+  }
+  goToReservation() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.router.navigate(['/cleaner', id, 'reserve']);
     }
   }
 }

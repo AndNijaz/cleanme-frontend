@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   ReservationRequest,
   ReservationService,
@@ -31,17 +31,20 @@ export class ServiceReservationOneComponentComponent {
   formError: string = '';
   successMessage: string = '';
 
+  cleanerId: string = '';
+
   constructor(
     private router: Router,
-    private reservationService: ReservationService
+    private reservationService: ReservationService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
-    this.generateDates(365); // generate 1 year ahead
+    this.cleanerId =
+      this.route.snapshot.paramMap.get('id') || 'mock-cleaner-id'; // fallback
+    this.generateDates(365);
     this.generateTimeSlots();
-
     this.selectedDate = this.dates[0].date;
-    // this.selectedTime = this.timeSlots[0];
   }
 
   isTimeSelected(time: string): boolean {
@@ -153,7 +156,7 @@ export class ServiceReservationOneComponentComponent {
     }
 
     const reservationPayload: ReservationRequest = {
-      cleanerId: 'mock-cleaner-id', // ✅ Replace with real ID if available via route or context
+      cleanerId: this.cleanerId,
       date: this.selectedDate,
       times: this.selectedTimes,
       location: this.location,
