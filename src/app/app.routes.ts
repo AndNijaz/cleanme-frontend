@@ -19,13 +19,13 @@ import { NotificationsComponent } from './features/notifications/notifications.c
 import { TermsAndConditionsComponent } from './features/terms-and-conditions/terms-and-conditions.component';
 import { PlatformLayoutComponent } from './shared/components/platform-layout/platform-layout.component';
 import { SharedProfileComponent } from './features/shared-profile/shared-profile.component';
-import { CleanerProfilePublicComponent } from './features/cleaner-profile-public/cleaner-profile-public.component';
 import { CleanerPublicProfileComponent } from './features/cleaner/cleaner-public-profile/cleaner-public-profile';
 import { UserBookingsComponent } from './features/user/user-bookings/user-bookings.component';
 import { ReservationComponent } from './features/user/reservation/reservation.component';
 import { FavoritesComponent } from './features/user/favorites/favorites.component';
 import { ReviewsComponent } from './features/user/reviews/reviews.component';
 import { PaymentsComponent } from './features/user/payments/payments.component';
+import { ServiceReservationOneComponentComponent } from './features/cleaner/service-reservation-one.component/service-reservation-one.component.component';
 
 export const routes: Routes = [
   {
@@ -42,10 +42,6 @@ export const routes: Routes = [
       { path: 'cleaner-post', component: CleanerInfoComponent },
       { path: 'terms', component: TermsAndConditionsComponent },
     ],
-  },
-  {
-    path: 'yuki',
-    component: CleanerProfilePublicComponent,
   },
   {
     path: '',
@@ -98,7 +94,7 @@ export const routes: Routes = [
       },
       {
         path: 'cleaner/:id/reserve',
-        component: ServiceReservationPageComponent,
+        component: ServiceReservationOneComponentComponent,
       },
     ],
   },
