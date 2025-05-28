@@ -7,15 +7,10 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [
-    InputComponent,
-    ButtonComponent,
-    FormsModule,
-  ],
+  imports: [InputComponent, ButtonComponent, FormsModule],
   templateUrl: './login.component.html',
 })
 export class LoginComponent {
-
   formEmail: string = '';
   formPassword: string = '';
 

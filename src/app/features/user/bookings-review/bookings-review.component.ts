@@ -66,9 +66,11 @@ export class BookingsReviewComponent {
     const userId = this.authService.getAuthData()?.userId || '';
 
     this.reservationService.getUserReservations().subscribe((reservations) => {
+      console.log(reservations);
       const bookingsWithReview = reservations.map((r) => ({
         ...r,
-        time: r.times.join(' to '), // <-- if needed
+        // time: r.times.join(' to '), // <-- if needed
+        time: Array.isArray(r.times) ? r.times.join(' to ') : [],
         message: r.comment,
       }));
 
@@ -85,7 +87,7 @@ export class BookingsReviewComponent {
           times: b.times,
           location: b.location,
           comment: b.comment,
-          time: b.times.join(' to '),
+          time: Array.isArray(b.times) ? b.times.join(' to ') : b.times || '',
           message: b.comment,
           review: reviews.find((r) => r.bookingId === b.id),
         }));
@@ -126,7 +128,10 @@ export class BookingsReviewComponent {
       const review = this.reviews.find((r) => r.bookingId === booking.id);
       const bookingWithReview = {
         ...booking,
-        time: booking.times.join(' to '),
+        // time: booking.times.join(' to '),
+        time: Array.isArray(booking.times)
+          ? booking.times.join(' to ')
+          : booking.times || '',
         message: booking.comment,
         review,
       };
