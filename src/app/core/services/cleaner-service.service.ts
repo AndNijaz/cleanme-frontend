@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { map } from 'rxjs/operators';
 export interface PublicCleanerProfile {
   fullName: string;
   address: string;
@@ -300,5 +299,12 @@ export class CleanerService {
       return cleaner.services.map((service: any) => service.name);
     }
     return ['Standard Cleaning']; // Default service
+  }
+
+  getCleanerCardById(id: string): Observable<CleanerCardModel | null> {
+    return this.getCleaners().pipe(
+      // map is from rxjs/operators
+      map((cleaners) => cleaners.find((c) => c.id === id) ?? null)
+    );
   }
 }

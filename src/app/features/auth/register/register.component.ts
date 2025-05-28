@@ -11,12 +11,12 @@ import { InputComponent } from '../../../shared/components/input/input.component
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { FormsModule, NgForm } from '@angular/forms';
 
-import { ToggleButtonComponent } from '../../../shared/components/time-selector/toggle-button/toggle-button.component';
 import { Router } from '@angular/router';
 import {
   AuthService,
   RegisterRequest,
 } from '../../../core/services/auth.service';
+import { ToggleButtonComponent } from '../../../shared/components/toggle-button/toggle-button.component';
 
 @Component({
   selector: 'app-register',

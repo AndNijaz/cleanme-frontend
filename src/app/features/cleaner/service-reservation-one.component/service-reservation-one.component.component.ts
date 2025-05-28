@@ -7,6 +7,7 @@ import {
   ReservationRequest,
   ReservationService,
 } from '../../../core/services/reservation.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-service-reservation-one.component',
@@ -36,12 +37,14 @@ export class ServiceReservationOneComponentComponent {
   constructor(
     private router: Router,
     private reservationService: ReservationService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
     this.cleanerId =
       this.route.snapshot.paramMap.get('id') || 'mock-cleaner-id'; // fallback
+    console.log('Cleaner ID:', this.cleanerId);
     this.generateDates(365);
     this.generateTimeSlots();
     this.selectedDate = this.dates[0].date;
@@ -155,12 +158,19 @@ export class ServiceReservationOneComponentComponent {
       return;
     }
 
+    const userId = this.authService.getAuthData()?.userId;
+    if (!userId) {
+      this.formError = 'You must be logged in to submit a reservation.';
+      return;
+    }
+
     const reservationPayload: ReservationRequest = {
+      userId,
       cleanerId: this.cleanerId,
       date: this.selectedDate,
       times: this.selectedTimes,
-      location: this.location,
-      comment: this.comment,
+      location: this.location.trim(),
+      comment: this.comment.trim(),
     };
 
     this.reservationService.submitReservation(reservationPayload).subscribe({

@@ -14,7 +14,6 @@ import { GrayCardComponent } from '../../shared/components/gray-card/gray-card.c
   imports: [
     CommonModule,
     FormsModule,
-    EditableFieldComponent,
     ProfileOverviewCardComponent,
     ProfilePersonalCardComponent,
     ProfileAddressCardComponent,
