@@ -10,7 +10,6 @@ import { UserInfoComponent } from './features/auth/user-info/user-info.component
 import { CleanerInfoComponent } from './features/auth/cleaner-info/cleaner-info.component';
 
 import { DateSelectorComponent } from './shared/components/date-selector/date-selector.component';
-import { TimeSelectorComponent } from './shared/components/time-selector/time-selector.component';
 import { CleanerPageComponent } from './features/cleaner/cleaner-page/cleaner-page.component';
 import { ServiceReservationPageComponent } from './features/cleaner/service-reservation-page/service-reservation-page.component';
 
@@ -21,11 +20,12 @@ import { PlatformLayoutComponent } from './shared/components/platform-layout/pla
 import { SharedProfileComponent } from './features/shared-profile/shared-profile.component';
 import { CleanerPublicProfileComponent } from './features/cleaner/cleaner-public-profile/cleaner-public-profile';
 import { UserBookingsComponent } from './features/user/user-bookings/user-bookings.component';
-import { ReservationComponent } from './features/user/reservation/reservation.component';
 import { FavoritesComponent } from './features/user/favorites/favorites.component';
 import { ReviewsComponent } from './features/user/reviews/reviews.component';
 import { PaymentsComponent } from './features/user/payments/payments.component';
 import { ServiceReservationOneComponentComponent } from './features/cleaner/service-reservation-one.component/service-reservation-one.component.component';
+import { LeaveReviewCardComponent } from './features/user/reviews/leave-review-card/leave-review-card.component';
+import { BookingsReviewComponent } from './features/user/bookings-review/bookings-review.component';
 
 export const routes: Routes = [
   {
@@ -56,7 +56,7 @@ export const routes: Routes = [
             component: SharedProfileComponent,
             data: { userType: 'CLIENT' },
           },
-          { path: 'reservations', component: ReservationComponent },
+          { path: 'reservations', component: BookingsReviewComponent },
           { path: 'favorites', component: FavoritesComponent },
           { path: 'reviews', component: ReviewsComponent },
           { path: 'payments', component: PaymentsComponent },
@@ -95,6 +95,10 @@ export const routes: Routes = [
       {
         path: 'cleaner/:id/reserve',
         component: ServiceReservationOneComponentComponent,
+      },
+      {
+        path: 'yuki',
+        component: BookingsReviewComponent,
       },
     ],
   },

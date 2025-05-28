@@ -1,0 +1,10 @@
+<div *ngIf="isOpen" #backdrop (click)="onBackdropClick($event, backdrop)"
+  class="fixed inset-0 z-50 flex items-center justify-center">
+  <!-- Blur + Gradient -->
+  <div class="absolute inset-0 bg-gradient-to-br from-[#E4F0FF] to-[#FFFFFF] opacity-90 backdrop-blur-[12px]"></div>
+
+  <!-- Modal Card -->
+  <div class="relative z-10 bg-white rounded-2xl p-6 max-w-md w-full shadow-xl" (click)="$event.stopPropagation()">
+    <ng-content></ng-content>
+  </div>
+</div>

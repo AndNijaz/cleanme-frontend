@@ -24,4 +24,11 @@ body {
   .p-step:has(~ .p-step-active) .p-stepper-separator {
     background-color: var(--color-deepblue-500) !important;
   }
+  .modal-backdrop {
+    @apply fixed inset-0  bg-opacity-60 backdrop-blur-md z-50 flex items-center justify-center;
+  }
+
+  .modal-content {
+    @apply rounded-2xl p-6 shadow-lg max-w-md w-full;
+  }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 
 export interface PublicCleanerProfile {
   fullName: string;
@@ -163,5 +163,12 @@ export class CleanerService {
         currency: '$',
       },
     ]);
+  }
+
+  getCleanerCardById(id: string): Observable<CleanerCardModel | null> {
+    return this.getCleaners().pipe(
+      // map is from rxjs/operators
+      map((cleaners) => cleaners.find((c) => c.id === id) ?? null)
+    );
   }
 }
