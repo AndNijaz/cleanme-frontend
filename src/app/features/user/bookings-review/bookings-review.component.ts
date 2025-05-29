@@ -29,7 +29,7 @@ import {
   templateUrl: './bookings-review.component.html',
 })
 export class BookingsReviewComponent {
-  bookings: (Reservation & { review?: Review })[] = [];
+  bookings: any[] = [];
 
   reviews: Review[] = [];
 
@@ -48,74 +48,33 @@ export class BookingsReviewComponent {
   initialRating = 0;
   initialMessage = '';
 
-  constructor(
-    private bookingService: BookingService,
-    private reviewService: ReviewService,
-    private reservationService: ReservationService, // Assuming this is the correct service for bookings
-    private authService: AuthService,
-    private router: Router
-  ) {
+  constructor(private reviewService: ReviewService, private router: Router) {
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe(() => {
-        this.loadBookingsAndReviews();
+        this.loadBookingsWithReviews();
       });
   }
 
-  loadBookingsAndReviews() {
-    const userId = this.authService.getAuthData()?.userId || '';
-
-    this.reservationService.getUserReservations().subscribe((reservations) => {
-      console.log(reservations);
-      const bookingsWithReview = reservations.map((r) => ({
-        ...r,
-        // time: r.times.join(' to '), // <-- if needed
-        time: Array.isArray(r.times) ? r.times.join(' to ') : [],
-        message: r.comment,
+  loadBookingsWithReviews() {
+    this.reviewService.getBookingsWithReviews().subscribe((bookings) => {
+      this.bookings = bookings.map((b) => ({
+        ...b,
+        time: b.time, // Already separate
+        message: b.comment, // Alias if needed
       }));
 
-      this.reviewService.getUserReviews(userId).subscribe((reviews) => {
-        this.reviews = reviews;
-
-        // Attach matching reviews
-        this.bookings = bookingsWithReview.map((b) => ({
-          id: b.id,
-          userId: b.userId,
-          cleanerId: b.cleanerId,
-          cleanerName: b.cleanerName,
-          date: b.date,
-          times: b.times,
-          location: b.location,
-          comment: b.comment,
-          time: Array.isArray(b.times) ? b.times.join(' to ') : b.times || '',
-          message: b.comment,
-          review: reviews.find((r) => r.bookingId === b.id),
-        }));
-
-        this.buildGroupedData();
-      });
+      this.buildGroupedData(); // This still works
     });
   }
 
   ngOnInit(): void {
-    // const userId = this.authService.getAuthData()?.userId || '';
-
-    // this.bookingService.getUserBookings(userId).subscribe((bookings) => {
-    //   this.bookings = bookings.map((booking) => ({
-    //     ...booking,
-    //     id: booking.id || crypto.randomUUID(),
-    //   }));
-    //   this.reviewService.getUserReviews(userId).subscribe((reviews) => {
-    //     this.reviews = reviews;
-    //     this.buildGroupedData();
-    //   });
-    // });
-    this.loadBookingsAndReviews();
+    this.loadBookingsWithReviews();
   }
 
   buildGroupedData() {
     const groupedMap = new Map<
-      string,
+      string, // cleanerName is the key now
       {
         cleanerId: string;
         cleanerName: string;
@@ -125,34 +84,32 @@ export class BookingsReviewComponent {
     >();
 
     for (const booking of this.bookings) {
-      const review = this.reviews.find((r) => r.bookingId === booking.id);
       const bookingWithReview = {
         ...booking,
-        // time: booking.times.join(' to '),
         time: Array.isArray(booking.times)
           ? booking.times.join(' to ')
           : booking.times || '',
         message: booking.comment,
-        review,
+        review: booking.review, // ✅ use the one already attached in loadBookingsAndReviews
       };
 
-      if (!groupedMap.has(booking.cleanerId)) {
-        groupedMap.set(booking.cleanerId, {
-          cleanerId: booking.cleanerId,
+      if (!groupedMap.has(booking.cleanerName)) {
+        groupedMap.set(booking.cleanerName, {
+          cleanerId: 'unknown', // or leave out if unused
           cleanerName: booking.cleanerName,
           bookings: [bookingWithReview],
         });
       } else {
-        groupedMap.get(booking.cleanerId)!.bookings.push(bookingWithReview);
+        groupedMap.get(booking.cleanerName)!.bookings.push(bookingWithReview);
       }
     }
 
     this.groupedByCleaner = Array.from(groupedMap.values());
   }
 
-  toggleCleaner(cleanerId: string) {
+  toggleCleaner(cleanerName: string) {
     this.expandedCleanerId =
-      this.expandedCleanerId === cleanerId ? null : cleanerId;
+      this.expandedCleanerId === cleanerName ? null : cleanerName;
   }
 
   leaveReview(group: any, booking: Booking) {

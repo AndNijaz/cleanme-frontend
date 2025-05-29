@@ -21,7 +21,7 @@ import { SharedProfileComponent } from './features/shared-profile/shared-profile
 import { CleanerPublicProfileComponent } from './features/cleaner/cleaner-public-profile/cleaner-public-profile';
 import { UserBookingsComponent } from './features/user/user-bookings/user-bookings.component';
 import { FavoritesComponent } from './features/user/favorites/favorites.component';
-import { ReviewsComponent } from './features/user/reviews/reviews.component';
+// import { ReviewsComponent } from './features/user/reviews/reviews.component';
 import { PaymentsComponent } from './features/user/payments/payments.component';
 import { ServiceReservationOneComponentComponent } from './features/cleaner/service-reservation-one.component/service-reservation-one.component.component';
 import { LeaveReviewCardComponent } from './features/user/reviews/leave-review-card/leave-review-card.component';
@@ -58,7 +58,7 @@ export const routes: Routes = [
           },
           { path: 'reservations', component: BookingsReviewComponent },
           { path: 'favorites', component: FavoritesComponent },
-          { path: 'reviews', component: ReviewsComponent },
+          // { path: 'reviews', component: ReviewsComponent },
           { path: 'payments', component: PaymentsComponent },
           { path: 'settings', component: HomePageComponent },
         ],

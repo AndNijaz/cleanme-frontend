@@ -1,3 +1,4 @@
+/*
 import { Component, OnInit } from '@angular/core';
 import { Review, ReviewService } from '../../../core/services/review.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -180,3 +181,4 @@ export class ReviewsComponent implements OnInit {
     }
   }
 }
+*/

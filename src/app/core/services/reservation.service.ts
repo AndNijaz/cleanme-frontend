@@ -113,27 +113,6 @@ export class ReservationService {
     return names[cleanerId] ?? 'Unknown Cleaner';
   }
 
-  // === GET USER'S RESERVATIONS (for client dashboard) ===
-  getUserReservations(): Observable<Reservation[]> {
-    //   const userId = this.authService.getAuthData()?.userId;
-
-    //   // ✅ Mock version
-    //   const userReservations = this.mockReservations.filter(
-    //     (reservation) => reservation.userId === userId
-    //   );
-
-    //   return of(userReservations).pipe(
-    //     delay(300),
-    //     tap((data) =>
-    //       console.log('%c📦 MOCK user reservations:', 'color: blue', data)
-    //     )
-    //   );
-
-    // 🟢 Uncomment for real backend:
-    console.log(`${this.BASE_URL}/all`);
-    return this.http.get<Reservation[]>(`${this.BASE_URL}/all`);
-  }
-
   // === GET BOOKINGS FOR CLEANER (for cleaner dashboard) ===
   getCleanerBookings(cleanerId: string): Observable<Booking[]> {
     // ✅ Mock version – sample list for visual testing

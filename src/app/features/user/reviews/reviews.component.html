@@ -1,7 +1,7 @@
+<!-- 
 <div *ngFor="let cleanerId of groupedReviews | keyvalue">
   <div class="border border-blue-100 rounded-2xl mb-6 bg-white shadow-md">
 
-    <!-- Header: Cleaner Info -->
     <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-blue-50 transition rounded-t-2xl"
       (click)="toggleCleaner(cleanerId.key)">
       <div class="flex items-center gap-4">
@@ -19,7 +19,6 @@
       </mat-icon>
     </div>
 
-    <!-- Collapsible Content -->
     <div *ngIf="expandedCleanerId === cleanerId.key" class="p-4 border-t border-blue-100 space-y-4">
       <div *ngFor="let review of groupedReviews[cleanerId.key]" class="border-t pt-3 first:border-none first:pt-0">
         <div class="flex gap-1 text-yellow-400 text-sm mb-1">
@@ -39,7 +38,6 @@
 
   </div>
 
-  <!-- ✅ Move modal OUTSIDE of *ngFor -->
   <app-modal [isOpen]="isReviewModalOpen" (close)="isReviewModalOpen = false">
     <ng-container *ngIf="selectedReview">
       <app-leave-review-card [cleaner]="convertReviewToCleanerCard(selectedReview)"
@@ -50,3 +48,4 @@
 
 
 </div>
+  -->
