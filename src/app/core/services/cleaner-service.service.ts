@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-
+import { catchError } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 export interface PublicCleanerProfile {
   fullName: string;
   address: string;
@@ -35,13 +36,24 @@ export interface CleanerCardModel {
 
 @Injectable({ providedIn: 'root' })
 export class CleanerService {
-  private readonly BASE_URL = 'http://localhost:8080/cleaner';
+  private readonly BASE_URL = 'http://localhost:8080/cleaners';
 
   constructor(private http: HttpClient) {}
-
+  private getAuthHeaders(): HttpHeaders {
+    // Get the token from local storage
+    const token = localStorage.getItem('token'); // or whatever key you use to store the token
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+  }
   getCleanerPublicProfile(cleanerId: string): Observable<PublicCleanerProfile> {
+    const headers = this.getAuthHeaders();
+
     // 🔁 Uncomment this line when backend is ready:
-    // return this.http.get<PublicCleanerProfile>(`${this.BASE_URL}/${cleanerId}/public`);
+    /* return this.http.get<PublicCleanerProfile>(
+      `${this.BASE_URL}/${cleanerId}/public`
+    );*/
 
     // 🧪 Mocked profiles (based on ID)
     const mockProfiles: { [key: string]: PublicCleanerProfile } = {
@@ -124,44 +136,83 @@ export class CleanerService {
   }
 
   getCleaners(): Observable<CleanerCardModel[]> {
-    // TODO: Replace with real API call
-    // return this.http.get<CleanerCardModel[]>('http://localhost:8080/api/cleaners');
+    const headers = this.getAuthHeaders();
 
-    // MOCK data (temporary)
-    return of([
-      {
-        id: '1',
-        fullName: 'Bahra Zedic',
-        rating: 4.8,
-        reviewCount: 128,
-        location: 'Bojnik, Otes, Bjelave, Dobrinja',
-        shortBio: 'Lorem Ipsum Dolor Sit Amet Latinski jezik Jak Bas',
-        services: ['Deep Cleaning', 'Window Washing'],
-        price: 100,
-        currency: '$',
-      },
-      {
-        id: '2',
-        fullName: 'Azra Mustafić',
-        rating: 4.6,
-        reviewCount: 95,
-        location: 'Ilidža, Grbavica',
-        shortBio: 'Pouzdana i tačna. Čistim stanove i poslovne prostore.',
-        services: ['Floor Cleaning', 'Deep Cleaning'],
-        price: 85,
-        currency: '$',
-      },
-      {
-        id: '3',
-        fullName: 'Emira Hodžić',
-        rating: 4.9,
-        reviewCount: 140,
-        location: 'Stup, Hrasno, Grbavica',
-        shortBio: 'Iskustvo od 5 godina. Koristim ekološka sredstva.',
-        services: ['Office Cleaning', 'Window Washing'],
-        price: 95,
-        currency: '$',
-      },
-    ]);
+    return this.http.get<any[]>(`${this.BASE_URL}`, { headers }).pipe(
+      map((cleaners: any[]) => {
+        // Transform each cleaner from backend format to CleanerCardModel
+        return cleaners.map((cleaner) => ({
+          id: cleaner.id,
+          fullName: `${cleaner.firstName} ${cleaner.lastName}`,
+          rating: cleaner.averageRating || 0, // Default to 0 if no rating
+          reviewCount: cleaner.reviewCount || 0,
+          location: this.formatLocation(cleaner), // Helper function to format location
+          shortBio: cleaner.bio || 'No bio available',
+          services: this.formatServices(cleaner), // Helper function to format services
+          price: cleaner.hourlyRate || 0, // Assuming hourlyRate is the price
+          currency: '$', // Default currency
+          isFavorite: false, // Default to not favorite
+        }));
+      }),
+
+      catchError((error) => {
+        console.error('Error fetching cleaners:', error);
+        // Return mock data as fallback
+        return of([
+          {
+            id: '1',
+            fullName: 'Bahra Zedic',
+            rating: 4.8,
+            reviewCount: 128,
+            location: 'Bojnik, Otes, Bjelave, Dobrinja',
+            shortBio: 'Lorem Ipsum Dolor Sit Amet Latinski jezik Jak Bas',
+            services: ['Deep Cleaning', 'Window Washing'],
+            price: 100,
+            currency: '$',
+          },
+          {
+            id: '2',
+            fullName: 'Azra Mustafić',
+            rating: 4.6,
+            reviewCount: 95,
+            location: 'Ilidža, Grbavica',
+            shortBio: 'Pouzdana i tačna. Čistim stanove i poslovne prostore.',
+            services: ['Floor Cleaning', 'Deep Cleaning'],
+            price: 85,
+            currency: '$',
+          },
+          {
+            id: '3',
+            fullName: 'Emira Hodžić',
+            rating: 4.9,
+            reviewCount: 140,
+            location: 'Stup, Hrasno, Grbavica',
+            shortBio: 'Iskustvo od 5 godina. Koristim ekološka sredstva.',
+            services: ['Office Cleaning', 'Window Washing'],
+            price: 95,
+            currency: '$',
+          },
+        ]);
+      })
+    );
+  }
+
+  // Helper function to format location
+  private formatLocation(cleaner: any): string {
+    if (cleaner.address) {
+      return cleaner.address;
+    }
+    if (cleaner.zones && cleaner.zones.length > 0) {
+      return cleaner.zones.join(', ');
+    }
+    return 'Location not specified';
+  }
+
+  // Helper function to format services
+  private formatServices(cleaner: any): string[] {
+    if (cleaner.services && cleaner.services.length > 0) {
+      return cleaner.services.map((service: any) => service.name);
+    }
+    return ['Standard Cleaning']; // Default service
   }
 }
