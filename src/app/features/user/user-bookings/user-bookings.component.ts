@@ -73,19 +73,24 @@ export class UserBookingsComponent {
       message: event.message,
     };
 
-    this.reviewService.submitReview(reviewPayload).subscribe({
-      next: (res) => {
-        if (res.success) {
-          console.log('✅ Review submitted');
-          this.closeReviewModal(); // zatvori modal
-          // možda želiš i da refreshaš listu rezervacija ili recenzija
-        } else {
-          console.error('❌ Submission failed');
-        }
-      },
-      error: (err) => {
-        console.error('❌ API error', err);
-      },
-    });
+    this.reviewService
+      .submitReview({
+        reservationId: this.booking.id,
+        dto: reviewPayload,
+      })
+      .subscribe({
+        next: (res) => {
+          if (res.success) {
+            console.log('✅ Review submitted');
+            this.closeReviewModal(); // zatvori modal
+            // možda želiš i da refreshaš listu rezervacija ili recenzija
+          } else {
+            console.error('❌ Submission failed');
+          }
+        },
+        error: (err) => {
+          console.error('❌ API error', err);
+        },
+      });
   }
 }

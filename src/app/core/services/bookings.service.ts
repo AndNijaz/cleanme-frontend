@@ -11,6 +11,7 @@ export interface Booking {
   time: string;
   message: string;
   profileImage?: string;
+  bookingId?: string;
 }
 
 @Injectable({

@@ -48,6 +48,8 @@ export class BookingsReviewComponent {
   initialRating = 0;
   initialMessage = '';
 
+  isEditing: boolean = false;
+
   constructor(private reviewService: ReviewService, private router: Router) {
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
@@ -61,9 +63,10 @@ export class BookingsReviewComponent {
       this.bookings = bookings.map((b) => ({
         ...b,
         time: b.time, // Already separate
-        message: b.comment, // Alias if needed
+        // message: b.comment, // Alias if needed
       }));
 
+      console.log(this.bookings);
       this.buildGroupedData(); // This still works
     });
   }
@@ -95,7 +98,7 @@ export class BookingsReviewComponent {
 
       if (!groupedMap.has(booking.cleanerName)) {
         groupedMap.set(booking.cleanerName, {
-          cleanerId: 'unknown', // or leave out if unused
+          cleanerId: booking.cleanerId, // or leave out if unused
           cleanerName: booking.cleanerName,
           bookings: [bookingWithReview],
         });
@@ -104,7 +107,11 @@ export class BookingsReviewComponent {
       }
     }
 
+    // console.log('Grouped bookings by cleaner:', groupedMap);
+
     this.groupedByCleaner = Array.from(groupedMap.values());
+
+    console.log(this.groupedByCleaner);
   }
 
   toggleCleaner(cleanerName: string) {
@@ -147,6 +154,7 @@ export class BookingsReviewComponent {
       currency: '$',
     };
     this.selectedBooking = booking;
+    this.isEditing = true;
     this.isReviewModalOpen = true;
   }
 
@@ -155,39 +163,38 @@ export class BookingsReviewComponent {
     message: string;
     reviewId?: string;
   }) {
-    if (!this.selectedCleaner || !this.selectedBooking) return;
+    // console.log('Review submitted:', payload);
+    if (this.isEditing) {
+      this.reviewService.updateReview(payload).subscribe({
+        next: (response) => {
+          console.log('Review update response:', response);
+          this.isReviewModalOpen = false;
+          this.loadBookingsWithReviews(); // Reload bookings to reflect changes
+        },
+      });
+      this.isEditing = false;
+    } else {
+      console.log(this.selectedBooking);
+      console.log(this.reviews);
+      this.reviewService
+        .submitReview({
+          reservationId: this.selectedBooking!.bookingId,
+          dto: {
+            rating: payload.rating,
+            message: payload.message,
+          },
+        })
+        .subscribe({
+          next: (response) => {
+            console.log('Review submit response:', response);
+            this.isReviewModalOpen = false;
+            this.loadBookingsWithReviews();
+          },
+        });
+    }
+  }
 
-    const review: Review = {
-      id: payload.reviewId || crypto.randomUUID(),
-      cleanerId: this.selectedCleaner.id,
-      cleanerName: this.selectedCleaner.fullName,
-      bookingId: this.selectedBooking.id, // <--- important!
-      rating: payload.rating,
-      message: payload.message,
-      date: new Date().toISOString().split('T')[0],
-      profileImage: this.selectedCleaner.imageUrl ?? '',
-    };
-
-    const save = payload.reviewId
-      ? this.reviewService.updateReview(review)
-      : this.reviewService.submitReview(review);
-
-    save.subscribe(() => {
-      const targetGroup = this.groupedByCleaner.find(
-        (g) => g.cleanerId === review.cleanerId
-      );
-      if (targetGroup) {
-        const targetBooking = targetGroup.bookings.find(
-          (b) => b.id === review.bookingId
-        );
-        if (targetBooking) {
-          targetBooking.review = review;
-        }
-      }
-      this.isReviewModalOpen = false;
-      this.selectedCleaner = null;
-      this.selectedBooking = null;
-      this.editingReview = null;
-    });
+  test(a: any) {
+    console.log('test', a.review.comment);
   }
 }
