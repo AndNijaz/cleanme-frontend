@@ -41,6 +41,22 @@ export class ReviewService {
   // Real API endpoint placeholder
   // private readonly BASE_URL = 'http://localhost:8080/api/reviews';
 
+  // submitReview(
+  //   review: Omit<Review, 'id' | 'date' | 'profileImage'>
+  // ): Observable<{ success: boolean }> {
+  //   const newReview: Review = {
+  //     ...review,
+  //     id: crypto.randomUUID(), // Or use UUID lib
+  //     date: new Date().toISOString().split('T')[0],
+  //     profileImage: '',
+  //   };
+  //   this.mockReviews.push(newReview);
+  //   console.log('%c⭐ Review saved (mock):', 'color: green', newReview);
+  //   return of({ success: true }).pipe(delay(500));
+
+  //   // ✅ Real backend (commented)
+  //   // return this.http.post<{ success: boolean }>(`${this.BASE_URL}`
+
   constructor(private http: HttpClient) {}
   private mockReviews: Review[] = [];
 

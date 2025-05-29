@@ -35,7 +35,8 @@
       </div>
     </div>
 
-
+  <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3" *ngIf="reviews.length > 0">
+    <app-reviews-card *ngFor="let review of reviews" [review]="review" />
   </div>
 
   <app-modal [isOpen]="isReviewModalOpen" (close)="isReviewModalOpen = false">
@@ -48,4 +49,4 @@
 
 
 </div>
-  -->
+-->
