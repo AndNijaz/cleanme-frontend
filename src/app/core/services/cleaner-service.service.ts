@@ -50,89 +50,175 @@ export class CleanerService {
   getCleanerPublicProfile(cleanerId: string): Observable<PublicCleanerProfile> {
     const headers = this.getAuthHeaders();
 
-    // 🔁 Uncomment this line when backend is ready:
-    /* return this.http.get<PublicCleanerProfile>(
-      `${this.BASE_URL}/${cleanerId}/public`
-    );*/
+    return this.http
+      .get<any>(`${this.BASE_URL}/${cleanerId}`, { headers })
+      .pipe(
+        map((cleaner: any) => {
+          // Get base profile data
+          const profile: PublicCleanerProfile = {
+            fullName: `${cleaner.firstName} ${cleaner.lastName}`,
+            address: this.formatLocation(cleaner),
+            bio: cleaner.bio || 'No bio available',
+            zones: cleaner.zones || [],
+            hourlyRate: cleaner.hourlyRate || 0,
+            minHours: cleaner.minHours || 1,
+            rating: cleaner.averageRating || 0,
+            reviewCount: cleaner.reviewCount || 0,
+            ratingLabel: this.getRatingLabel(cleaner.averageRating),
+            services: cleaner.services_offered,
+          };
+          console.log(cleaner.services_offered);
+          // Format services with specific descriptions based on service names
+          if (typeof cleaner.services === 'string') {
+            profile.services = this.formatDetailedServicesWithDescriptions(
+              cleaner.services
+            );
+          } else if (Array.isArray(cleaner.services)) {
+            profile.services = this.formatDetailedServicesWithDescriptions(
+              cleaner.services.map((s: any) => s.name).join(', ')
+            );
+          } else {
+            profile.services = [
+              {
+                icon: '🧹',
+                name: 'Standard Cleaning',
+                description:
+                  'Basic cleaning service including dusting and vacuuming',
+              },
+            ];
+          }
 
-    // 🧪 Mocked profiles (based on ID)
-    const mockProfiles: { [key: string]: PublicCleanerProfile } = {
-      '1': {
-        fullName: 'Bahra Zedic',
-        address: 'Bojnik, Otes, Bjelave, Dobrinja',
-        bio: 'Pedantna, pouzdana i brza – čišćenje mi nije posao, nego zadovoljstvo. Imam više od 4 godine iskustva.',
-        zones: ['Bojnik', 'Otes', 'Dobrinja'],
-        hourlyRate: 15,
-        minHours: 2,
-        rating: 4.8,
-        reviewCount: 128,
-        ratingLabel: 'excellent',
-        services: [
-          {
-            icon: '🏡',
-            name: 'Deep Cleaning',
-            description:
-              'Temeljito čišćenje svih površina u stanu, uključujući kuhinju, kupatilo i podove.',
-          },
-          {
-            icon: '🪟',
-            name: 'Window Washing',
-            description:
-              'Čišćenje svih unutrašnjih i vanjskih prozora s profesionalnim sredstvima.',
-          },
-        ],
-      },
-      '2': {
-        fullName: 'Azra Mustafić',
-        address: 'Ilidža, Grbavica',
-        bio: 'Pouzdana i tačna. Čistim stanove i poslovne prostore. Profesionalan pristup svakom klijentu.',
-        zones: ['Ilidža', 'Grbavica'],
-        hourlyRate: 17,
-        minHours: 3,
-        rating: 4.6,
-        reviewCount: 95,
-        ratingLabel: 'very good',
-        services: [
-          {
-            icon: '🧼',
-            name: 'Floor Cleaning',
-            description: 'Usisavanje, pranje i poliranje svih podova.',
-          },
-          {
-            icon: '🏢',
-            name: 'Office Cleaning',
-            description:
-              'Profesionalno čišćenje radnih prostora i tehničke opreme.',
-          },
-        ],
-      },
-      '3': {
-        fullName: 'Emira Hodžić',
-        address: 'Stup, Hrasno, Grbavica',
-        bio: 'Iskustvo od 5 godina. Koristim ekološka sredstva. Fokus na detalje i kvalitetnu uslugu.',
-        zones: ['Stup', 'Hrasno', 'Grbavica'],
-        hourlyRate: 18,
-        minHours: 2,
-        rating: 4.9,
-        reviewCount: 140,
-        ratingLabel: 'outstanding',
-        services: [
-          {
-            icon: '🧽',
-            name: 'Bathroom Deep Clean',
-            description: 'Dezinfekcija, uklanjanje kamenca i čišćenje fuga.',
-          },
-          {
-            icon: '🪑',
-            name: 'Furniture Cleaning',
-            description: 'Čišćenje tapaciranog i drvenog namještaja.',
-          },
-        ],
-      },
+          return profile;
+        }),
+        catchError((error) => {
+          console.error('Error fetching cleaner profile:', error);
+          // Return mock data as fallback
+          const mockProfiles: { [key: string]: PublicCleanerProfile } = {
+            '1': {
+              fullName: 'Bahra Zedic',
+              address: 'Bojnik, Otes, Bjelave, Dobrinja',
+              bio: 'Pedantna, pouzdana i brza – čišćenje mi nije posao, nego zadovoljstvo. Imam više od 4 godine iskustva.',
+              zones: ['Bojnik', 'Otes', 'Dobrinja'],
+              hourlyRate: 15,
+              minHours: 2,
+              rating: 4.8,
+              reviewCount: 128,
+              ratingLabel: 'excellent',
+              services: [
+                {
+                  icon: '🏡',
+                  name: 'Deep Cleaning',
+                  description:
+                    'Temeljito čišćenje svih površina u stanu, uključujući kuhinju, kupatilo i podove.',
+                },
+                {
+                  icon: '🪟',
+                  name: 'Window Washing',
+                  description:
+                    'Čišćenje svih unutrašnjih i vanjskih prozora s profesionalnim sredstvima.',
+                },
+              ],
+            },
+            '2': {
+              fullName: 'Azra Mustafić',
+              address: 'Ilidža, Grbavica',
+              bio: 'Pouzdana i tačna. Čistim stanove i poslovne prostore. Profesionalan pristup svakom klijentu.',
+              zones: ['Ilidža', 'Grbavica'],
+              hourlyRate: 17,
+              minHours: 3,
+              rating: 4.6,
+              reviewCount: 95,
+              ratingLabel: 'very good',
+              services: [
+                {
+                  icon: '🧼',
+                  name: 'Floor Cleaning',
+                  description: 'Usisavanje, pranje i poliranje svih podova.',
+                },
+                {
+                  icon: '🏢',
+                  name: 'Office Cleaning',
+                  description:
+                    'Profesionalno čišćenje radnih prostora i tehničke opreme.',
+                },
+              ],
+            },
+            '3': {
+              fullName: 'Emira Hodžić',
+              address: 'Stup, Hrasno, Grbavica',
+              bio: 'Iskustvo od 5 godina. Koristim ekološka sredstva. Fokus na detalje i kvalitetnu uslugu.',
+              zones: ['Stup', 'Hrasno', 'Grbavica'],
+              hourlyRate: 18,
+              minHours: 2,
+              rating: 4.9,
+              reviewCount: 140,
+              ratingLabel: 'outstanding',
+              services: [
+                {
+                  icon: '🧽',
+                  name: 'Bathroom Deep Clean',
+                  description:
+                    'Dezinfekcija, uklanjanje kamenca i čišćenje fuga.',
+                },
+                {
+                  icon: '🪑',
+                  name: 'Furniture Cleaning',
+                  description: 'Čišćenje tapaciranog i drvenog namještaja.',
+                },
+              ],
+            },
+          };
+          return of(mockProfiles[cleanerId] || mockProfiles['1']);
+        })
+      );
+  }
+  private getRatingLabel(rating: number): string {
+    if (!rating) return 'no ratings';
+    if (rating >= 4.8) return 'outstanding';
+    if (rating >= 4.5) return 'excellent';
+    if (rating >= 4.0) return 'very good';
+    if (rating >= 3.0) return 'good';
+    return 'average';
+  }
+  // New helper function for service descriptions
+  private formatDetailedServicesWithDescriptions(
+    servicesString: string
+  ): { icon: string; name: string; description: string }[] {
+    const serviceDescriptions: { [key: string]: string } = {
+      'Deep Cleaning':
+        'Temeljito čišćenje svih površina u stanu, uključujući kuhinju, kupatilo i podove.',
+      'Window Washing':
+        'Čišćenje svih unutrašnjih i vanjskih prozora s profesionalnim sredstvima.',
+      'Floor Cleaning': 'Usisavanje, pranje i poliranje svih podova.',
+      'Office Cleaning':
+        'Profesionalno čišćenje radnih prostora i tehničke opreme.',
+      'Bathroom Deep Clean':
+        'Dezinfekcija, uklanjanje kamenca i čišćenje fuga.',
+      'Furniture Cleaning': 'Čišćenje tapaciranog i drvenog namještaja.',
     };
 
-    // Return mock profile based on ID
-    return of(mockProfiles[cleanerId] || mockProfiles['1']);
+    return servicesString.split(',').map((serviceName) => {
+      const trimmedName = serviceName.trim();
+      return {
+        icon: this.getServiceIcon(trimmedName),
+        name: trimmedName,
+        description:
+          serviceDescriptions[trimmedName] || `${trimmedName} service`,
+      };
+    });
+  }
+
+  // Helper function to get appropriate icon for service
+  private getServiceIcon(serviceName: string): string {
+    const iconMap: { [key: string]: string } = {
+      'Deep Cleaning': '🧼',
+      'Window Washing': '🪟',
+      'Floor Cleaning': '🧹',
+      'Office Cleaning': '🏢',
+      'Bathroom Clean': '🚽',
+      'Kitchen Cleaning': '🍳',
+    };
+    return iconMap[serviceName] || '🧹';
   }
 
   getCleaners(): Observable<CleanerCardModel[]> {
