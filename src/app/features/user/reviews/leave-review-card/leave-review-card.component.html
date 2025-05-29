@@ -1,4 +1,4 @@
-<div class="border border-gray-200 rounded-2xl p-6 transition w-full max-w-sm relative bg-white shadow-sm">
+<div class="border bg-white border-gray-200 rounded-2xl p-6 transition w-full max-w-sm relative shadow-xl">
   <!-- Avatar & Heart -->
   <div class="flex justify-center items-start mb-8 relative">
     <div
@@ -12,7 +12,6 @@
       [ngStyle]="{ color: cleaner.isFavorite ? '#3b82f6' : '' }" (click)="toggleFavorite()">
       <mat-icon>{{ cleaner.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
     </button>
-
   </div>
 
   <!-- Info -->
@@ -42,29 +41,7 @@
     {{ cleaner.currency || '$' }}{{ cleaner.price }}<span class="text-sm text-gray-500">/hour</span>
   </p>
 
-  <!-- Leave Rating -->
-  <!-- <div class="border-t pt-4 mb-5">
-    <p class="text-sm font-semibold text-blue-700 text-center mb-2">Leave Rating:</p>
-    <div class="flex justify-center items-center gap-2">
-      <div class="flex gap-1">
-        <button *ngFor="let star of [1,2,3,4,5]" (click)="setRating(star)" class="transition text-2xl" [ngClass]="{
-            'text-yellow-400': currentRating >= star,
-            'text-gray-300 hover:text-yellow-300': currentRating < star
-          }">
-          ★
-        </button>
-      </div>
-      <span class="text-blue-900 font-bold text-lg">{{ currentRating.toFixed(1) }}</span>
-    </div>
-  </div>
-
-  <div class="text-center">
-    <button class="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-6 py-2 rounded-full text-sm"
-      (click)="submitReview()">
-      Leave a Review
-    </button>
-  </div> -->
-  <!-- Editable Fields -->
+  <!-- Review Section -->
   <div class="border-t pt-4 mb-5">
     <p class="text-sm font-semibold text-blue-700 text-center mb-2">
       {{ isEditing ? 'Edit Your Review' : 'Leave a Review' }}
@@ -72,11 +49,15 @@
 
     <div class="flex justify-center items-center gap-2 mb-3">
       <div class="flex gap-1">
-        <button *ngFor="let star of [1,2,3,4,5]" (click)="setRating(star)" class="transition text-2xl" [ngClass]="{
-          'text-yellow-400': currentRating || 1 >= star,
-          'text-gray-300 hover:text-yellow-300': currentRating || 1 < star
-        }">
-          ★
+        <button *ngFor="let star of [1, 2, 3, 4, 5]" mat-icon-button (mouseenter)="hoveredRating = star"
+          (mouseleave)="hoveredRating = null" (click)="setRating(star)" class="transition">
+          <mat-icon [ngClass]="{
+              'text-yellow-500': (hoveredRating !== null && hoveredRating >= star) || (!hoveredRating && currentRating && currentRating >= star),
+              'text-gray-300': (hoveredRating !== null && hoveredRating < star) && (!hoveredRating && currentRating && currentRating < star)
+            }">
+            {{ (hoveredRating && hoveredRating >= star) || (!hoveredRating && currentRating && currentRating >= star) ?
+            'star' : 'star_border' }}
+          </mat-icon>
         </button>
       </div>
       <span class="text-blue-900 font-bold text-lg">{{ currentRating?.toFixed(1) }}</span>
@@ -93,5 +74,4 @@
       Save Review
     </button>
   </div>
-
 </div>

@@ -20,6 +20,7 @@ export class LeaveReviewCardComponent implements OnInit {
   @Input() initialRating: number | undefined = 0;
   @Input() reviewId?: string;
   @Output() submitUpdated = new EventEmitter<Review>();
+  hoveredRating: number | null = null;
 
   @Input() initialMessage: string | undefined = '';
   @Input() isEditing = false;
