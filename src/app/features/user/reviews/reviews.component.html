@@ -1,15 +1,52 @@
-<div class="max-w-7xl mx-auto px-4 py-8">
-  <h2 class="text-3xl font-semibold text-[#083F87] mb-6 tracking-wide">My Reviews</h2>
+<!-- 
+<div *ngFor="let cleanerId of groupedReviews | keyvalue">
+  <div class="border border-blue-100 rounded-2xl mb-6 bg-white shadow-md">
 
-  <div *ngIf="isLoading" class="text-center text-gray-500 py-10">
-    Loading your reviews...
-  </div>
+    <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-blue-50 transition rounded-t-2xl"
+      (click)="toggleCleaner(cleanerId.key)">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+          <img *ngIf="groupedReviews[cleanerId.key][0].profileImage"
+            [src]="groupedReviews[cleanerId.key][0].profileImage" class="w-full h-full object-cover rounded-full" />
+          <span *ngIf="!groupedReviews[cleanerId.key][0].profileImage">Photo</span>
+        </div>
+        <p class="text-lg font-semibold text-gray-800">
+          {{ groupedReviews[cleanerId.key][0].cleanerName }}
+        </p>
+      </div>
+      <mat-icon class="text-gray-500">
+        {{ expandedCleanerId === cleanerId.key ? 'expand_less' : 'expand_more' }}
+      </mat-icon>
+    </div>
 
-  <div *ngIf="!isLoading && reviews.length === 0" class="text-center text-gray-500 py-10">
-    You haven’t written any reviews yet.
-  </div>
+    <div *ngIf="expandedCleanerId === cleanerId.key" class="p-4 border-t border-blue-100 space-y-4">
+      <div *ngFor="let review of groupedReviews[cleanerId.key]" class="border-t pt-3 first:border-none first:pt-0">
+        <div class="flex gap-1 text-yellow-400 text-sm mb-1">
+          <ng-container *ngFor="let star of [1,2,3,4,5]">
+            <mat-icon class="text-base" [ngClass]="{ 'text-gray-300': review.rating < star }">star</mat-icon>
+          </ng-container>
+        </div>
+        <p class="text-sm text-gray-700 mb-1">{{ review.message }}</p>
+        <p class="text-xs text-gray-400">{{ review.date }}</p>
+
+        <button class="text-xs text-blue-600 hover:underline mt-1" (click)="openReviewModal(review)">
+          Edit Review
+        </button>
+      </div>
+    </div>
 
   <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3" *ngIf="reviews.length > 0">
     <app-reviews-card *ngFor="let review of reviews" [review]="review" />
   </div>
+
+  <app-modal [isOpen]="isReviewModalOpen" (close)="isReviewModalOpen = false">
+    <ng-container *ngIf="selectedReview">
+      <app-leave-review-card [cleaner]="convertReviewToCleanerCard(selectedReview)"
+        [initialRating]="selectedReview.rating" [initialMessage]="selectedReview.message" [reviewId]="selectedReview.id"
+        [isEditing]="true" (submitReview)="handleReviewUpdate($event)" />
+    </ng-container>
+  </app-modal>
+
+
 </div>
+-->

@@ -76,7 +76,19 @@ export class AuthService {
     const phoneNumber = localStorage.getItem('phoneNumber') ?? '';
     const address = localStorage.getItem('address') ?? '';
 
-    if (!token || !userId || !userType) return null;
+    if (!token || !userId || !userType) {
+      // mock fallback for development
+      return {
+        token: 'mock-token',
+        userId: 'mock-user-id1',
+        userType: 'CLIENT',
+        firstName: 'Mock',
+        lastName: 'User',
+        // email: "mock@example.com",
+        address: '123 Mock St',
+        phoneNumber: '123-456-7890',
+      };
+    }
 
     // return { token, userId, userType, firstName, lastName, email, address, phoneNumber };
     return {

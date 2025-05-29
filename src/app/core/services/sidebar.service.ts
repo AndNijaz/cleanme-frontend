@@ -15,7 +15,7 @@ export class SidebarService {
       { label: 'My Profile', route: '/user/profile' },
       { label: 'My Bookings', route: '/user/reservations' },
       { label: 'Favorites', route: '/user/favorites' },
-      { label: 'Reviews', route: '/user/reviews' },
+      // { label: 'Reviews', route: '/user/reviews' },
       { label: 'Payments', route: '/user/payments' },
       { label: 'Settings', route: '/user/settings' },
     ],

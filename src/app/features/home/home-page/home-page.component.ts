@@ -12,7 +12,6 @@ import { FooterComponent } from '../../../shared/footer/footer/footer.component'
   standalone: true,
   imports: [
     RouterModule,
-    ButtonComponent,
     NavbarComponent,
     HeroSectionComponent,
     CallToActionComponent,
