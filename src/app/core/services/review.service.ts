@@ -12,6 +12,7 @@ export interface Review {
   rating: number;
   message: string;
   date: string;
+  comment?: string;
 }
 
 export interface Review1 {
@@ -36,10 +37,16 @@ export interface BookingWithReview {
   review?: Review;
 }
 
+export interface updateReviewDto {
+  reviewId?: string;
+  rating: number;
+  message: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ReviewService {
   // Real API endpoint placeholder
-  // private readonly BASE_URL = 'http://localhost:8080/api/reviews';
+  private readonly BASE_URL = 'http://localhost:8080/review';
 
   // submitReview(
   //   review: Omit<Review, 'id' | 'date' | 'profileImage'>
@@ -60,36 +67,29 @@ export class ReviewService {
   constructor(private http: HttpClient) {}
   private mockReviews: Review[] = [];
 
-  submitReview(
-    review: Omit<Review, 'id' | 'date' | 'profileImage'>
-  ): Observable<{ success: boolean }> {
-    const newReview: Review = {
-      ...review,
-      id: crypto.randomUUID(),
-      date: new Date().toISOString().split('T')[0],
-      profileImage: '',
-    };
+  submitReview({
+    reservationId,
+    dto,
+  }: {
+    reservationId?: string;
+    dto: any;
+  }): Observable<any> {
+    console.log(dto);
+    console.log(reservationId);
 
-    this.mockReviews.push(newReview); // ✅ Save to in-memory list
-
-    console.log('%c⭐ Review saved (mock):', 'color: green', newReview);
-
-    return of({ success: true }).pipe(delay(500));
-
-    // 🔁 Real backend (uncomment when ready):
-    // return this.http.post<{ success: boolean }>(`${this.BASE_URL}`, review);
+    return this.http.post(`${this.BASE_URL}/${reservationId}`, {
+      rating: dto.rating,
+      comment: dto.message,
+    });
   }
 
-  updateReview(review: Review): Observable<{ success: boolean }> {
-    return of({ success: true }).pipe(
-      delay(300),
-      tap(() =>
-        console.log('%c✏️ MOCK updated review:', 'color: orange', review)
-      )
-    );
-
+  updateReview(review: updateReviewDto): Observable<{ success: boolean }> {
     // Real call:
-    // return this.http.put(`${this.BASE_URL}/${review.id}`, review);
+    console.log('%c⭐ Updating review:', 'color: blue', review);
+    return this.http.put<{ success: boolean }>(
+      `${this.BASE_URL}/update/${review.reviewId}`,
+      { ...review, comment: review.message }
+    );
   }
   //
   getBookingsWithReviews(): Observable<BookingWithReview[]> {
