@@ -91,7 +91,7 @@ export class ReviewService {
     // Real call:
     // return this.http.put(`${this.BASE_URL}/${review.id}`, review);
   }
-
+  //
   getBookingsWithReviews(): Observable<BookingWithReview[]> {
     // return this.http.get<BookingWithReview[]>(`${this.BASE_URL}/bookings`);
     return this.http.get<BookingWithReview[]>(
