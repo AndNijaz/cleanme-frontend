@@ -15,22 +15,17 @@ export class ReservationService {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  submitReservation(
-    request: Omit<Reservation, 'id' | 'cleanerName'>
-  ): Observable<{ success: boolean }> {
-    const newReservation: Reservation = {
-      ...request,
-      id: crypto.randomUUID(),
-      cleanerName: 's', // <- helper method
-      times: request.times, // optional format
-    };
-
-    return of({ success: true }).pipe(
-      delay(500),
-      tap(() =>
-        console.log('%c✅ Reservation saved:', 'color: green', newReservation)
-      )
-    );
+  submitReservation(request: ReservationRequest): Observable<any> {
+    return this.http.post(`${this.BASE_URL}`, {
+      date: request.date,
+      // times: request.times, // ⬅️ array of time strings, e.g., ["14:30", "15:00"]
+      time: request.times.join(', '), // ⬅️ join times for backend compatibility
+      // time: request.times[0], // ⬅️ join times for backend compatibility
+      location: request.location,
+      status: request.status, // must be a valid backend enum, e.g., "PENDING"
+      comment: request.comment,
+      cleanerID: request.cleanerId, // ⬅️ UUID of the cleaner
+    });
   }
 
   // === GET USER'S RESERVATIONS (for client dashboard) ===

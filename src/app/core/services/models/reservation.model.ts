@@ -16,6 +16,7 @@ export interface ReservationRequest {
   times: string[]; // or a single time range string if that’s your model
   location: string;
   comment: string;
+  status?: 'PENDING';
 }
 
 export interface Reservation {
