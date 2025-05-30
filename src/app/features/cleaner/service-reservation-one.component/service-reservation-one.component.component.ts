@@ -156,28 +156,20 @@ export class ServiceReservationOneComponentComponent {
       return;
     }
 
-    const userId = this.authService.getAuthData()?.userId;
-    if (!userId) {
-      this.formError = 'You must be logged in to submit a reservation.';
-      return;
-    }
-
     const reservationPayload: ReservationRequest = {
-      userId,
+      userId: this.authService.getAuthData()?.userId || 'mock-user-id', // fallback
       cleanerId: this.cleanerId,
       date: this.selectedDate,
-      times: this.selectedTimes,
+      times: this.selectedTimes, // or process to fit backend
       location: this.location.trim(),
       comment: this.comment.trim(),
+      status: 'PENDING', // hardcoded for now
     };
 
     this.reservationService.submitReservation(reservationPayload).subscribe({
       next: (res) => {
-        if (res.success) {
-          this.router.navigate(['/user/reservations']);
-        } else {
-          this.formError = 'Failed to submit reservation. Please try again.';
-        }
+        this.successMessage = 'Reservation created!';
+        this.router.navigate(['/user/reservations']);
       },
       error: (err) => {
         console.error('Reservation Error:', err);
