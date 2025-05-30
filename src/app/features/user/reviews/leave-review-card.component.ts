@@ -1,13 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { FavoritesService } from '../../../../core/services/favorites.service';
-import { CleanerCardModel } from '../../../cleaner/cleaner-card/cleaner-card.component';
-import {
-  Review,
-  ReviewService,
-} from '../../../../core/services/review.service';
+import { FavoritesService } from '../../../core/services/favorites.service';
+import { CleanerCardModel } from '../../cleaner/cleaner-card/cleaner-card.component';
+import { ReviewService } from '../../../core/services/review.service';
 import { FormsModule } from '@angular/forms';
+import { Review, ReviewDto } from '../../../core/services/models/review.model';
 
 @Component({
   selector: 'app-leave-review-card',
@@ -19,6 +17,7 @@ export class LeaveReviewCardComponent implements OnInit {
   @Input() cleaner!: CleanerCardModel;
   @Input() initialRating: number | undefined = 0;
   @Input() reviewId?: string;
+  // @Input() booking?: any;
   @Output() submitUpdated = new EventEmitter<Review>();
   hoveredRating: number | null = null;
 
@@ -26,19 +25,12 @@ export class LeaveReviewCardComponent implements OnInit {
   @Input() isEditing = false;
 
   @Output() ratingChange = new EventEmitter<number>();
-  @Output() submitReview = new EventEmitter<{
-    reviewId?: string;
-    rating: number;
-    message: string;
-  }>();
+  @Output() submitReview = new EventEmitter<ReviewDto>();
 
   currentRating: number | undefined = 0;
   reviewMessage: string | undefined = '';
 
-  constructor(
-    private favoritesService: FavoritesService,
-    private reviewService: ReviewService
-  ) {}
+  constructor(private favoritesService: FavoritesService) {}
 
   ngOnInit(): void {
     this.currentRating = this.initialRating;
@@ -54,45 +46,13 @@ export class LeaveReviewCardComponent implements OnInit {
     this.ratingChange.emit(this.currentRating);
   }
 
-  // submitReview() {
-  //   if (this.reviewId) {
-  //     this.submitUpdated.emit({
-  //       id: this.reviewId,
-  //       cleanerId: this.cleaner.id,
-  //       cleanerName: this.cleaner.fullName,
-  //       rating: this.currentRating,
-  //       message: 'Edited via modal',
-  //       date: new Date().toISOString().split('T')[0],
-  //     });
-  //   } else {
-  //     // original submission logic
-  //     const reviewPayload = {
-  //       cleanerId: this.cleaner.id,
-  //       cleanerName: this.cleaner.fullName,
-  //       rating: this.currentRating,
-  //       message: `Rated ${this.currentRating} stars via modal`, // You can replace with form input later
-  //     };
-
-  //     this.reviewService.submitReview(reviewPayload).subscribe({
-  //       next: (res) => {
-  //         if (res.success) {
-  //           console.log('✅ Review submitted successfully');
-  //         } else {
-  //           console.error('❌ Review failed');
-  //         }
-  //       },
-  //       error: () => {
-  //         console.error('❌ Error during review submission');
-  //       },
-  //     });
-  //   }
-  // }
-
   submitReviewHandler() {
     if (!this.currentRating || !this.reviewMessage) {
       console.warn('⚠️ Rating and message required');
       return;
     }
+
+    // console.log('buking', this.booking);
 
     this.submitReview.emit({
       reviewId: this.reviewId,

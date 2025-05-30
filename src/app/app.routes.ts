@@ -9,22 +9,15 @@ import { UserInfoComponent } from './features/auth/user-info/user-info.component
 
 import { CleanerInfoComponent } from './features/auth/cleaner-info/cleaner-info.component';
 
-import { DateSelectorComponent } from './shared/components/date-selector/date-selector.component';
-import { CleanerPageComponent } from './features/cleaner/cleaner-page/cleaner-page.component';
-import { ServiceReservationPageComponent } from './features/cleaner/service-reservation-page/service-reservation-page.component';
-
 import { NotificationsComponent } from './features/notifications/notifications.component';
 
 import { TermsAndConditionsComponent } from './features/terms-and-conditions/terms-and-conditions.component';
 import { PlatformLayoutComponent } from './shared/components/platform-layout/platform-layout.component';
 import { SharedProfileComponent } from './features/shared-profile/shared-profile.component';
 import { CleanerPublicProfileComponent } from './features/cleaner/cleaner-public-profile/cleaner-public-profile';
-import { UserBookingsComponent } from './features/user/user-bookings/user-bookings.component';
 import { FavoritesComponent } from './features/user/favorites/favorites.component';
-// import { ReviewsComponent } from './features/user/reviews/reviews.component';
 import { PaymentsComponent } from './features/user/payments/payments.component';
 import { ServiceReservationOneComponentComponent } from './features/cleaner/service-reservation-one.component/service-reservation-one.component.component';
-import { LeaveReviewCardComponent } from './features/user/reviews/leave-review-card/leave-review-card.component';
 import { BookingsReviewComponent } from './features/user/bookings-review/bookings-review.component';
 
 export const routes: Routes = [

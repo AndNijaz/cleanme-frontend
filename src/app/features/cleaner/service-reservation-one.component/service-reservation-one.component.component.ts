@@ -3,11 +3,9 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  ReservationRequest,
-  ReservationService,
-} from '../../../core/services/reservation.service';
+import { ReservationService } from '../../../core/services/reservation.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ReservationRequest } from '../../../core/services/models/reservation.model';
 
 @Component({
   selector: 'app-service-reservation-one.component',
