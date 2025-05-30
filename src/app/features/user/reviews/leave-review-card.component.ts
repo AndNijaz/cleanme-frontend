@@ -1,12 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { FavoritesService } from '../../../../core/services/favorites.service';
-import { CleanerCardModel } from '../../../cleaner/cleaner-card/cleaner-card.component';
-import {
-  Review,
-  ReviewService,
-} from '../../../../core/services/review.service';
+import { FavoritesService } from '../../../core/services/favorites.service';
+import { CleanerCardModel } from '../../cleaner/cleaner-card/cleaner-card.component';
+import { Review, ReviewService } from '../../../core/services/review.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({

@@ -1,21 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  Booking,
-  BookingService,
-} from '../../../core/services/bookings.service';
+import { Booking } from '../../../core/services/bookings.service';
 import { Review, ReviewService } from '../../../core/services/review.service';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
-import { LeaveReviewCardComponent } from '../reviews/leave-review-card/leave-review-card.component';
+import { LeaveReviewCardComponent } from '../reviews/leave-review-card.component';
 import { CleanerCardModel } from '../../cleaner/cleaner-card/cleaner-card.component';
-import { AuthService } from '../../../core/services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
-import {
-  Reservation,
-  ReservationService,
-} from '../../../core/services/reservation.service';
 
 @Component({
   selector: 'app-bookings-review',

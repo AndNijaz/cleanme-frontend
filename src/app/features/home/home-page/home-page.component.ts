@@ -5,7 +5,7 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
 import { NavbarComponent } from '../../../shared/navbar/navbar/navbar.component';
 import { HeroSectionComponent } from '../hero-section/hero-section.component';
 import { CallToActionComponent } from '../call-to-action/call-to-action.component';
-import { FooterComponent } from '../../../shared/footer/footer/footer.component';
+import { FooterComponent } from '../../../shared/components/toggle-button/footer/footer.component';
 
 @Component({
   selector: 'app-home-page',
