@@ -12,11 +12,9 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
 import { FormsModule, NgForm } from '@angular/forms';
 
 import { Router } from '@angular/router';
-import {
-  AuthService,
-  RegisterRequest,
-} from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToggleButtonComponent } from '../../../shared/components/toggle-button/toggle-button.component';
+import { RegisterRequest } from '../../../core/services/models/auth.model';
 
 @Component({
   selector: 'app-register',

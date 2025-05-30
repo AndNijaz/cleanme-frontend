@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { UserType } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EditableFieldComponent } from '../../shared/components/editable-field/editable-field.component';
@@ -8,6 +7,7 @@ import { ProfileOverviewCardComponent } from './profile-overview-card/profile-ov
 import { ProfilePersonalCardComponent } from './profile-personal-card/profile-personal-card.component';
 import { ProfileAddressCardComponent } from './profile-address-card/profile-address-card.component';
 import { GrayCardComponent } from '../../shared/components/gray-card/gray-card.component';
+import { UserType } from '../../core/services/models/user.model';
 
 @Component({
   selector: 'app-shared-profile',

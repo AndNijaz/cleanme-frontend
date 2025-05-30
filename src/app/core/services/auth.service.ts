@@ -2,47 +2,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-
-export type UserType = 'CLIENT' | 'CLEANER';
-
-export interface RegisterRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  userType: UserType;
-  address: string;
-  phoneNumber: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  userId: string;
-  firstName: string;
-  lastName: string;
-  userType: UserType;
-  address: string;
-  phoneNumber: string;
-}
-
-export interface CleanerSetupRequest {
-  cleanerId: string;
-  servicesOffered: string;
-  hourlyRate: number;
-  availability: { [day: string]: { from: string; to: string } }[];
-  bio: string[];
-}
+import {
+  AuthResponse,
+  CleanerSetupRequest,
+  LoginRequest,
+  RegisterRequest,
+} from './models/auth.model';
+import { UserType } from './models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly BASE_URL = 'http://localhost:8080/auth';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient) {}
 
   // === REGISTER ===
   register(data: RegisterRequest): Observable<AuthResponse> {
@@ -72,7 +44,6 @@ export class AuthService {
     const userType = localStorage.getItem('userType') as UserType | null;
     const firstName = localStorage.getItem('firstName') ?? '';
     const lastName = localStorage.getItem('lastName') ?? '';
-    // const email = localStorage.getItem('email') ?? '';
     const phoneNumber = localStorage.getItem('phoneNumber') ?? '';
     const address = localStorage.getItem('address') ?? '';
 
