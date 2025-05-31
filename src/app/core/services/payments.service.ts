@@ -13,7 +13,7 @@ export interface Payment {
 
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
-  // private readonly BASE_URL = 'http://localhost:8080/api/payments';
+  // private readonly BASE_URL = `${environment.api.baseURL}/payments`;
 
   // constructor(private http: HttpClient) {}
   constructor() {} // mock version without HttpClient

@@ -2,10 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BookingWithReview, Review, ReviewDto } from './models/review.model';
+import { environment } from '../../../environemnts/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ReviewService {
-  private readonly BASE_URL = 'http://localhost:8080/review';
+  private readonly BASE_URL = `${environment.api.baseURL}/review`;
 
   constructor(private http: HttpClient) {}
 
@@ -31,7 +32,7 @@ export class ReviewService {
 
   getBookingsWithReviews(): Observable<BookingWithReview[]> {
     return this.http.get<BookingWithReview[]>(
-      `${'http://localhost:8080/review/reviews/bookings'}`
+      `${environment.api.baseURL}/review/reviews/bookings`
     );
   }
 }

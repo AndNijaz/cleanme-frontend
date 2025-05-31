@@ -10,6 +10,7 @@ import { filter } from 'rxjs';
 import { Booking } from '../../../core/services/models/reservation.model';
 import { Review, ReviewDto } from '../../../core/services/models/review.model';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environemnts/environment';
 
 @Component({
   selector: 'app-bookings-review',
@@ -137,7 +138,7 @@ export class BookingsReviewComponent {
 
   editReview(review: Review, booking: Booking) {
     this.http
-      .get<any>(`${'http://localhost:8080'}/cleaners/${review.cleanerId}`)
+      .get<any>(`${environment.api.baseURL}/cleaners/${review.cleanerId}`)
       .subscribe({
         next: (cleaner) => {
           console.log('Fetched cleaner details:', cleaner);

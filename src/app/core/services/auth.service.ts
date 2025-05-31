@@ -9,10 +9,11 @@ import {
   RegisterRequest,
 } from './models/auth.model';
 import { UserType } from './models/user.model';
+import { environment } from '../../../environemnts/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly BASE_URL = 'http://localhost:8080/auth';
+  private readonly BASE_URL = `${environment.api.baseURL}/auth`;
 
   constructor(private http: HttpClient) {}
 
