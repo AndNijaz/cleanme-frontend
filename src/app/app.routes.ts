@@ -101,5 +101,5 @@ export const routes: Routes = [
     component: NotificationsComponent,
   },
 
-  { path: '**', redirectTo: '' },
+  // { path: '**', redirectTo: '' },
 ];
