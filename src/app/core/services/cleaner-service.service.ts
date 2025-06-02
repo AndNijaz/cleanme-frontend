@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { environment } from '../../../environemnts/environment';
+import { environment } from '../../../environments/environment';
 export interface PublicCleanerProfile {
   fullName: string;
   address: string;
@@ -36,7 +36,7 @@ export interface CleanerCardModel {
 
 @Injectable({ providedIn: 'root' })
 export class CleanerService {
-  private readonly BASE_URL = `${environment.api.baseURL}/cleaners`;
+  private readonly BASE_URL = `${environment['NG_APP_BASE_URL']}/cleaners`;
 
   constructor(private http: HttpClient) {}
   private getAuthHeaders(): HttpHeaders {
