@@ -8,11 +8,11 @@ import {
   Reservation,
   ReservationRequest,
 } from './models/reservation.model';
-import { environment } from '../../../environemnts/environment';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationService {
-  private readonly BASE_URL = `${environment.api.baseURL}/reservation`;
+  private readonly BASE_URL = `${environment.url}/reservation`;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
