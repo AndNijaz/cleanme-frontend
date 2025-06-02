@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ReviewService {
-  private readonly BASE_URL = `${environment.url}/review`;
+  private readonly BASE_URL = `${environment['NG_APP_BASE_URL']}/review`;
 
   constructor(private http: HttpClient) {}
 
@@ -32,7 +32,7 @@ export class ReviewService {
 
   getBookingsWithReviews(): Observable<BookingWithReview[]> {
     return this.http.get<BookingWithReview[]>(
-      `${environment.url}/review/reviews/bookings`
+      `${environment['NG_APP_BASE_URL']}/review/reviews/bookings`
     );
   }
 }

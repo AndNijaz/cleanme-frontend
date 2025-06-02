@@ -13,7 +13,7 @@ import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly BASE_URL = `${environment.url}/auth`;
+  private readonly BASE_URL = `${environment['NG_APP_BASE_URL']}/auth`;
 
   constructor(private http: HttpClient) {}
 

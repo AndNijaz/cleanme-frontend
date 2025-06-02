@@ -1,3 +1,3 @@
-export const environment = {
-  url: process.env['NG_APP_BASE_URL'],
-};
+import { loadEnvFile } from 'node:process';
+
+export const environment = loadEnvFile();

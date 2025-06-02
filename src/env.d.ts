@@ -25,3 +25,9 @@ declare const _NGX_ENV_: Env;
 declare namespace NodeJS {
   export interface ProcessEnv extends Env {}
 }
+
+declare module '@ngx-env/core' {
+  interface Environment {
+    NG_APP_BASE_URL: string;
+  }
+}

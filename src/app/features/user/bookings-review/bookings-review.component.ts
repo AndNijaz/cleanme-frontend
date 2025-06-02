@@ -138,7 +138,9 @@ export class BookingsReviewComponent {
 
   editReview(review: Review, booking: Booking) {
     this.http
-      .get<any>(`${environment.url}/cleaners/${review.cleanerId}`)
+      .get<any>(
+        `${environment['NG_APP_BASE_URL']}/cleaners/${review.cleanerId}`
+      )
       .subscribe({
         next: (cleaner) => {
           console.log('Fetched cleaner details:', cleaner);

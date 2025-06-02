@@ -36,7 +36,7 @@ export interface CleanerCardModel {
 
 @Injectable({ providedIn: 'root' })
 export class CleanerService {
-  private readonly BASE_URL = `${environment.url}/cleaners`;
+  private readonly BASE_URL = `${environment['NG_APP_BASE_URL']}/cleaners`;
 
   constructor(private http: HttpClient) {}
   private getAuthHeaders(): HttpHeaders {

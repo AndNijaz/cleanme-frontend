@@ -12,7 +12,7 @@ import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationService {
-  private readonly BASE_URL = `${environment.url}/reservation`;
+  private readonly BASE_URL = `${environment['NG_APP_BASE_URL']}/reservation`;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
