@@ -109,7 +109,7 @@ export class RegisterComponent {
       userType: this.selectedProfileType === 'user' ? 'CLIENT' : 'CLEANER',
     };
 
-    console.log(registerData);
+    //console.log(registerData);
 
     this.authService.register(registerData).subscribe({
       next: (res) => {

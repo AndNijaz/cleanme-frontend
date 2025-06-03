@@ -3,6 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { FormsModule } from '@angular/forms';
+import {AuthService} from '../../../core/services/auth.service';
+import {Router} from '@angular/router';
+import {data} from 'autoprefixer';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +20,12 @@ export class LoginComponent {
   errorMessage: string = '';
   showPassword: boolean = false; // Dodano za prikaz lozinke
 
-  constructor(private httpClient: HttpClient, private destroyRef: DestroyRef) {}
+  constructor(
+    private httpClient: HttpClient,
+    private destroyRef: DestroyRef,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   onSubmit() {
     this.errorMessage = '';
@@ -28,21 +36,39 @@ export class LoginComponent {
     }
 
     if (!this.isValidEmail(this.formEmail)) {
-      this.errorMessage = 'Please enter a valid email address.';
+      this.errorMessage = 'Incorrect email address.';
       return;
     }
 
     if (this.formPassword.length < 6) {
-      this.errorMessage = 'Password must be at least 6 characters.';
+      this.errorMessage = 'Incorrect password.';
       return;
     }
 
-    //console.log('Email:', this.formEmail);
-    //console.log('Password:', this.formPassword);
+    const loginData = {
+      email: this.formEmail.trim(),
+      password: this.formPassword,
+    };
 
-    // Backend login request ide ovdje
-    // this.httpClient.post('/api/login', { email: this.formEmail, password: this.formPassword }).subscribe(...)
+    // console.log('Email:', this.formEmail);
+    // console.log('Password:', this.formPassword);
+
+    this.authService.login(loginData).subscribe({
+      next: (res) => {
+        this.authService.saveAuthData(res);
+
+        if (res.userType === 'CLIENT') {
+          this.router.navigate(['/dashboard/user']);
+        } else {
+          this.router.navigate(['/cleaner-post']);
+        }
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.message || 'Login failed.';
+      },
+    });
   }
+
 
   toggleShowPassword() {
     this.showPassword = !this.showPassword;
