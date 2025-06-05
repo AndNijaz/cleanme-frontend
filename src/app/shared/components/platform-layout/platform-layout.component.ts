@@ -7,6 +7,7 @@ import {
   SidebarService,
 } from '../../../core/services/sidebar.service';
 import { AuthService } from '../../../core/services/auth.service';
+import {HomePageComponent} from '../../../features/home/home-page/home-page.component';
 
 @Component({
   selector: 'app-platform-layout',
@@ -38,6 +39,8 @@ export class PlatformLayoutComponent {
     this.sidebarItems = this.sidebarService.getSidebar(role, currentUrl);
   }
 
-  onLogOut(): void {}
-  onDeleteAccount(): void {}
+  onLogOut(): void {
+    this.authService.clearAuthData();
+    this.router.navigate(['']);
+  }
 }
