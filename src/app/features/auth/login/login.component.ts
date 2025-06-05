@@ -5,7 +5,6 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
 import { FormsModule } from '@angular/forms';
 import {AuthService} from '../../../core/services/auth.service';
 import {Router} from '@angular/router';
-import {data} from 'autoprefixer';
 
 @Component({
   selector: 'app-login',
