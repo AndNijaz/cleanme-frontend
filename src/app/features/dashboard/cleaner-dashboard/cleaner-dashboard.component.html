@@ -1,1 +1,20 @@
-<p>cleaner-dashboard works!</p>
+<div class="space-y-4">
+  <div
+    *ngFor="let appointment of appointments"
+    class="flex items-start gap-4 p-4 rounded-xl border border-gray-200 shadow-sm"
+  >
+    <div class="w-12 h-12 rounded-full bg-gray-200"></div>
+
+    <div class="flex flex-col">
+      <h2 class="text-base font-semibold">
+        {{ appointment.clientName }} – wants to hire you
+      </h2>
+      <p class="text-sm text-blue-600 mt-1">
+        📅 {{ appointment.date }} from {{ appointment.timeRange }}
+      </p>
+      <p class="text-sm text-gray-600 mt-2">
+        {{ appointment.description }}
+      </p>
+    </div>
+  </div>
+</div>
