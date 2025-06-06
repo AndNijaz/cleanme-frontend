@@ -1,21 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { MatBadgeModule } from '@angular/material/badge';
 import { FormsModule } from '@angular/forms';
-
-interface Notification {
-  id: string;
-  user: string;
-  action: string;
-  status: 'accepted' | 'declined' | 'complete';
-  date: string;
-  time: string;
-  isNew: boolean;
-}
+import { formatDate } from '@angular/common';
+import { Router } from '@angular/router';
+import {
+  NotificationService,
+  NotificationDto,
+} from '../../core/services/notification-service';
 
 @Component({
   selector: 'app-notifications',
@@ -25,259 +20,198 @@ interface Notification {
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatCardModule,
     MatBadgeModule,
     FormsModule,
   ],
   template: `
     <div
-      class=" max-md:p-4 p-12 flex flex-col items-center justify-center min-h-screen bg-[#CED9E7]"
+      class="min-h-screen bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300"
     >
-      <div
-        class="flex flex-col lg:flex-row min-h-screen bg-gray-50 w-full rounded-2xl"
-      >
-        <!-- Sidebar (shown on desktop) -->
-        <div
-          class="hidden lg:block w-64 p-6 bg-white border-r border-gray-200 rounded-2xl"
+      <main class="max-w-7xl mx-auto px-4 py-8 min-h-[calc(100vh-80px)]">
+        <h2 class="text-3xl tracking-wider font-semibold text-[#083F87] mb-4">
+          Notifications
+        </h2>
+
+        <section
+          class="flex bg-white backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 min-h-[600px] overflow-hidden"
         >
-          <h2 class="text-xl font-semibold mb-4">Notifications</h2>
-
-          <div class="relative mb-6">
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-icon matPrefix>search</mat-icon>
-              <input matInput placeholder="Search" [(ngModel)]="searchQuery" />
-            </mat-form-field>
-          </div>
-
-          <div class="flex flex-col gap-2">
-            <button
-              mat-raised-button
-              [color]="activeTab === 'new' ? 'primary' : ''"
-              (click)="activeTab = 'new'"
-              class="text-left"
-            >
-              New
-            </button>
-            <button
-              mat-stroked-button
-              [color]="activeTab === 'past' ? 'primary' : ''"
-              (click)="activeTab = 'past'"
-              class="text-left"
-            >
-              Past
-            </button>
-          </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="flex-1 p-6">
-          <!-- Mobile Header (shown only on mobile) -->
-          <div class="lg:hidden mb-6 bg-white p-4 rounded-lg shadow-sm">
-            <h1 class="text-xl font-semibold mb-4">Notifications</h1>
-
-            <div class="relative mb-4">
-              <mat-form-field appearance="outline" class="w-full">
+          <!-- Sidebar -->
+          <aside
+            class="w-60 bg-white border-r border-gray-200 py-10 flex flex-col justify-between"
+          >
+            <div class="px-6">
+              <mat-form-field appearance="outline" class="w-full mb-6">
                 <mat-icon matPrefix>search</mat-icon>
                 <input
                   matInput
-                  placeholder="Search notifications"
+                  placeholder="Search Notifications"
                   [(ngModel)]="searchQuery"
                 />
               </mat-form-field>
-            </div>
 
-            <div class="flex gap-2">
-              <button
-                mat-raised-button
-                [color]="activeTab === 'new' ? 'primary' : ''"
-                (click)="activeTab = 'new'"
-                class="flex-1"
-              >
-                New
-              </button>
-              <button
-                mat-stroked-button
-                [color]="activeTab === 'past' ? 'primary' : ''"
-                (click)="activeTab = 'past'"
-                class="flex-1"
-              >
-                Past
-              </button>
-            </div>
-          </div>
-
-          <!-- Notifications List -->
-          <mat-card class="bg-white">
-            <div class="divide-y divide-gray-100">
-              @if (filteredNotifications.length === 0) {
-              <div class="p-8 text-center text-gray-500">
-                No notifications found
+              <div class="flex flex-col gap-2">
+                <button
+                  mat-raised-button
+                  [color]="activeTab === 'new' ? 'primary' : undefined"
+                  (click)="activeTab = 'new'"
+                  class="rounded-xl py-2"
+                >
+                  New
+                </button>
+                <button
+                  mat-stroked-button
+                  [color]="activeTab === 'past' ? 'primary' : undefined"
+                  (click)="activeTab = 'past'"
+                  class="rounded-xl py-2"
+                >
+                  Past
+                </button>
               </div>
-              } @else { @for (notification of filteredNotifications; track
-              notification.id) {
-              <div class="p-6 hover:bg-gray-50 transition-colors">
-                <div class="flex items-start gap-4">
-                  <!-- Avatar -->
-                  <div
-                    class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center"
-                  >
-                    <span class="text-blue-600 font-medium">
-                      {{ getInitials(notification.user) }}
-                    </span>
+            </div>
+
+            <div class="px-6 mt-auto text-sm">
+              <button class="text-blue-600 hover:underline w-full text-left">
+                Log Out
+              </button>
+            </div>
+          </aside>
+
+          <!-- Notification Content -->
+          <div class="flex-1 px-8 py-10 overflow-y-auto">
+            <div
+              *ngIf="filteredNotifications.length === 0"
+              class="text-center text-gray-500 py-12"
+            >
+              No notifications found
+            </div>
+
+            <div class="space-y-4">
+              <div
+                *ngFor="
+                  let notification of filteredNotifications;
+                  trackBy: trackById
+                "
+                class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex gap-4 items-start"
+              >
+                <div
+                  class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold"
+                >
+                  {{ getInitialsFromMessage(notification.message) }}
+                </div>
+
+                <div class="flex-1">
+                  <div class="text-sm font-medium text-gray-800 mb-1">
+                    {{ notification.message }}
                   </div>
 
-                  <!-- Content -->
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-start justify-between">
-                      <div class="flex-1">
-                        <p class="text-sm text-gray-900">
-                          <span class="font-medium">{{
-                            notification.user
-                          }}</span>
-                          <span [ngClass]="getStatusColor(notification.status)">
-                            {{
-                              getStatusText(
-                                notification.status,
-                                notification.action
-                              )
-                            }}
-                          </span>
-                        </p>
-
-                        <!-- Metadata -->
-                        <div
-                          class="flex items-center gap-4 mt-2 text-xs text-gray-500"
-                        >
-                          <div class="flex items-center gap-1">
-                            <mat-icon class="!text-xs !w-3 !h-3"
-                              >event</mat-icon
-                            >
-                            <span>{{ notification.date }}</span>
-                          </div>
-                          <div class="flex items-center gap-1">
-                            <mat-icon class="!text-xs !w-3 !h-3"
-                              >schedule</mat-icon
-                            >
-                            <span>{{ notification.time }}</span>
-                          </div>
-                        </div>
-
-                        <!-- View Details Link -->
-                        <button
-                          class="flex items-center gap-1 mt-2 text-xs text-blue-600 hover:text-blue-800"
-                        >
-                          <mat-icon class="!text-xs !w-3 !h-3"
-                            >visibility</mat-icon
-                          >
-                          <span>View details</span>
-                        </button>
-                      </div>
-
-                      <!-- New Badge -->
-                      @if (notification.isNew) {
-                      <mat-icon
-                        matBadge="New"
-                        matBadgeSize="small"
-                        class="text-blue-800 !text-xs"
-                      >
-                        fiber_new
-                      </mat-icon>
-                      }
+                  <div class="flex gap-4 text-xs text-gray-500 items-center">
+                    <div class="flex items-center gap-1">
+                      <mat-icon class="!text-xs !w-4 !h-4">event</mat-icon>
+                      <span>{{
+                        getFormattedDate(notification.createdAt)
+                      }}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <mat-icon class="!text-xs !w-4 !h-4">schedule</mat-icon>
+                      <span>{{
+                        getFormattedTime(notification.createdAt)
+                      }}</span>
                     </div>
                   </div>
+
+                  <button
+                    class="mt-2 text-xs text-blue-600 hover:underline flex items-center gap-1"
+                    (click)="handleViewDetails(notification)"
+                  >
+                    <mat-icon class="!text-xs">visibility</mat-icon>
+                    <span>Pogledaj detalje</span>
+                  </button>
+                </div>
+
+                <div *ngIf="!notification.read">
+                  <mat-icon
+                    matBadge="New"
+                    matBadgeSize="small"
+                    class="text-blue-800"
+                  >
+                    fiber_new
+                  </mat-icon>
                 </div>
               </div>
-              } }
             </div>
-          </mat-card>
-        </div>
-      </div>
+          </div>
+        </section>
+      </main>
     </div>
   `,
-  styles: [
-    `
-      .mat-mdc-form-field {
-        width: 100%;
-      }
-      .mat-mdc-button {
-        text-transform: uppercase;
-      }
-    `,
-  ],
 })
-export class NotificationsComponent {
+export class NotificationsComponent implements OnInit {
   activeTab: 'new' | 'past' = 'new';
   searchQuery = '';
+  notifications: NotificationDto[] = [];
 
-  notifications: Notification[] = [
-    {
-      id: '1',
-      user: 'Sanela Brkic',
-      action: 'your booking !',
-      status: 'accepted',
-      date: '7/03/2025',
-      time: '12:54',
-      isNew: true,
-    },
-    {
-      id: '2',
-      user: 'Sanela Brkic',
-      action: 'your booking !',
-      status: 'declined',
-      date: '6/03/2025',
-      time: '12:54',
-      isNew: false,
-    },
-    {
-      id: '3',
-      user: 'Sanela',
-      action: 'your experience !',
-      status: 'complete',
-      date: '2/03/2025',
-      time: '12:54',
-      isNew: false,
-    },
-  ];
+  constructor(
+    private notificationService: NotificationService,
+    private router: Router
+  ) {}
 
-  get filteredNotifications() {
+  ngOnInit(): void {
+    const userId = localStorage.getItem('userId') || '';
+    if (!userId) return;
+
+    this.notificationService.getNotifications(userId).subscribe((data) => {
+      this.notifications = data;
+    });
+  }
+
+  get filteredNotifications(): NotificationDto[] {
     return this.notifications.filter((notification) => {
-      const matchesTab =
-        this.activeTab === 'new' ? notification.isNew : !notification.isNew;
-      const matchesSearch =
-        notification.user
-          .toLowerCase()
-          .includes(this.searchQuery.toLowerCase()) ||
-        notification.action
-          .toLowerCase()
-          .includes(this.searchQuery.toLowerCase());
+      const isUnread = !notification.read;
+      const matchesTab = this.activeTab === 'new' ? isUnread : !isUnread;
+      const matchesSearch = notification.message
+        .toLowerCase()
+        .includes(this.searchQuery.toLowerCase());
       return matchesTab && matchesSearch;
     });
   }
 
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'accepted':
-        return 'text-green-600';
-      case 'declined':
-        return 'text-red-600';
-      case 'complete':
-        return 'text-yellow-600';
-      default:
-        return 'text-gray-600';
+  handleViewDetails(notification: NotificationDto): void {
+    const userType = localStorage.getItem('userType');
+    console.log(userType);
+    const redirectTo =
+      userType === 'CLIENT'
+        ? '/user/reservations'
+        : userType === 'CLEANER'
+        ? '/cleaner/jobs'
+        : '/';
+
+    if (!notification.read) {
+      this.notificationService.markAsRead(notification.id).subscribe(() => {
+        notification.read = true;
+        this.router.navigate([redirectTo]);
+      });
+    } else {
+      this.router.navigate([redirectTo]);
     }
   }
 
-  getStatusText(status: string, action: string): string {
-    if (status === 'complete') {
-      return `Your cleaning with Sanela is complete. Rate ${action}`;
-    }
-    return `${status} ${action}`;
+  getFormattedDate(dateStr: string): string {
+    return formatDate(dateStr, 'dd.MM.yyyy', 'en-US');
   }
 
-  getInitials(name: string): string {
-    return name
-      .split(' ')
-      .map((n) => n[0])
+  getFormattedTime(dateStr: string): string {
+    return formatDate(dateStr, 'HH:mm', 'en-US');
+  }
+
+  getInitialsFromMessage(message: string): string {
+    const words = message.split(' ');
+    return words
+      .slice(0, 2)
+      .map((w) => w[0]?.toUpperCase() || '')
       .join('');
+  }
+
+  trackById(index: number, item: NotificationDto): string {
+    return item.id;
   }
 }
