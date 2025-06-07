@@ -1,0 +1,25 @@
+<!-- navbar.component.html -->
+<nav class="w-full bg-white shadow-sm sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto flex items-center justify-between py-4 px-4 md:px-12">
+    <!-- Logo -->
+    <div class="text-2xl font-bold text-blue-600">CleanMe</div>
+    <!-- Nav Links -->
+    <div class="hidden md:flex gap-8 text-gray-700 font-medium">
+      <a href="#how-it-works" class="hover:text-blue-600 transition">How It Works</a>
+      <a href="#benefits" class="hover:text-blue-600 transition">Benefits</a>
+      <a href="#testimonials" class="hover:text-blue-600 transition">Testimonials</a>
+    </div>
+    <!-- Auth Buttons -->
+    <div class="flex gap-2">
+      <a routerLink="/login">
+        <button
+          class="px-5 py-2 border border-blue-600 text-blue-600 rounded-full font-semibold hover:bg-blue-50 transition">Login</button>
+      </a>
+      <a routerLink="/register">
+        <button class="px-5 py-2 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition">Sign
+          Up</button>
+      </a>
+    </div>
+    <!-- Mobile Menu Button (optional, for future) -->
+  </div>
+</nav>

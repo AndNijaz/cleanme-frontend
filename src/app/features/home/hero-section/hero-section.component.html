@@ -1,24 +1,40 @@
-<section class="bg-cover bg-center py-24 h-screen" style="background-image: url('hero-bg.jpg');" id="home">
-  <app-container class="text-center py-24">
-    <h1 class="text-6xl font-bold text-blue-900 mb-4">
-      Your Location, Cleaner Than Ever
-    </h1>
-    <p class="text-xl text-blue-800 mb-8 px-0">
-      Trusted cleaners at your fingertips. Book easily, relax fully.
-    </p>
+<section class="bg-white py-16">
+  <app-container>
+    <!-- Left: Text Content -->
+    <div class="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-0">
 
-    <div class="flex flex-col sm:flex-row justify-center gap-4">
-      <a routerLink="/register">
+      <div class="flex-1 text-left md:pr-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4 leading-tight">
+          Find Trusted Cleaners in <br class="hidden md:block" />Just a Few Clicks
+        </h1>
+        <p class="text-lg md:text-xl text-gray-600 mb-8">
+          Connect with local cleaners, compare prices, and book instantly.<br />Experience hassle-free cleaning services
+          tailored to your needs.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <a routerLink="/register">
+            <button
+              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow-md w-full sm:w-auto">
+              Reserve a Cleaner Now
+            </button>
+          </a>
+          <a routerLink="/terms">
+            <button
+              class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold px-6 py-3 rounded-full shadow-md w-full sm:w-auto">
+              Learn More
+            </button>
+          </a>
+        </div>
+      </div>
+      <!-- Right: Illustration -->
+      <div class="flex-1 flex justify-center mb-8 md:mb-0">
+        <div
+          class="bg-white rounded-3xl shadow-lg p-6 md:p-10 flex items-center justify-center w-full max-w-xs md:max-w-md">
+          <img src="/cleaner-img-landing.png" alt="Cleaner Illustration" class="w-48 md:w-64 h-auto" />
+        </div>
+      </div>
 
-        <app-button class="from-yellow-400 to-yellow-400 text-black w-auto">
-          Request a Cleaner
-        </app-button>
-      </a>
-      <a routerLink="/register">
-        <app-button class="from-blue-900 to-blue-700 text-white w-auto">
-          Become a Cleaner
-        </app-button>
-      </a>
     </div>
+
   </app-container>
 </section>

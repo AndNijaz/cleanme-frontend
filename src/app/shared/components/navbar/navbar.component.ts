@@ -1,11 +1,9 @@
 import { Component } from '@angular/core';
-import { ContainerComponent } from '../../components/container/container.component';
-import { ButtonComponent } from '../../components/button/button.component';
 import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-  imports: [ButtonComponent, RouterModule],
+  imports: [RouterModule],
   templateUrl: './navbar.component.html',
   standalone: true,
 })

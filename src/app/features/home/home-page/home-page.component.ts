@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { ContainerComponent } from '../../../shared/components/container/container.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { NavbarComponent } from '../../../shared/navbar/navbar/navbar.component';
+import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { HeroSectionComponent } from '../hero-section/hero-section.component';
-import { CallToActionComponent } from '../call-to-action/call-to-action.component';
 import { FooterComponent } from '../../../shared/components/toggle-button/footer/footer.component';
+import { HowItWorksComponent } from '../how-it-works/how-it-works.component';
+import { WhyChooseComponent } from '../why-choose/why-choose.component';
+import { TestimonialsComponent } from '../testimonials/testimonials.component';
 
 @Component({
   selector: 'app-home-page',
@@ -14,8 +14,10 @@ import { FooterComponent } from '../../../shared/components/toggle-button/footer
     RouterModule,
     NavbarComponent,
     HeroSectionComponent,
-    CallToActionComponent,
     FooterComponent,
+    HowItWorksComponent,
+    WhyChooseComponent,
+    TestimonialsComponent,
   ],
   templateUrl: './home-page.component.html',
 })

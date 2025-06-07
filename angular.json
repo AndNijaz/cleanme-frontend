@@ -23,6 +23,11 @@
                 "glob": "_redirects",
                 "input": "src/",
                 "output": "./"
+              },
+              {
+                "glob": "**/*",
+                "input": "public",
+                "output": "./"
               }
             ],
             "styles": ["src/custom-theme.scss", "src/styles.css"],
