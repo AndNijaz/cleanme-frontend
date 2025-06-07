@@ -1,56 +1,58 @@
-<footer class="bg-white text-gray-700 pt-24 px-12">
-
-  <div class="grid grid-cols-4 gap-8 text-left max-w-7xl mx-auto max-md:grid-cols-2 max-md:gap-y-12">
-
-    <div class="space-y-4">
-      <div class="text-2xl font-bold text-yellow-400">CleanMe</div>
-
-      <div class="flex justify-center md:justify-start gap-4 text-gray-500">
-        <a href="#"><i class="fab fa-facebook-f text-xl"></i></a>
-        <a href="#"><i class="fab fa-instagram text-xl"></i></a>
-        <a href="#"><i class="fab fa-linkedin-in text-xl"></i></a>
-      </div>
-
-      <p class="text-sm text-gray-400">
-        Copyright © 2024 by CleanMe, Inc. All rights reserved.
-      </p>
+<footer class="w-full">
+  <!-- Call to Action Banner -->
+  <div class="bg-blue-900 text-white py-12 flex flex-col items-center justify-center">
+    <h2 class="text-3xl md:text-4xl font-bold mb-6 text-center">Ready to enjoy a cleaner space?</h2>
+    <div class="flex flex-col sm:flex-row gap-4">
+      <a routerLink="/register">
+        <button
+          class="bg-yellow-400 hover:bg-yellow-300 text-blue-900 font-semibold px-8 py-3 rounded-full shadow-md text-lg">Register
+          Now</button>
+      </a>
+      <a routerLink="/login">
+        <button
+          class="border-2 border-white text-white font-semibold px-8 py-3 rounded-full shadow-md text-lg hover:bg-white hover:text-blue-900 transition">Login</button>
+      </a>
     </div>
-
-    <div class="space-y-4">
-      <h4 class="text-lg font-semibold">Contact us</h4>
-      <div class="flex items-center gap-2 justify-start">
-        <i class="far fa-envelope"></i>
-        <span>infoATcleanme.ba</span>
-      </div>
-      <div class="flex items-center gap-2 justify-start">
-        <i class="fas fa-phone-alt"></i>
-        <span>+41 41 711 7066</span>
-      </div>
-      <div class="flex items-center gap-2 justify-start">
-        <i class="fas fa-map-marker-alt"></i>
-        <span>CleanMe AG<br>Himze Polovine 3<br>Kod Nidze</span>
-      </div>
-    </div>
-
-    <div class="space-y-4">
-      <h4 class="text-lg font-semibold">Services</h4>
-      <ul class="space-y-2">
-        <li>Home Cleaning</li>
-        <li>Office Cleaning</li>
-        <li>Deep Cleaning</li>
-        <li>Move-In/Move-Out Cleaning</li>
-      </ul>
-    </div>
-
-    <div class="space-y-4">
-      <h4 class="text-lg font-semibold">About us</h4>
-      <p>We bring cleanliness and peace into your home.</p>
-      <p>Relax and enjoy a spotless space, effortlessly.</p>
-    </div>
-
   </div>
-
-  <div class="text-center text-gray-400 text-sm mt-8 py-8">
-    Copyright © {{ currentYear }} developed by Involve,
+  <!-- Footer Links -->
+  <div class="bg-blue-50 text-gray-700 pt-12 pb-4 px-4 md:px-12">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-left">
+      <div class="space-y-4">
+        <div class="text-2xl font-bold text-blue-600">CleanMe</div>
+        <p class="text-sm text-gray-500">Your trusted platform for professional cleaning services.</p>
+        <div class="flex gap-4 mt-2">
+          <a href="#"><i class="fab fa-facebook-f text-xl text-blue-600"></i></a>
+          <a href="#"><i class="fab fa-twitter text-xl text-blue-600"></i></a>
+          <a href="#"><i class="fab fa-instagram text-xl text-blue-600"></i></a>
+        </div>
+      </div>
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold">Quick Links</h4>
+        <ul class="space-y-2">
+          <li><a href="#how-it-works" class="hover:underline">About Us</a></li>
+          <li><a href="#how-it-works" class="hover:underline">Services</a></li>
+          <li><a href="#how-it-works" class="hover:underline">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold">Support</h4>
+        <ul class="space-y-2">
+          <li><a href="#how-it-works" class="hover:underline">Help Center</a></li>
+          <li><a routerLink="terms" class="hover:underline">Privacy Policy</a></li>
+          <li><a routerLink="terms" class="hover:underline">Terms of Service</a></li>
+        </ul>
+      </div>
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold">Connect</h4>
+        <div class="flex gap-4">
+          <a href="#"><i class="fab fa-facebook-f text-xl text-blue-600"></i></a>
+          <a href="#"><i class="fab fa-twitter text-xl text-blue-600"></i></a>
+          <a href="#"><i class="fab fa-instagram text-xl text-blue-600"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="text-center text-gray-400 text-sm mt-8 py-4">
+      © {{ currentYear }} CleanMe. All rights reserved.
+    </div>
   </div>
 </footer>
