@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -23,38 +23,44 @@ import { UserService, User } from '../../core/services/user.service';
   templateUrl: './shared-profile.component.html',
   standalone: true,
 })
-export class SharedProfileComponent {
+export class SharedProfileComponent implements OnInit {
   profile: User | null = null;
-  isEditingPersonal = false;
-  isEditingOverview = false;
-  isEditingAddress = false;
+  editingSection: string | null = null;
 
   constructor(private userService: UserService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.loadProfile();
+  }
+
+  loadProfile(): void {
     this.userService.getCurrentUser().subscribe({
-      next: (user) => this.profile = user,
-      error: (err) => console.error('Failed to load user profile', err)
+      next: (user) => {
+        this.profile = user;
+        console.log('Profile loaded:', user);
+      },
+      error: (error) => {
+        console.error('Error loading profile:', error);
+      },
     });
   }
 
-  toggleEdit(section: 'overview' | 'personal' | 'address') {
-    if (section === 'overview')
-      this.isEditingOverview = !this.isEditingOverview;
-    if (section === 'personal')
-      this.isEditingPersonal = !this.isEditingPersonal;
-    if (section === 'address') this.isEditingAddress = !this.isEditingAddress;
+  toggleEdit(section: string): void {
+    this.editingSection = this.editingSection === section ? null : section;
   }
 
-  saveProfile() {
-    if (this.profile) {
-      this.userService.updateCurrentUser(this.profile).subscribe({
-        next: (user) => {
-          this.profile = user;
-          alert('Profile updated!');
-        },
-        error: (err) => alert('Failed to update profile')
-      });
-    }
+  saveProfile(section: string): void {
+    if (!this.profile) return;
+
+    this.userService.updateCurrentUser(this.profile).subscribe({
+      next: (updatedUser) => {
+        this.profile = updatedUser;
+        this.editingSection = null;
+        console.log('Profile updated:', updatedUser);
+      },
+      error: (error) => {
+        console.error('Error updating profile:', error);
+      },
+    });
   }
 }

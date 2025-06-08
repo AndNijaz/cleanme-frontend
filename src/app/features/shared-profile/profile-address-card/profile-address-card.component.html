@@ -1,41 +1,51 @@
-<div class="flex justify-between items-center">
-  <h3 class="font-semibold text-gray-800">Address</h3>
-  <div class="space-x-2">
-    <button *ngIf="!isEditing" (click)="onToggleEdit.emit()"
-      class="text-sm text-gray-600 border px-3 py-1 rounded-lg hover:bg-gray-100">
-      Edit ✎
-    </button>
-    <button *ngIf="isEditing" (click)="onSave.emit()"
-      class="text-sm text-white bg-blue-600 px-3 py-1 rounded-lg hover:bg-blue-700">
-      Save
+<div class="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+  <div class="flex justify-between items-center">
+    <h2 class="text-xl font-semibold">Address</h2>
+    <button (click)="onToggleEdit.emit()" class="text-blue-600 hover:text-blue-800">
+      {{ isEditing ? 'Cancel' : 'Edit' }}
     </button>
   </div>
-</div>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-  <ng-container *ngIf="isEditing; else viewBlock">
-    <input [(ngModel)]="profile.country" class="border px-2 py-1 rounded w-full" placeholder="Country" />
-    <input [(ngModel)]="profile.city" class="border px-2 py-1 rounded w-full" placeholder="City" />
-    <input [(ngModel)]="profile.street" class="border px-2 py-1 rounded w-full" placeholder="Street" />
-    <input [(ngModel)]="profile.streetExtra" class="border px-2 py-1 rounded w-full" placeholder="Extra Details" />
-  </ng-container>
+  <div *ngIf="profile" class="space-y-4">
+    <div *ngIf="isEditing" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Country</label>
+        <input [(ngModel)]="profile.country" class="border px-2 py-1 rounded w-full" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">City</label>
+        <input [(ngModel)]="profile.city" class="border px-2 py-1 rounded w-full" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Street</label>
+        <input [(ngModel)]="profile.street" class="border px-2 py-1 rounded w-full" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Street Extra</label>
+        <input [(ngModel)]="profile.streetExtra" class="border px-2 py-1 rounded w-full" />
+      </div>
+      <button (click)="onSave.emit()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        Save
+      </button>
+    </div>
 
-  <ng-template #viewBlock>
-    <div>
-      <p class="text-sm text-gray-500">Country</p>
-      <p>{{ profile.country }}</p>
+    <div *ngIf="!isEditing" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Country</label>
+        <p>{{ profile.country }}</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">City</label>
+        <p>{{ profile.city }}</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Street</label>
+        <p>{{ profile.street }}</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Street Extra</label>
+        <p>{{ profile.streetExtra }}</p>
+      </div>
     </div>
-    <div>
-      <p class="text-sm text-gray-500">City</p>
-      <p>{{ profile.city }}</p>
-    </div>
-    <div>
-      <p class="text-sm text-gray-500">Street Name</p>
-      <p>{{ profile.street }}</p>
-    </div>
-    <div>
-      <p class="text-sm text-gray-500">Street Number / Floor</p>
-      <p>{{ profile.streetExtra }}</p>
-    </div>
-  </ng-template>
+  </div>
 </div>
