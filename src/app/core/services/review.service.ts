@@ -35,4 +35,8 @@ export class ReviewService {
       `${environment['NG_APP_BASE_URL']}/review/reviews/bookings`
     );
   }
+
+  getReviewsForCleaner(cleanerId: string): Observable<Review[]> {
+    return this.http.get<Review[]>(`${this.BASE_URL}/cleaner/${cleanerId}`);
+  }
 }

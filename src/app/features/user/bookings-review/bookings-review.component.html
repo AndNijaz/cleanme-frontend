@@ -25,8 +25,12 @@
             <mat-icon [ngClass]="booking.review.rating >= star ? 'text-yellow-500' : 'text-gray-300'">star</mat-icon>
           </ng-container>
         </div>
-        <p class="text-gray-600 text-sm italic mb-1">{{ booking.review.message }}</p>
-        <h1>{{booking.review.comment}}</h1>
+        <div *ngIf="booking.review.message" class="text-gray-600 text-sm italic mb-1">
+          <span class="font-semibold">Message:</span> {{ booking.review.message }}
+        </div>
+        <div *ngIf="booking.review.comment" class="text-gray-600 text-sm italic mb-1">
+          <span class="font-semibold">Comment:</span> {{ booking.review.comment }}
+        </div>
         <button (click)="editReview(booking.review, booking)" class="text-sm text-blue-600 hover:underline">
           Edit Review
         </button>

@@ -7,18 +7,17 @@
     <app-profile-personal-card [profile]="profile" [isEditing]="isEditingPersonal"
       (onToggleEdit)="toggleEdit('personal')" (onSave)="saveProfile('personal')" />
   </div> -->
-  <app-gray-card>
+  <app-gray-card *ngIf="profile">
     <app-profile-overview-card [profile]="profile" [isEditing]="isEditingOverview"
       (onToggleEdit)="toggleEdit('overview')" (onSave)="saveProfile('overview')" />
   </app-gray-card>
 
-  <app-gray-card>
-
+  <app-gray-card *ngIf="profile">
     <app-profile-personal-card [profile]="profile" [isEditing]="isEditingPersonal"
       (onToggleEdit)="toggleEdit('personal')" (onSave)="saveProfile('personal')" />
   </app-gray-card>
 
-  <app-gray-card>
+  <app-gray-card *ngIf="profile">
     <app-profile-address-card [profile]="profile" [isEditing]="isEditingAddress" (onToggleEdit)="toggleEdit('address')"
       (onSave)="saveProfile('address')" />
   </app-gray-card>
