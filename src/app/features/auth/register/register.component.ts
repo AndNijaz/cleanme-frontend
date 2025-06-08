@@ -10,6 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { FormsModule, NgForm } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -24,6 +25,7 @@ import { RegisterRequest } from '../../../core/services/models/auth.model';
     ButtonComponent,
     FormsModule,
     ToggleButtonComponent,
+    RouterLink,
   ],
   templateUrl: './register.component.html',
 })

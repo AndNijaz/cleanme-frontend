@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { FormsModule } from '@angular/forms';
-import {AuthService} from '../../../core/services/auth.service';
-import {Router} from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
+import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [InputComponent, ButtonComponent, FormsModule],
+  imports: [FormsModule, InputComponent, ButtonComponent, RouterLink],
   templateUrl: './login.component.html',
 })
 export class LoginComponent {

@@ -19,6 +19,7 @@ import { FavoritesComponent } from './features/user/favorites/favorites.componen
 import { PaymentsComponent } from './features/user/payments/payments.component';
 import { ServiceReservationOneComponentComponent } from './features/cleaner/service-reservation-one.component/service-reservation-one.component.component';
 import { BookingsReviewComponent } from './features/user/bookings-review/bookings-review.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -39,6 +40,7 @@ export const routes: Routes = [
   {
     path: '',
     component: PlatformLayoutComponent,
+    canActivate: [authGuard],
     children: [
       {
         path: 'user',
@@ -100,6 +102,7 @@ export const routes: Routes = [
   {
     path: 'notifications',
     component: NotificationsComponent,
+    canActivate: [authGuard],
   },
 
   // { path: '**', redirectTo: '' },

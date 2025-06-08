@@ -54,8 +54,13 @@
       <a href="/terms" class="text-blue-500 hover:underline">Terms and Conditions</a>.
     </p>
 
-    <p class="text-red-500 text-center mt-1 mb-4 max-md:mb-2">
+    <p class="text-red-500 text-center mt-1 max-md:mb-2">
       {{ errorMessage }}
+    </p>
+
+    <p class="text-sm text-center text-gray-600">
+      Already have an account? 
+      <a routerLink="/login" class="text-blue-500 hover:underline">Login here</a>
     </p>
 
     <div class="w-full text-center">
@@ -63,6 +68,8 @@
         Register
       </app-button>
     </div>
+
+    
 
   </div>
 </form>
