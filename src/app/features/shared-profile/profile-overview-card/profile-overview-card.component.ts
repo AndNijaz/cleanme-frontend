@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReviewService } from '../../../core/services/review.service';
@@ -12,7 +12,7 @@ import { User } from '../../../core/services/user.service';
   imports: [CommonModule, FormsModule, MatIconModule],
   templateUrl: './profile-overview-card.component.html',
 })
-export class ProfileOverviewCardComponent {
+export class ProfileOverviewCardComponent implements OnInit {
   @Input() profile: User | null = null;
   @Input() isEditing: boolean = false;
   @Output() onToggleEdit = new EventEmitter<void>();
@@ -20,7 +20,11 @@ export class ProfileOverviewCardComponent {
 
   allCleanerReviews: Review[] = [];
   averageRating: number = 0;
-  showAllReviews = false;
+  showAllReviews: boolean = false;
+
+  get displayedReviews(): Review[] {
+    return this.showAllReviews ? this.allCleanerReviews : this.allCleanerReviews.slice(0, 3);
+  }
 
   constructor(private reviewService: ReviewService) {}
 
@@ -38,11 +42,7 @@ export class ProfileOverviewCardComponent {
     });
   }
 
-  get displayedReviews() {
-    return this.showAllReviews ? this.allCleanerReviews : this.allCleanerReviews.slice(0, 3);
-  }
-
-  toggleShowAllReviews() {
+  toggleShowAllReviews(): void {
     this.showAllReviews = !this.showAllReviews;
   }
 }
