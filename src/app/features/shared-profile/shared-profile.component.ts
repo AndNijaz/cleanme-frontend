@@ -8,6 +8,7 @@ import { ProfilePersonalCardComponent } from './profile-personal-card/profile-pe
 import { ProfileAddressCardComponent } from './profile-address-card/profile-address-card.component';
 import { GrayCardComponent } from '../../shared/components/gray-card/gray-card.component';
 import { UserType } from '../../core/services/models/user.model';
+import { UserService, User } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-shared-profile',
@@ -23,28 +24,18 @@ import { UserType } from '../../core/services/models/user.model';
   standalone: true,
 })
 export class SharedProfileComponent {
-  userType!: UserType;
+  profile: User | null = null;
   isEditingPersonal = false;
   isEditingOverview = false;
   isEditingAddress = false;
 
-  profile = {
-    firstName: 'Neko ime',
-    lastName: 'Neko prezime',
-    email: 'email@email.com',
-    phone: '+387 61 111 222',
-    address: 'Sarajevo 123',
-    country: 'Bosna i Hercegovina',
-    city: 'Sarajevo',
-    street: 'Mula Mustafe Bašeskije',
-    streetExtra: '25, floor 4',
-  };
-
-  constructor(private route: ActivatedRoute) {}
+  constructor(private userService: UserService) {}
 
   ngOnInit() {
-    const type = this.route.snapshot.data['userType'];
-    this.userType = type;
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => this.profile = user,
+      error: (err) => console.error('Failed to load user profile', err)
+    });
   }
 
   toggleEdit(section: 'overview' | 'personal' | 'address') {
@@ -55,11 +46,15 @@ export class SharedProfileComponent {
     if (section === 'address') this.isEditingAddress = !this.isEditingAddress;
   }
 
-  saveProfile(section: 'overview' | 'personal' | 'address') {
-    if (section === 'overview') this.isEditingOverview = false;
-    if (section === 'personal') this.isEditingPersonal = false;
-    if (section === 'address') this.isEditingAddress = false;
-
-    console.log(`Saved ${section} data:`, this.profile);
+  saveProfile() {
+    if (this.profile) {
+      this.userService.updateCurrentUser(this.profile).subscribe({
+        next: (user) => {
+          this.profile = user;
+          alert('Profile updated!');
+        },
+        error: (err) => alert('Failed to update profile')
+      });
+    }
   }
 }

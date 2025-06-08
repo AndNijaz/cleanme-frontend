@@ -34,6 +34,16 @@ export interface CleanerCardModel {
   isFavorite?: boolean;
 }
 
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  // ... any other fields
+}
+
 @Injectable({ providedIn: 'root' })
 export class CleanerService {
   private readonly BASE_URL = `${environment['NG_APP_BASE_URL']}/cleaners`;
@@ -55,7 +65,8 @@ export class CleanerService {
       .pipe(
         map((cleaner: any) => {
           // Get base profile data
-          const profile: PublicCleanerProfile = {
+          const profile: PublicCleanerProfile & { id: string } = {
+            id: cleaner.id,
             fullName: `${cleaner.firstName} ${cleaner.lastName}`,
             address: this.formatLocation(cleaner),
             bio: cleaner.bio || 'No bio available',
@@ -307,5 +318,20 @@ export class CleanerService {
       // map is from rxjs/operators
       map((cleaners) => cleaners.find((c) => c.id === id) ?? null)
     );
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private readonly BASE_URL = `${environment['NG_APP_BASE_URL']}/user`;
+
+  constructor(private http: HttpClient) {}
+
+  getCurrentUser(): Observable<User> {
+    return this.http.get<User>(`${this.BASE_URL}/me`);
+  }
+
+  updateCurrentUser(user: User): Observable<User> {
+    return this.http.put<User>(`${this.BASE_URL}/me`, user);
   }
 }

@@ -118,22 +118,50 @@ export class BookingsReviewComponent {
   leaveReview(group: any, booking: Booking) {
     console.log(group);
     console.log(booking);
-    this.selectedCleaner = {
-      id: group.cleanerId,
-      fullName: group.cleanerName,
-      rating: 0,
-      reviewCount: 0,
-      location: 'Unknown',
-      shortBio: 'Mock cleaner profile',
-      services: [],
-      price: 0,
-      currency: '$',
-    };
-    this.selectedBooking = booking;
-    this.initialRating = 0;
-    this.initialMessage = '';
-    this.editingReview = null;
-    this.isReviewModalOpen = true;
+    this.http
+      .get<any>(
+        `${environment['NG_APP_BASE_URL']}/cleaners/${group.cleanerId}`
+      )
+      .subscribe({
+        next: (cleaner) => {
+          this.selectedCleaner = {
+            id: cleaner.id,
+            fullName: `${cleaner.firstName} ${cleaner.lastName}`,
+            rating: 0,
+            reviewCount: 0,
+            location: '',
+            shortBio: cleaner.bio?.[0] ?? '',
+            services: [],
+            price: cleaner.hourlyRate,
+            currency: '$',
+          };
+          this.selectedBooking = booking;
+          this.initialRating = 0;
+          this.initialMessage = '';
+          this.editingReview = null;
+          this.isReviewModalOpen = true;
+        },
+        error: (err) => {
+          console.error('Error fetching cleaner details:', err);
+          // fallback to mock data if needed
+          this.selectedCleaner = {
+            id: group.cleanerId,
+            fullName: group.cleanerName,
+            rating: 0,
+            reviewCount: 0,
+            location: 'Unknown',
+            shortBio: 'Mock cleaner profile',
+            services: [],
+            price: 0,
+            currency: '$',
+          };
+          this.selectedBooking = booking;
+          this.initialRating = 0;
+          this.initialMessage = '';
+          this.editingReview = null;
+          this.isReviewModalOpen = true;
+        },
+      });
   }
 
   editReview(review: Review, booking: Booking) {

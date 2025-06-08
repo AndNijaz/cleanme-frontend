@@ -7,6 +7,8 @@ import {
   CleanerService,
   PublicCleanerProfile,
 } from '../../../core/services/cleaner-service.service';
+import { ReviewService } from '../../../core/services/review.service';
+import { Review } from '../../../core/services/models/review.model';
 
 @Component({
   selector: 'app-cleaner-public-profile',
@@ -15,11 +17,14 @@ import {
   templateUrl: './cleaner-public-profile.component.html',
 })
 export class CleanerPublicProfileComponent implements OnInit {
-  cleaner: PublicCleanerProfile | null = null;
+  cleaner: (PublicCleanerProfile & { id: string }) | null = null;
+  allCleanerReviews: Review[] = [];
+  averageRating: number = 0;
 
   constructor(
     private route: ActivatedRoute,
     private cleanerService: CleanerService,
+    private reviewService: ReviewService,
     private router: Router
   ) {}
 
@@ -28,11 +33,18 @@ export class CleanerPublicProfileComponent implements OnInit {
     if (id) {
       this.cleanerService.getCleanerPublicProfile(id).subscribe({
         next: (data) => {
-          this.cleaner = data;
+          this.cleaner = { ...data, id };
         },
         error: (err) => {
           console.error('Failed to load cleaner profile:', err);
         },
+      });
+      this.reviewService.getReviewsForCleaner(id).subscribe((reviews) => {
+        this.allCleanerReviews = reviews;
+        this.averageRating = reviews.length
+          ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+          : 0;
+        console.log('CleanerPublicProfile: Reviews fetched:', reviews);
       });
     }
   }

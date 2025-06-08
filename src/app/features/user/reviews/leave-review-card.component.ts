@@ -30,7 +30,10 @@ export class LeaveReviewCardComponent implements OnInit {
   currentRating: number | undefined = 0;
   reviewMessage: string | undefined = '';
 
-  constructor(private favoritesService: FavoritesService) {}
+  allCleanerReviews: Review[] = [];
+  showAllReviews = false;
+
+  constructor(private favoritesService: FavoritesService, private reviewService: ReviewService) {}
 
   ngOnInit(): void {
     this.currentRating = this.initialRating;
@@ -39,6 +42,12 @@ export class LeaveReviewCardComponent implements OnInit {
     this.favoritesService.getFavorites().subscribe((ids) => {
       this.cleaner.isFavorite = ids.includes(this.cleaner.id);
     });
+
+    if (this.cleaner?.id) {
+      this.reviewService.getReviewsForCleaner(this.cleaner.id).subscribe((reviews) => {
+        this.allCleanerReviews = reviews;
+      });
+    }
   }
 
   setRating(star: number) {
@@ -52,13 +61,18 @@ export class LeaveReviewCardComponent implements OnInit {
       return;
     }
 
-    // console.log('buking', this.booking);
-
     this.submitReview.emit({
       reviewId: this.reviewId,
       rating: this.currentRating,
       message: this.reviewMessage,
     });
+
+    // Refresh reviews after submit
+    if (this.cleaner?.id) {
+      this.reviewService.getReviewsForCleaner(this.cleaner.id).subscribe((reviews) => {
+        this.allCleanerReviews = reviews;
+      });
+    }
   }
 
   toggleFavorite() {
@@ -80,5 +94,18 @@ export class LeaveReviewCardComponent implements OnInit {
         console.error('❌ Failed to update favorite status');
       },
     });
+  }
+
+  get averageRating(): number {
+    if (!this.allCleanerReviews.length) return 0;
+    return this.allCleanerReviews.reduce((sum, r) => sum + r.rating, 0) / this.allCleanerReviews.length;
+  }
+
+  get displayedReviews() {
+    return this.showAllReviews ? this.allCleanerReviews : this.allCleanerReviews.slice(0, 3);
+  }
+
+  toggleShowAllReviews() {
+    this.showAllReviews = !this.showAllReviews;
   }
 }

@@ -8,6 +8,7 @@ import { CleanerService } from '../../../core/services/cleaner-service.service';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FavoritesService } from '../../../core/services/favorites.service';
+import { ReviewService } from '../../../core/services/review.service';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -23,12 +24,23 @@ export class UserDashboardComponent {
   constructor(
     private cleanerService: CleanerService,
     private router: Router,
-    private favoritesService: FavoritesService
+    private favoritesService: FavoritesService,
+    private reviewService: ReviewService
   ) {}
 
   ngOnInit() {
     this.cleanerService.getCleaners().subscribe((cleaners) => {
       this.cleaners = cleaners;
+
+      // For each cleaner, fetch reviews and update rating/reviewCount
+      for (const cleaner of this.cleaners) {
+        this.reviewService.getReviewsForCleaner(cleaner.id).subscribe((reviews) => {
+          cleaner.rating = reviews.length
+            ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+            : 0;
+          cleaner.reviewCount = reviews.length;
+        });
+      }
 
       this.favoritesService.getFavorites().subscribe((favIds) => {
         for (const cleaner of this.cleaners) {

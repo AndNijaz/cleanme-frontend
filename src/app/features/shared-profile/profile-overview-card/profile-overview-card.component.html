@@ -11,6 +11,10 @@
     <ng-template #viewBlock>
       <p class="text-lg font-semibold">{{ profile.firstName }} {{ profile.lastName }}</p>
       <p class="text-gray-500">{{ profile.address }}</p>
+      <p class="text-xs text-gray-500 flex items-center gap-1 mt-1">
+        <mat-icon style="font-size: 14px;">star_outline</mat-icon>
+        {{ averageRating | number:'1.1-2' }} ({{ allCleanerReviews.length }} reviews)
+      </p>
     </ng-template>
   </div>
 </div>
@@ -23,5 +27,25 @@
   <button *ngIf="isEditing" (click)="onSave.emit()"
     class="text-sm text-white bg-blue-600 px-3 py-1 rounded-lg hover:bg-blue-700">
     Save
+  </button>
+</div>
+
+<!-- After the profile info, show the list of reviews -->
+<div *ngIf="allCleanerReviews.length > 0" class="mt-6 border-t pt-4">
+  <div class="text-sm font-semibold text-gray-700 mb-2">Reviews</div>
+  <div [ngClass]="{'max-h-60 overflow-y-auto': showAllReviews}" class="transition-all duration-300">
+    <div *ngFor="let review of displayedReviews" class="mb-3 pb-3 border-b last:border-b-0">
+      <div class="flex items-center gap-2 mb-1">
+        <ng-container *ngFor="let star of [1,2,3,4,5]">
+          <mat-icon [ngClass]="review.rating >= star ? 'text-yellow-500' : 'text-gray-300'">star</mat-icon>
+        </ng-container>
+        <span class="text-xs text-gray-500 ml-2">{{ review.date | date:'mediumDate' }}</span>
+      </div>
+      <div class="text-gray-800 text-sm">{{ review.comment || review.message }}</div>
+    </div>
+  </div>
+  <button *ngIf="allCleanerReviews.length > 3" (click)="toggleShowAllReviews()"
+    class="mt-2 text-xs text-blue-600 underline">
+    {{ showAllReviews ? 'See less' : 'See more' }}
   </button>
 </div>
