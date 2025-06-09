@@ -102,84 +102,16 @@ export class CleanerService {
           return profile;
         }),
         catchError((error) => {
-          console.error('Error fetching cleaner profile:', error);
-          // Return mock data as fallback
-          const mockProfiles: { [key: string]: PublicCleanerProfile } = {
-            '1': {
-              fullName: 'Bahra Zedic',
-              address: 'Bojnik, Otes, Bjelave, Dobrinja',
-              bio: 'Pedantna, pouzdana i brza – čišćenje mi nije posao, nego zadovoljstvo. Imam više od 4 godine iskustva.',
-              zones: ['Bojnik', 'Otes', 'Dobrinja'],
-              hourlyRate: 15,
-              minHours: 2,
-              rating: 4.8,
-              reviewCount: 128,
-              ratingLabel: 'excellent',
-              services: [
-                {
-                  icon: '🏡',
-                  name: 'Deep Cleaning',
-                  description:
-                    'Temeljito čišćenje svih površina u stanu, uključujući kuhinju, kupatilo i podove.',
-                },
-                {
-                  icon: '🪟',
-                  name: 'Window Washing',
-                  description:
-                    'Čišćenje svih unutrašnjih i vanjskih prozora s profesionalnim sredstvima.',
-                },
-              ],
-            },
-            '2': {
-              fullName: 'Azra Mustafić',
-              address: 'Ilidža, Grbavica',
-              bio: 'Pouzdana i tačna. Čistim stanove i poslovne prostore. Profesionalan pristup svakom klijentu.',
-              zones: ['Ilidža', 'Grbavica'],
-              hourlyRate: 17,
-              minHours: 3,
-              rating: 4.6,
-              reviewCount: 95,
-              ratingLabel: 'very good',
-              services: [
-                {
-                  icon: '🧼',
-                  name: 'Floor Cleaning',
-                  description: 'Usisavanje, pranje i poliranje svih podova.',
-                },
-                {
-                  icon: '🏢',
-                  name: 'Office Cleaning',
-                  description:
-                    'Profesionalno čišćenje radnih prostora i tehničke opreme.',
-                },
-              ],
-            },
-            '3': {
-              fullName: 'Emira Hodžić',
-              address: 'Stup, Hrasno, Grbavica',
-              bio: 'Iskustvo od 5 godina. Koristim ekološka sredstva. Fokus na detalje i kvalitetnu uslugu.',
-              zones: ['Stup', 'Hrasno', 'Grbavica'],
-              hourlyRate: 18,
-              minHours: 2,
-              rating: 4.9,
-              reviewCount: 140,
-              ratingLabel: 'outstanding',
-              services: [
-                {
-                  icon: '🧽',
-                  name: 'Bathroom Deep Clean',
-                  description:
-                    'Dezinfekcija, uklanjanje kamenca i čišćenje fuga.',
-                },
-                {
-                  icon: '🪑',
-                  name: 'Furniture Cleaning',
-                  description: 'Čišćenje tapaciranog i drvenog namještaja.',
-                },
-              ],
-            },
-          };
-          return of(mockProfiles[cleanerId] || mockProfiles['1']);
+          console.error(
+            `❌ Error fetching cleaner profile for ID ${cleanerId}:`,
+            error
+          );
+          console.error(
+            "Backend probably doesn't have cleaner_details for this ID"
+          );
+
+          // Instead of returning wrong profile, throw the error
+          throw error;
         })
       );
   }
@@ -262,32 +194,33 @@ export class CleanerService {
             rating: 4.8,
             reviewCount: 128,
             location: 'Bojnik, Otes, Bjelave, Dobrinja',
-            shortBio: 'Lorem Ipsum Dolor Sit Amet Latinski jezik Jak Bas',
+            shortBio:
+              'Pedantna, pouzdana i brza – čišćenje mi nije posao, nego zadovoljstvo.',
             services: ['Deep Cleaning', 'Window Washing'],
-            price: 100,
-            currency: '$',
+            price: 15,
+            currency: 'BAM',
           },
           {
             id: '2',
-            fullName: 'Azra Mustafić',
+            fullName: 'Azra Mujkic',
             rating: 4.6,
             reviewCount: 95,
             location: 'Ilidža, Grbavica',
             shortBio: 'Pouzdana i tačna. Čistim stanove i poslovne prostore.',
-            services: ['Floor Cleaning', 'Deep Cleaning'],
-            price: 85,
-            currency: '$',
+            services: ['Floor Cleaning', 'Office Cleaning'],
+            price: 17,
+            currency: 'BAM',
           },
           {
             id: '3',
-            fullName: 'Emira Hodžić',
+            fullName: 'Nijaz Andelić',
             rating: 4.9,
             reviewCount: 140,
             location: 'Stup, Hrasno, Grbavica',
             shortBio: 'Iskustvo od 5 godina. Koristim ekološka sredstva.',
-            services: ['Office Cleaning', 'Window Washing'],
-            price: 95,
-            currency: '$',
+            services: ['Bathroom Deep Clean', 'Furniture Cleaning'],
+            price: 18,
+            currency: 'BAM',
           },
         ]);
       })

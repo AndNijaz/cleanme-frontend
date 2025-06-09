@@ -1,83 +1,285 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import {
   CleanerService,
   PublicCleanerProfile,
 } from '../../../core/services/cleaner-service.service';
-import { ReviewService } from '../../../core/services/review.service';
 import { ReservationService } from '../../../core/services/reservation.service';
-import { AuthService } from '../../../core/services/auth.service';
+
 import { Review } from '../../../core/services/models/review.model';
 import { ReservationRequest } from '../../../core/services/models/reservation.model';
 
 @Component({
   selector: 'app-cleaner-public-profile',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule, MatIconModule],
-  templateUrl: './cleaner-public-profile.component.html',
-  styles: [
-    `
-      .custom-scrollbar {
-        scrollbar-width: thin;
-        scrollbar-color: #cbd5e1 #f1f5f9;
-      }
+  imports: [CommonModule, ReactiveFormsModule],
+  template: `
+    <div class="container mx-auto px-4 py-8">
+      <!-- Loading State -->
+      <div
+        *ngIf="loading"
+        class="flex items-center justify-center min-h-screen"
+      >
+        <div class="flex flex-col items-center">
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+          ></div>
+          <p class="mt-4 text-gray-600">Loading cleaner profile...</p>
+        </div>
+      </div>
 
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-      }
+      <!-- Error State -->
+      <div
+        *ngIf="error"
+        class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6"
+      >
+        <div class="flex items-center">
+          <svg
+            class="w-5 h-5 text-red-400 mr-3"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <span class="text-red-800">{{ error }}</span>
+        </div>
+      </div>
 
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 3px;
-      }
+      <!-- Cleaner Profile -->
+      <div *ngIf="cleaner && !loading && !error" class="max-w-4xl mx-auto">
+        <!-- Header Section -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+          <div
+            class="bg-gradient-to-r from-purple-500 to-pink-500 h-32 relative"
+          >
+            <div class="absolute bottom-0 left-6 transform translate-y-1/2">
+              <div
+                class="w-24 h-24 bg-white rounded-full border-4 border-white shadow-lg flex items-center justify-center"
+              >
+                <span class="text-2xl font-bold text-gray-700">{{
+                  getInitials(cleaner.fullName)
+                }}</span>
+              </div>
+            </div>
+          </div>
 
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 3px;
-      }
+          <div class="px-6 pt-16 pb-6">
+            <div class="flex justify-between items-start">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                  {{ cleaner.fullName }}
+                </h1>
+                <div class="flex items-center mb-3">
+                  <div class="flex items-center mr-4">
+                    <span class="flex">
+                      <i
+                        *ngFor="let i of [1, 2, 3, 4, 5]"
+                        class="fas fa-star text-lg"
+                        [style.color]="
+                          cleaner.rating > 0 && i <= Math.floor(cleaner.rating)
+                            ? '#fbbf24'
+                            : '#d1d5db'
+                        "
+                      >
+                      </i>
+                    </span>
+                    <span class="ml-2 text-gray-600 font-medium">
+                      {{
+                        cleaner.rating > 0
+                          ? cleaner.rating.toFixed(1)
+                          : 'New cleaner'
+                      }}
+                    </span>
+                  </div>
+                  <span class="text-gray-500 text-sm">
+                    {{
+                      cleaner.reviewCount > 0
+                        ? '(' + cleaner.reviewCount + ' reviews)'
+                        : 'No reviews yet'
+                    }}
+                  </span>
+                </div>
+                <p class="text-gray-600 mb-4">
+                  {{
+                    cleaner.address || 'Address will be provided upon booking'
+                  }}
+                </p>
+              </div>
 
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-      }
-    `,
-  ],
+              <div class="text-right">
+                <div class="text-3xl font-bold text-green-600 mb-1">
+                  {{
+                    cleaner.hourlyRate > 0
+                      ? cleaner.hourlyRate + ' BAM/h'
+                      : 'Price upon request'
+                  }}
+                </div>
+                <div class="text-sm text-gray-500">
+                  {{
+                    cleaner.minHours
+                      ? 'Min ' + cleaner.minHours + 'h booking'
+                      : 'Flexible booking duration'
+                  }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bio Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-4">About</h2>
+          <p class="text-gray-700 leading-relaxed">
+            {{
+              cleaner.bio ||
+                'Professional cleaner with experience in residential and commercial cleaning'
+            }}
+          </p>
+        </div>
+
+        <!-- Services Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-6">
+            Services Offered
+          </h2>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div
+              *ngFor="let service of cleaner.services"
+              class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <span class="text-2xl">{{ service.icon }}</span>
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-900 mb-1">
+                  {{ service.name }}
+                </h3>
+                <p class="text-gray-600 text-sm">{{ service.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zones Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+            Service Areas
+          </h2>
+          <div class="flex flex-wrap gap-2">
+            <span
+              *ngFor="let zone of cleaner.zones"
+              class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+            >
+              {{ zone }}
+            </span>
+            <span
+              *ngIf="!cleaner.zones || cleaner.zones.length === 0"
+              class="text-gray-500 italic"
+            >
+              Available citywide • Specific zones confirmed during booking
+            </span>
+          </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-6">
+            Client Reviews
+          </h2>
+
+          <div *ngIf="reviews && reviews.length > 0" class="space-y-6">
+            <div
+              *ngFor="let review of reviews"
+              class="border-b border-gray-200 last:border-b-0 pb-6 last:pb-0"
+            >
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <h4 class="font-semibold text-gray-900">
+                    {{ review.cleanerName || 'Anonymous Client' }}
+                  </h4>
+                  <div class="flex items-center mt-1">
+                    <span class="flex">
+                      <i
+                        *ngFor="let i of [1, 2, 3, 4, 5]"
+                        class="fas fa-star text-sm"
+                        [style.color]="
+                          i <= review.rating ? '#fbbf24' : '#d1d5db'
+                        "
+                      >
+                      </i>
+                    </span>
+                    <span class="ml-2 text-gray-600 text-sm"
+                      >{{ review.rating }}/5</span
+                    >
+                  </div>
+                </div>
+                <span class="text-gray-500 text-sm">{{
+                  formatDate(review.date)
+                }}</span>
+              </div>
+              <p class="text-gray-700">{{ review.comment }}</p>
+            </div>
+          </div>
+
+          <div
+            *ngIf="!reviews || reviews.length === 0"
+            class="text-center py-8"
+          >
+            <div class="flex items-center justify-center mb-4">
+              <span class="flex">
+                <i
+                  *ngFor="let i of [1, 2, 3, 4, 5]"
+                  class="fas fa-star text-2xl text-gray-300 mr-1"
+                >
+                </i>
+              </span>
+            </div>
+            <p class="text-gray-500 text-lg font-medium mb-2">
+              New cleaner - No reviews yet
+            </p>
+            <p class="text-gray-400">Be the first to leave a review!</p>
+          </div>
+        </div>
+
+        <!-- Booking Button -->
+        <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+          <button
+            (click)="navigateToBooking()"
+            class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-4 px-8 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+          >
+            <i class="fas fa-calendar-check mr-2"></i>
+            Rezerviši
+          </button>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [],
 })
 export class CleanerPublicProfileComponent implements OnInit {
   cleaner: (PublicCleanerProfile & { id: string }) | null = null;
-  allCleanerReviews: Review[] = [];
-  averageRating: number = 0;
+  reviews: Review[] = [];
 
-  // Reservation form properties
-  selectedDate: string = '';
-  selectedTimes: string[] = [];
-  location: string = '';
-  comment: string = '';
+  cleanerId: string = '';
+  loading: boolean = true;
+  error: string | null = null;
 
-  dates: { date: string; label: string; monthLabel: string }[] = [];
-  currentDatePage = 0;
-  datesPerPage = 7;
-
-  timeSlots: string[] = [];
-  currentTimePage = 0;
-  timesPerPage = 15; // Increased from 10 to 15
-
-  formError: string = '';
-  successMessage: string = '';
-
-  bookedTimeSlots: Set<string> = new Set(); // Track booked time slots
+  // Expose Math to template
+  Math = Math;
 
   constructor(
     private route: ActivatedRoute,
-    private cleanerService: CleanerService,
-    private reviewService: ReviewService,
-    private reservationService: ReservationService,
-    private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cleanerService: CleanerService
   ) {}
 
   ngOnInit() {
@@ -87,323 +289,64 @@ export class CleanerPublicProfileComponent implements OnInit {
       this.loadCleanerProfile(cleanerId); // Then load cleaner (will trigger loadBookedTimeSlots
       this.loadCleanerReviews(cleanerId);
     }
+    this.route.params.subscribe((params) => {
+      this.cleanerId = params['id'];
+      console.log('🆔 Loading cleaner profile for ID:', this.cleanerId);
+      this.loadCleanerProfile();
+    });
   }
 
-  // Load cleaner profile data
-  loadCleanerProfile(cleanerId: string) {
-    this.cleanerService.getCleanerCardById(cleanerId).subscribe({
-      next: (data: any) => {
-        this.cleaner = { ...data, id: cleanerId };
-        console.log('✅ Cleaner profile loaded:', this.cleaner);
-        console.log('📅 Selected date at cleaner load:', this.selectedDate);
+  private loadCleanerProfile() {
+    this.loading = true;
+    this.error = null;
 
-        // Force load booked time slots with a small delay to ensure everything is ready
-        setTimeout(() => {
-          console.log('🔄 FORCED loadBookedTimeSlots after cleaner load');
-          this.loadBookedTimeSlots();
-        }, 100);
-
-        // Also try immediately
-        if (this.selectedDate) {
-          console.log(
-            '🔄 IMMEDIATE loadBookedTimeSlots from cleaner profile load'
-          );
-          this.loadBookedTimeSlots();
-        }
+    this.cleanerService.getCleanerPublicProfile(this.cleanerId).subscribe({
+      next: (cleaner: PublicCleanerProfile) => {
+        console.log('📋 Backend cleaner data:', cleaner);
+        this.cleaner = { ...cleaner, id: this.cleanerId };
+        this.loading = false;
       },
       error: (error: any) => {
-        console.error('Failed to load cleaner profile:', error);
-      },
-    });
-  }
-
-  // Load cleaner reviews
-  loadCleanerReviews(cleanerId: string) {
-    this.reviewService.getReviewsForCleaner(cleanerId).subscribe({
-      next: (reviews) => {
-        this.allCleanerReviews = reviews;
-        this.calculateAverageRating();
-        console.log('Reviews loaded:', reviews);
-      },
-      error: (error) => {
-        console.error('Failed to load reviews:', error);
-        this.allCleanerReviews = [];
-      },
-    });
-  }
-
-  // Initialize reservation form
-  initializeReservationForm() {
-    this.generateDates(365);
-    this.generateTimeSlots();
-    if (this.dates.length > 0) {
-      this.selectedDate = this.dates[0].date;
-      console.log('📅 Initial date set to:', this.selectedDate);
-      console.log('👤 Cleaner available at date set:', !!this.cleaner?.id);
-      // Load booked time slots if cleaner is already loaded
-      if (this.cleaner?.id) {
-        console.log(
-          '🔄 Triggering loadBookedTimeSlots from date initialization'
+        console.error(
+          '❌ Error loading cleaner profile for ID:',
+          this.cleanerId,
+          error
         );
-        this.loadBookedTimeSlots();
-      } else {
-        console.log('⚠️ No cleaner available yet when date set');
-      }
-    }
-  }
 
-  // Calculate average rating
-  calculateAverageRating() {
-    if (this.allCleanerReviews.length === 0) {
-      this.averageRating = 0;
-      return;
-    }
+        if (error.status === 404) {
+          this.error = `Sorry, this cleaner's profile is not available at the moment. Please try selecting a different cleaner.`;
+        } else if (error.status === 0) {
+          this.error =
+            'Unable to connect to our servers. Please check your internet connection and try again.';
+        } else if (error.status === 403) {
+          this.error = `This cleaner's detailed profile is currently unavailable. Please try again later or contact support.`;
+        } else {
+          this.error = `We're having trouble loading this cleaner's profile. Please try again in a few moments.`;
+        }
 
-    const totalRating = this.allCleanerReviews.reduce(
-      (sum, review) => sum + review.rating,
-      0
-    );
-    this.averageRating =
-      Math.round((totalRating / this.allCleanerReviews.length) * 100) / 100;
-  }
-
-  // Load booked time slots for current date
-  loadBookedTimeSlots() {
-    if (!this.cleaner?.id || !this.selectedDate) {
-      console.log('❌ Cannot load booked slots - missing data:', {
-        cleanerId: this.cleaner?.id,
-        selectedDate: this.selectedDate,
-        hasCleanerObject: !!this.cleaner,
-        cleanerData: this.cleaner,
-      });
-      return;
-    }
-
-    console.log('🔄 CALLING BACKEND for booked time slots:', {
-      cleanerId: this.cleaner.id,
-      selectedDate: this.selectedDate,
-      url: `reservation/booked-times/${this.cleaner.id}?date=${this.selectedDate}`,
-    });
-
-    this.reservationService
-      .getBookedTimeSlots(this.cleaner.id, this.selectedDate)
-      .subscribe({
-        next: (bookedTimes) => {
-          console.log('✅ BACKEND RESPONSE - Raw booked times:', bookedTimes);
-          console.log(
-            '📊 Response type:',
-            typeof bookedTimes,
-            'Length:',
-            bookedTimes?.length
-          );
-
-          // Handle different time formats from backend
-          const normalizedTimes = bookedTimes.map((time) => {
-            if (typeof time === 'string') {
-              // If it's "HH:MM:SS", convert to "HH:MM"
-              if (time.includes(':') && time.split(':').length === 3) {
-                return time.substring(0, 5); // "10:30:00" -> "10:30"
-              }
-              return time; // Already in "HH:MM" format
-            }
-            return String(time);
-          });
-
-          this.bookedTimeSlots = new Set(normalizedTimes);
-          console.log(
-            '🚫 FINAL disabled time slots:',
-            Array.from(this.bookedTimeSlots)
-          );
-          console.log('🎯 Testing specific times:');
-          console.log('  - 08:00 disabled?', this.isTimeBooked('08:00'));
-          console.log('  - 08:30 disabled?', this.isTimeBooked('08:30'));
-          console.log('  - 09:00 disabled?', this.isTimeBooked('09:00'));
-
-          // Force Angular to detect changes
-          console.log('🔄 Forcing change detection...');
-        },
-        error: (error) => {
-          console.error('❌ BACKEND ERROR loading booked time slots:', error);
-          console.error(
-            '📋 Full error object:',
-            JSON.stringify(error, null, 2)
-          );
-          this.bookedTimeSlots = new Set(); // Clear on error
-        },
-      });
-  }
-
-  // Generate dates for the next 365 days
-  generateDates(days: number) {
-    this.dates = [];
-    const today = new Date();
-    for (let i = 0; i < days; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-
-      const dateString = date.toISOString().split('T')[0];
-      const monthLabel = date.toLocaleDateString('en-US', {
-        month: 'long',
-        year: 'numeric',
-      });
-      const label = date.toLocaleDateString('en-US', {
-        weekday: 'short',
-        day: 'numeric',
-      });
-
-      this.dates.push({ date: dateString, label, monthLabel });
-    }
-  }
-
-  // Generate time slots from 8 AM to 8 PM
-  generateTimeSlots() {
-    this.timeSlots = [];
-    for (let hour = 8; hour <= 19; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
-        const timeString = `${hour.toString().padStart(2, '0')}:${minute
-          .toString()
-          .padStart(2, '0')}`;
-        this.timeSlots.push(timeString);
-      }
-    }
-  }
-
-  // Get current page of dates
-  get pagedDates() {
-    const startIndex = this.currentDatePage * this.datesPerPage;
-    return this.dates.slice(startIndex, startIndex + this.datesPerPage);
-  }
-
-  // Get current page of time slots
-  get pagedTimeSlots() {
-    const startIndex = this.currentTimePage * this.timesPerPage;
-    return this.timeSlots.slice(startIndex, startIndex + this.timesPerPage);
-  }
-
-  // Get current month label
-  get currentMonthLabel() {
-    if (this.pagedDates.length > 0) {
-      return this.pagedDates[0].monthLabel;
-    }
-    return '';
-  }
-
-  // Navigation methods
-  prevDatePage() {
-    if (this.currentDatePage > 0) {
-      this.currentDatePage--;
-    }
-  }
-
-  nextDatePage() {
-    if ((this.currentDatePage + 1) * this.datesPerPage < this.dates.length) {
-      this.currentDatePage++;
-    }
-  }
-
-  prevTimePage() {
-    if (this.currentTimePage > 0) {
-      this.currentTimePage--;
-    }
-  }
-
-  nextTimePage() {
-    if (
-      (this.currentTimePage + 1) * this.timesPerPage <
-      this.timeSlots.length
-    ) {
-      this.currentTimePage++;
-    }
-  }
-
-  // Select date
-  selectDate(date: string) {
-    console.log('Selecting date:', date);
-    this.selectedDate = date;
-    this.selectedTimes = []; // Clear selected times when date changes
-    this.loadBookedTimeSlots(); // Load booked slots for new date
-  }
-
-  // Check if time is booked
-  isTimeBooked(time: string): boolean {
-    return this.bookedTimeSlots.has(time);
-  }
-
-  // Toggle time selection
-  toggleTimeSelection(time: string) {
-    if (this.isTimeBooked(time)) {
-      return; // Don't allow selection of booked times
-    }
-
-    const index = this.selectedTimes.indexOf(time);
-    if (index > -1) {
-      // Remove time if already selected
-      this.selectedTimes.splice(index, 1);
-    } else {
-      // Add time if not selected
-      this.selectedTimes.push(time);
-      this.selectedTimes.sort(); // Keep times sorted
-    }
-  }
-
-  // Check if time is selected
-  isTimeSelected(time: string): boolean {
-    return this.selectedTimes.includes(time);
-  }
-
-  // Submit reservation
-  submitReservation() {
-    this.formError = '';
-
-    if (
-      !this.selectedDate ||
-      this.selectedTimes.length === 0 ||
-      !this.location.trim()
-    ) {
-      this.formError = 'Please complete all required fields.';
-      return;
-    }
-
-    console.log('Submitting reservation with data:', {
-      selectedDate: this.selectedDate,
-      selectedTimes: this.selectedTimes,
-      location: this.location,
-      comment: this.comment,
-      cleanerId: this.cleaner?.id,
-    });
-
-    const reservationPayload: ReservationRequest = {
-      userId: this.authService.getAuthData()?.userId || 'mock-user-id',
-      cleanerId: this.cleaner?.id || '',
-      date: this.selectedDate,
-      times: this.selectedTimes,
-      location: this.location.trim(),
-      comment: this.comment.trim(),
-      status: 'PENDING',
-    };
-
-    console.log('Final reservation payload:', reservationPayload);
-
-    this.reservationService.submitReservation(reservationPayload).subscribe({
-      next: (res) => {
-        console.log('Reservation success response:', res);
-        this.successMessage = 'Reservation created successfully!';
-        // Reset form
-        this.selectedTimes = [];
-        this.location = '';
-        this.comment = '';
-
-        // Reload booked time slots to reflect the new booking
-        this.loadBookedTimeSlots();
-
-        setTimeout(() => {
-          this.router.navigate(['/user/reservations']);
-        }, 2000);
-      },
-      error: (err) => {
-        console.error('Reservation Error Details:', err);
-        this.formError = 'Something went wrong. Please try again.';
+        this.loading = false;
       },
     });
+  }
+
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  }
+
+  formatDate(date: string): string {
+    return new Date(date).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  }
+
+  navigateToBooking(): void {
+    this.router.navigate(['/cleaner', this.cleanerId, 'reserve']);
   }
 }

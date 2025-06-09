@@ -1,0 +1,164 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Settings</h1>
+      <p class="mt-2 text-gray-600">Manage your account preferences and privacy settings</p>
+    </div>
+
+    <div class="space-y-6">
+
+      <!-- Notifications Settings -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">🔔 Notifications</h2>
+        </div>
+        <div class="p-6 space-y-4">
+
+          <div class="flex items-center justify-between">
+            <div>
+              <label class="text-sm font-medium text-gray-900">Email Notifications</label>
+              <p class="text-sm text-gray-500">Receive notifications via email</p>
+            </div>
+            <input type="checkbox" [(ngModel)]="settings.notifications.email"
+              class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <label class="text-sm font-medium text-gray-900">SMS Notifications</label>
+              <p class="text-sm text-gray-500">Receive notifications via text message</p>
+            </div>
+            <input type="checkbox" [(ngModel)]="settings.notifications.sms"
+              class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+          </div>
+
+          <div *ngIf="userRole === 'CLEANER'" class="flex items-center justify-between">
+            <div>
+              <label class="text-sm font-medium text-gray-900">Job Reminders</label>
+              <p class="text-sm text-gray-500">Get reminders about upcoming jobs</p>
+            </div>
+            <input type="checkbox" [(ngModel)]="settings.notifications.jobReminders"
+              class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy Settings -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">🔒 Privacy</h2>
+        </div>
+        <div class="p-6 space-y-4">
+
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">Profile Visibility</label>
+            <select [(ngModel)]="settings.privacy.profileVisibility"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              <option value="public">Public - Anyone can see your profile</option>
+              <option value="limited">Limited - Only verified users can see your profile</option>
+              <option value="private">Private - Only you can see your profile</option>
+            </select>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <label class="text-sm font-medium text-gray-900">Share Location</label>
+              <p class="text-sm text-gray-500">Allow others to see your general location</p>
+            </div>
+            <input type="checkbox" [(ngModel)]="settings.privacy.shareLocation"
+              class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Settings -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">🛡️ Security</h2>
+        </div>
+        <div class="p-6 space-y-6">
+
+          <!-- Change Password -->
+          <div>
+            <h3 class="text-md font-medium text-gray-900 mb-4">Change Password</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                <input type="password" [(ngModel)]="passwordForm.currentPassword"
+                  class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Enter current password">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                <input type="password" [(ngModel)]="passwordForm.newPassword"
+                  class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Enter new password">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                <input type="password" [(ngModel)]="passwordForm.confirmPassword"
+                  class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Confirm new password">
+              </div>
+              <button (click)="updatePassword()"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                Update Password
+              </button>
+            </div>
+          </div>
+
+          <!-- Two Factor Authentication -->
+          <div class="flex items-center justify-between">
+            <div>
+              <label class="text-sm font-medium text-gray-900">Two-Factor Authentication</label>
+              <p class="text-sm text-gray-500">Add an extra layer of security to your account</p>
+            </div>
+            <input type="checkbox" [(ngModel)]="settings.account.twoFactorAuth"
+              class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Management -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">💾 Data Management</h2>
+        </div>
+        <div class="p-6 space-y-4">
+
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-medium text-gray-900">Export Your Data</h3>
+              <p class="text-sm text-gray-500">Download a copy of your account data</p>
+            </div>
+            <button (click)="exportData()"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+              Export Data
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+            <div>
+              <h3 class="text-sm font-medium text-red-900">Delete Account</h3>
+              <p class="text-sm text-red-600">Permanently delete your account and all data</p>
+            </div>
+            <button (click)="deleteAccount()"
+              class="inline-flex items-center px-4 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors">
+              Delete Account
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="flex justify-end">
+        <button (click)="saveSettings()"
+          class="inline-flex items-center px-6 py-3 border border-transparent rounded-lg text-base font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all transform hover:scale-105">
+          💾 Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

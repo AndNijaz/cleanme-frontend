@@ -1,0 +1,20 @@
+/* Settings Component Styling */
+.settings-section {
+  transition: all 0.3s ease;
+}
+
+.settings-section:hover {
+  transform: translateY(-1px);
+}
+
+.toggle-switch {
+  transition: all 0.2s ease;
+}
+
+.save-button {
+  transition: all 0.3s ease;
+}
+
+.save-button:hover {
+  transform: scale(1.05);
+}
