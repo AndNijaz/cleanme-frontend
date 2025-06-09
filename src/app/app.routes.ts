@@ -6,6 +6,9 @@ import { UserDashboardComponent } from './features/dashboard/user-dashboard/user
 import { CleanerDashboardComponent } from './features/dashboard/cleaner-dashboard/cleaner-dashboard.component';
 import { AuthLayoutComponent } from './features/auth/auth-layout/auth-layout.component';
 import { UserInfoComponent } from './features/auth/user-info/user-info.component';
+import { BrowseCleanersComponent } from './features/cleaner/browse-cleaners/browse-cleaners.component';
+import { CleanerJobsComponent } from './features/cleaner/cleaner-jobs/cleaner-jobs.component';
+import { SettingsComponent } from './features/shared/settings/settings.component';
 
 import { CleanerInfoComponent } from './features/auth/cleaner-info/cleaner-info.component';
 
@@ -55,7 +58,7 @@ export const routes: Routes = [
           { path: 'favorites', component: FavoritesComponent },
           // { path: 'reviews', component: ReviewsComponent },
           { path: 'payments', component: PaymentsComponent },
-          { path: 'settings', component: HomePageComponent },
+          { path: 'settings', component: SettingsComponent },
         ],
       },
 
@@ -67,22 +70,22 @@ export const routes: Routes = [
           {
             path: 'profile',
             component: SharedProfileComponent,
-            data: { userType: 'CLIENT' },
+            data: { userType: 'CLEANER' },
           },
 
-          { path: 'jobs', component: HomePageComponent },
+          { path: 'jobs', component: CleanerJobsComponent },
           { path: 'services', component: HomePageComponent },
           { path: 'availability', component: HomePageComponent },
           { path: 'reviews', component: HomePageComponent },
           { path: 'earnings', component: HomePageComponent },
-          { path: 'settings', component: HomePageComponent },
+          { path: 'settings', component: SettingsComponent },
         ],
       },
 
       // 🧾 SHARED ROUTES
       {
         path: 'cleaners',
-        component: HomePageComponent,
+        component: BrowseCleanersComponent,
       },
       {
         path: 'cleaner/:id',
