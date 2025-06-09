@@ -41,14 +41,17 @@
     </div>
 
     <div class="flex flex-wrap gap-2 justify-center p-2 rounded-md transition-all duration-300" [ngClass]="{
-    'ring-2 ring-red-500': formError && selectedTimes.length === 0,
-    'ring-0': !(formError && selectedTimes.length === 0)
-  }">
+        'ring-2 ring-red-500': formError && selectedTimes.length === 0,
+        'ring-0': !(formError && selectedTimes.length === 0)
+      }">
       <button *ngFor="let time of pagedTimes" (click)="selectTime(time)"
-        class="px-4 py-2 rounded-full text-sm transition" [ngClass]="selectedTimes.includes(time)
-      ? 'bg-blue-600 text-white'
-      : 'bg-blue-100 text-gray-900 hover:bg-blue-200'">
+        class="px-4 py-2 rounded-full text-sm transition" [ngClass]="{
+              'bg-blue-600 text-white': isTimeSelected(time),
+              'bg-gray-300 text-gray-500 cursor-not-allowed': isTimeBooked(time),
+              'bg-blue-100 text-gray-900 hover:bg-blue-200': !isTimeSelected(time) && !isTimeBooked(time)
+            }" [disabled]="isTimeBooked(time)" [title]="isTimeBooked(time) ? 'This time slot is already booked' : ''">
         {{ time }}
+        <span *ngIf="isTimeBooked(time)" class="ml-1 text-xs">🚫</span>
       </button>
     </div>
 
@@ -73,26 +76,24 @@
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="formError" class="text-red-600 text-sm font-medium text-center">
+  <div *ngIf="formError" class="text-red-600 text-sm font-medium text-center bg-red-50 p-3 rounded-lg">
     {{ formError }}
   </div>
 
   <!-- Success Message -->
-  <div *ngIf="successMessage" class="text-green-600 text-sm font-medium text-center">
+  <div *ngIf="successMessage" class="text-green-600 text-sm font-medium text-center bg-green-50 p-3 rounded-lg">
     {{ successMessage }}
   </div>
 
   <!-- Submit Button -->
-  <div class="text-right">
+  <div class="text-center">
     <button (click)="submitReservation()"
-      class="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-6 py-2 rounded-full">
+      class="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-8 py-3 rounded-full text-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+      [disabled]="!selectedDate || selectedTimes.length === 0 || !location.trim()">
+      <mat-icon class="mr-2">event_available</mat-icon>
       Confirm Booking
     </button>
   </div>
-
-  <p *ngIf="formError" class="text-red-600 text-sm mt-2 text-center">
-    {{ formError }}
-  </p>
 
 
 </div>

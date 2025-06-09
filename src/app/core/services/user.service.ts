@@ -10,10 +10,10 @@ export interface User {
   email: string;
   phone: string;
   address: string;
-  country?: string;
-  city?: string;
-  street?: string;
-  streetExtra?: string;
+  country: string;
+  city: string;
+  street: string;
+  streetExtra: string;
   // ... any other fields
 }
 
@@ -30,4 +30,4 @@ export class UserService {
   updateCurrentUser(user: User): Observable<User> {
     return this.http.put<User>(`${this.BASE_URL}/me`, user);
   }
-} 
+}

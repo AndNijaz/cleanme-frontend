@@ -1,97 +1,187 @@
-<div class="border bg-white border-gray-200 rounded-2xl p-6 transition w-full max-w-sm relative shadow-xl">
-  <!-- Avatar & Heart -->
-  <div class="flex justify-center items-start mb-8 relative">
-    <div
-      class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center text-xs text-gray-600 overflow-hidden border">
-      <img *ngIf="cleaner.imageUrl" [src]="cleaner.imageUrl" alt="Cleaner"
-        class="w-full h-full object-cover rounded-full" />
-      <span *ngIf="!cleaner.imageUrl">Photo</span>
-    </div>
-
-    <button class="text-gray-400 hover:text-blue-500 transition absolute right-2 top-2"
-      [ngStyle]="{ color: cleaner.isFavorite ? '#3b82f6' : '' }" (click)="toggleFavorite()">
-      <mat-icon>{{ cleaner.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+<div class="bg-white border-0 rounded-xl p-8 w-full max-w-4xl mx-auto">
+  <!-- Close Button -->
+  <div class="flex justify-end mb-4">
+    <button (click)="closeModal()"
+      class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full">
+      <mat-icon>close</mat-icon>
     </button>
   </div>
 
-  <!-- Info -->
-  <div class="text-center">
-    <p class="text-xs text-gray-500 flex justify-center gap-1 mb-1 items-center">
-      <mat-icon style="font-size: 14px;">star_outline</mat-icon>
-      {{ averageRating | number:'1.1-2' }} ({{ allCleanerReviews.length }} reviews)
-    </p>
-    <p class="font-bold text-lg text-gray-900">{{ cleaner.fullName }}</p>
-    <p class="text-xs text-blue-600 flex justify-center gap-1 items-center">
-      <mat-icon style="font-size: 14px;">location_on</mat-icon>
-      {{ cleaner.location }}
-    </p>
-  </div>
-
-  <p class="text-sm text-gray-700 text-center mt-3">{{ cleaner.shortBio }}</p>
-
-  <!-- Services -->
-  <div class="flex flex-wrap justify-center gap-3 mt-4 text-xs text-gray-600 mb-6">
-    <span *ngFor="let service of cleaner.services" class="flex items-center gap-1">
-      🧽 {{ service }}
-    </span>
-  </div>
-
-  <!-- Price -->
-  <p class="text-center text-2xl font-bold text-blue-800 mb-6">
-    {{ cleaner.currency || '$' }}{{ cleaner.price }}<span class="text-sm text-gray-500">/hour</span>
-  </p>
-
-  <!-- Review Section -->
-  <div class="border-t pt-4 mb-5">
-    <p class="text-sm font-semibold text-blue-700 text-center mb-2">
-      {{ isEditing ? 'Edit Your Review' : 'Leave a Review' }}
-    </p>
-
-    <div class="flex justify-center items-center gap-2 mb-3">
-      <div class="flex gap-1">
-        <button *ngFor="let star of [1, 2, 3, 4, 5]" mat-icon-button (mouseenter)="hoveredRating = star"
-          (mouseleave)="hoveredRating = null" (click)="setRating(star)" class="transition">
-          <mat-icon [ngClass]="{
-              'text-yellow-500': (hoveredRating !== null && hoveredRating >= star) || (!hoveredRating && currentRating && currentRating >= star),
-              'text-gray-300': (hoveredRating !== null && hoveredRating < star) && (!hoveredRating && currentRating && currentRating < star)
-            }">
-            {{ (hoveredRating && hoveredRating >= star) || (!hoveredRating && currentRating && currentRating >= star) ?
-            'star' : 'star_border' }}
-          </mat-icon>
-        </button>
-      </div>
-      <span class="text-blue-900 font-bold text-lg">{{ currentRating?.toFixed(1) }}</span>
-    </div>
-
-    <textarea [(ngModel)]="reviewMessage" class="w-full border rounded-xl p-2 text-sm"
-      placeholder="Update your review..." rows="3"></textarea>
-  </div>
-
-  <!-- Submit Button -->
-  <div class="text-center">
-    <button class="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-6 py-2 rounded-full text-sm"
-      (click)="submitReviewHandler()">
-      Save Review
-    </button>
-  </div>
-
-  <!-- After the review form, show the list of reviews -->
-  <div *ngIf="allCleanerReviews.length > 0" class="mt-6 border-t pt-4">
-    <div class="text-sm font-semibold text-gray-700 mb-2">Reviews</div>
-    <div [ngClass]="{'max-h-60 overflow-y-auto': showAllReviews}" class="transition-all duration-300">
-      <div *ngFor="let review of displayedReviews" class="mb-3 pb-3 border-b last:border-b-0">
-        <div class="flex items-center gap-2 mb-1">
-          <ng-container *ngFor="let star of [1,2,3,4,5]">
-            <mat-icon [ngClass]="review.rating >= star ? 'text-yellow-500' : 'text-gray-300'">star</mat-icon>
-          </ng-container>
-          <span class="text-xs text-gray-500 ml-2">{{ review.date | date:'mediumDate' }}</span>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Left Section: Cleaner Info -->
+    <div class="lg:col-span-1">
+      <!-- Header Section -->
+      <div class="text-center mb-6">
+        <div
+          class="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+          <img *ngIf="cleaner.imageUrl" [src]="cleaner.imageUrl" alt="Cleaner"
+            class="w-full h-full object-cover rounded-full" />
+          <mat-icon *ngIf="!cleaner.imageUrl" class="text-blue-600 text-2xl">person</mat-icon>
         </div>
-        <div class="text-gray-800 text-sm">{{ review.comment || review.message }}</div>
+
+        <h3 class="font-bold text-lg text-gray-900 mb-1">{{ cleaner.fullName }}</h3>
+        <div class="flex items-center justify-center gap-1 text-sm text-gray-600 mb-2">
+          <mat-icon class="text-yellow-500 text-sm">star</mat-icon>
+          <span>{{ averageRating | number:'1.1-2' }}</span>
+          <span class="text-gray-400">•</span>
+          <span>{{ allCleanerReviews.length }} reviews</span>
+        </div>
+
+        <div class="flex items-center justify-center gap-1 text-sm text-blue-600" *ngIf="cleaner.location">
+          <mat-icon class="text-sm">location_on</mat-icon>
+          <span>{{ cleaner.location }}</span>
+        </div>
+      </div>
+
+      <!-- Service Info -->
+      <div class="bg-gray-50 rounded-lg p-4 mb-6"
+        *ngIf="cleaner?.shortBio || (cleaner?.services && cleaner.services.length > 0) || cleaner?.price">
+        <p class="text-sm text-gray-700 text-center mb-3" *ngIf="cleaner?.shortBio">{{ cleaner.shortBio }}</p>
+
+        <div class="flex flex-wrap justify-center gap-2 mb-3" *ngIf="cleaner?.services && cleaner.services.length > 0">
+          <span *ngFor="let service of cleaner.services"
+            class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+            🧽 {{ service }}
+          </span>
+        </div>
+
+        <div class="text-center" *ngIf="cleaner?.price">
+          <span class="text-lg font-bold text-blue-800">
+            {{ cleaner.currency || '$' }}{{ cleaner.price }}
+          </span>
+          <span class="text-sm text-gray-500">/hour</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Section: Review Form & Reviews -->
+    <div class="lg:col-span-2">
+      <!-- Review Section -->
+      <div class="bg-gray-50 rounded-xl p-6 mb-6">
+        <div class="text-center mb-4">
+          <h4 class="text-lg font-semibold text-gray-800 mb-2">
+            {{ isEditing ? 'Edit Your Review' : 'Share Your Experience' }}
+          </h4>
+          <p class="text-sm text-gray-600">
+            {{ isEditing ? 'Update your rating and comment' : 'Help others by rating this cleaner' }}
+          </p>
+        </div>
+
+        <!-- Star Rating -->
+        <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-3 text-center">Rating</label>
+          <div class="flex justify-center items-center gap-2 mb-2">
+            <div class="flex gap-1">
+              <button *ngFor="let star of [1, 2, 3, 4, 5]" (mouseenter)="hoveredRating = star"
+                (mouseleave)="hoveredRating = null" (click)="setRating(star)"
+                class="transition-all duration-200 hover:scale-110 focus:outline-none p-1 rounded-full hover:bg-yellow-100">
+                <mat-icon class="text-2xl cursor-pointer"
+                  [class.text-yellow-500]="(hoveredRating !== null && hoveredRating >= star) || (hoveredRating === null && currentRating !== undefined && currentRating !== null && currentRating >= star)"
+                  [class.text-gray-300]="!((hoveredRating !== null && hoveredRating >= star) || (hoveredRating === null && currentRating !== undefined && currentRating !== null && currentRating >= star))">
+                  {{ ((hoveredRating !== null && hoveredRating >= star) || (hoveredRating === null && currentRating !==
+                  undefined && currentRating !== null && currentRating >= star)) ? 'star' : 'star_border' }}
+                </mat-icon>
+              </button>
+            </div>
+            <span class="text-blue-800 font-bold text-xl ml-2" *ngIf="currentRating && currentRating > 0">
+              {{ currentRating }}/5
+            </span>
+          </div>
+          <p class="text-xs text-gray-500 text-center" *ngIf="!currentRating || currentRating === 0">
+            Click stars to rate
+          </p>
+        </div>
+
+        <!-- Comment Input -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Public Review</label>
+          <textarea [(ngModel)]="reviewMessage"
+            class="w-full border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg p-3 text-sm transition-all resize-none"
+            [placeholder]="isEditing ? 'Update your public review...' : 'Share your experience publicly...'" rows="3">
+      </textarea>
+          <p class="text-xs text-gray-500 mt-1">This will be visible to other users</p>
+        </div>
+
+        <!-- Personal Note Input -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+            <mat-icon class="text-sm text-blue-600">lock</mat-icon>
+            Personal Note (Private)
+          </label>
+          <textarea [(ngModel)]="personalNote"
+            class="w-full border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg p-3 text-sm transition-all resize-none"
+            [placeholder]="'Add a private note for yourself...'" rows="2">
+      </textarea>
+          <p class="text-xs text-blue-600 mt-1 flex items-center gap-1">
+            <mat-icon class="text-xs">info</mat-icon>
+            Only you can see this note
+          </p>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center">
+          <button
+            class="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white font-semibold px-8 py-3 rounded-full text-sm transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            (click)="submitReviewHandler()" [disabled]="!currentRating || currentRating === 0">
+            {{ isEditing ? 'Update Review' : 'Submit Review' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Previous Reviews Section -->
+      <div *ngIf="allCleanerReviews.length > 0" class="bg-white rounded-xl border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h5 class="text-lg font-semibold text-gray-800">
+            Previous Reviews ({{ allCleanerReviews.length }})
+          </h5>
+          <div class="flex items-center gap-1 text-sm text-gray-600">
+            <mat-icon class="text-yellow-500 text-sm">star</mat-icon>
+            <span>{{ averageRating | number:'1.1-2' }} avg</span>
+          </div>
+        </div>
+
+        <div class="space-y-3" [ngClass]="showAllReviews ? 'max-h-60 overflow-y-auto' : ''">
+          <div *ngFor="let review of displayedReviews"
+            class="bg-gray-50 border border-gray-200 rounded-lg p-4 transition-all hover:shadow-sm">
+
+            <!-- Review Header -->
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <div class="flex gap-0.5">
+                  <ng-container *ngFor="let star of [1,2,3,4,5]">
+                    <mat-icon class="text-sm" [ngClass]="review.rating >= star ? 'text-yellow-500' : 'text-gray-300'">
+                      star
+                    </mat-icon>
+                  </ng-container>
+                </div>
+                <span class="text-sm font-medium text-gray-700">
+                  {{ review.rating }}/5
+                </span>
+              </div>
+              <span class="text-xs text-gray-500">
+                {{ review.date | date:'mediumDate' }}
+              </span>
+            </div>
+
+            <!-- Review Comment -->
+            <p class="text-sm text-gray-700 leading-relaxed" *ngIf="review.comment || review.message">
+              {{ review.comment || review.message }}
+            </p>
+            <p class="text-sm text-gray-500 italic" *ngIf="!review.comment && !review.message">
+              No comment provided
+            </p>
+          </div>
+        </div>
+
+        <div class="text-center mt-4" *ngIf="allCleanerReviews.length > 2">
+          <button (click)="toggleShowAllReviews()"
+            class="text-sm text-blue-600 hover:text-blue-800 transition-colors font-medium flex items-center gap-1 mx-auto">
+            <span>{{ showAllReviews ? 'Show Less' : 'Show All ' + allCleanerReviews.length + ' Reviews' }}</span>
+            <mat-icon class="text-sm" [class.rotate-180]="showAllReviews">expand_more</mat-icon>
+          </button>
+        </div>
       </div>
     </div>
-    <button *ngIf="allCleanerReviews.length > 3" (click)="toggleShowAllReviews()"
-      class="mt-2 text-xs text-blue-600 underline">
-      {{ showAllReviews ? 'See less' : 'See more' }}
-    </button>
   </div>
 </div>

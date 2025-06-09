@@ -14,7 +14,7 @@ import { NotificationsComponent } from './features/notifications/notifications.c
 import { TermsAndConditionsComponent } from './features/terms-and-conditions/terms-and-conditions.component';
 import { PlatformLayoutComponent } from './shared/components/platform-layout/platform-layout.component';
 import { SharedProfileComponent } from './features/shared-profile/shared-profile.component';
-import { CleanerPublicProfileComponent } from './features/cleaner/cleaner-public-profile/cleaner-public-profile';
+import { CleanerPublicProfileComponent } from './features/cleaner/cleaner-public-profile/cleaner-public-profile.component';
 import { FavoritesComponent } from './features/user/favorites/favorites.component';
 import { PaymentsComponent } from './features/user/payments/payments.component';
 import { ServiceReservationOneComponentComponent } from './features/cleaner/service-reservation-one.component/service-reservation-one.component.component';

@@ -41,7 +41,9 @@ export class InputComponent implements ControlValueAccessor {
 
   get getClass() {
     return `border-2 ${this.showError ? 'border-red-500' : 'border-blue-400'}
-    rounded-lg p-2 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300 w-full flex-1 ${this.class}`;
+    rounded-lg p-3 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300 w-full min-w-0 ${
+      this.class
+    }`;
   }
 
   get showError() {

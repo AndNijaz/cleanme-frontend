@@ -8,8 +8,7 @@
       (onToggleEdit)="toggleEdit('personal')" (onSave)="saveProfile('personal')" />
   </div> -->
   <app-gray-card *ngIf="profile">
-    <app-profile-overview-card [profile]="profile" [isEditing]="editingSection === 'overview'"
-      (onToggleEdit)="toggleEdit('overview')" (onSave)="saveProfile('overview')" />
+    <app-profile-overview-card [profile]="profile" />
   </app-gray-card>
 
   <app-gray-card *ngIf="profile">
@@ -22,5 +21,14 @@
       (onToggleEdit)="toggleEdit('address')" (onSave)="saveProfile('address')" />
   </app-gray-card>
 
+  <!-- Service Overview Section (only for cleaners) -->
+  <app-gray-card *ngIf="profile && isCleanerProfile()">
+    <app-profile-services-card [profile]="profile" />
+  </app-gray-card>
+
+  <!-- Client Reviews Section (only for cleaners) -->
+  <app-gray-card *ngIf="profile && isCleanerProfile()">
+    <app-profile-reviews-card [profile]="profile" />
+  </app-gray-card>
 
 </div>

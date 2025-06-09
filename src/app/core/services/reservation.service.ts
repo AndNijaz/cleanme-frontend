@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { delay, tap } from 'rxjs/operators';
+import { delay, tap, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import {
   Booking,
@@ -16,23 +16,78 @@ export class ReservationService {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  submitReservation(request: ReservationRequest): Observable<any> {
-    return this.http.post(`${this.BASE_URL}`, {
-      date: request.date,
-      // times: request.times, // ⬅️ array of time strings, e.g., ["14:30", "15:00"]
-      time: request.times.join(', '), // ⬅️ join times for backend compatibility
-      // time: request.times[0], // ⬅️ join times for backend compatibility
-      location: request.location,
-      status: request.status, // must be a valid backend enum, e.g., "PENDING"
-      comment: request.comment,
-      cleanerID: request.cleanerId, // ⬅️ UUID of the cleaner
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
     });
+
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return headers;
+  }
+
+  submitReservation(request: ReservationRequest): Observable<any> {
+    console.log('Submitting reservation request:', request);
+
+    // Convert times array to single time string (take first time or join them)
+    const timeString = request.times.length > 0 ? request.times[0] : '09:00';
+
+    // Format the payload to match backend CreateReservationDto
+    const backendPayload = {
+      date: request.date, // Backend will parse this to LocalDate
+      time: timeString, // Backend expects single time as string, will parse to LocalTime
+      location: request.location,
+      status: request.status || 'PENDING', // Backend expects ReservationStatus enum
+      comment: request.comment,
+      cleanerID: request.cleanerId, // Backend expects cleanerID, not cleanerId
+    };
+
+    console.log('Backend payload:', backendPayload);
+
+    return this.http
+      .post(`${this.BASE_URL}`, backendPayload, { headers: this.getHeaders() })
+      .pipe(
+        tap((response) => console.log('Reservation success:', response)),
+        catchError((error) => {
+          console.error('Reservation error:', error);
+          throw error;
+        })
+      );
   }
 
   // === GET USER'S RESERVATIONS (for client dashboard) ===
   getUserReservations(): Observable<Reservation[]> {
     console.log(`${this.BASE_URL}/all`);
     return this.http.get<Reservation[]>(`${this.BASE_URL}/all`);
+  }
+
+  // === GET BOOKED TIME SLOTS FOR SPECIFIC CLEANER AND DATE ===
+  getBookedTimeSlots(cleanerId: string, date: string): Observable<string[]> {
+    console.log(
+      `Fetching booked time slots for cleaner ${cleanerId} on ${date}`
+    );
+
+    // Call real backend endpoint to get booked time slots
+    return this.http
+      .get<string[]>(
+        `${this.BASE_URL}/booked-times/${cleanerId}?date=${date}`,
+        {
+          headers: this.getHeaders(),
+        }
+      )
+      .pipe(
+        tap((bookedTimes) =>
+          console.log('Booked times from backend:', bookedTimes)
+        ),
+        catchError((error) => {
+          console.error('Error fetching booked time slots:', error);
+          // Fallback to empty array if backend fails
+          return of([]);
+        })
+      );
   }
 
   // === GET BOOKINGS FOR CLEANER (for cleaner dashboard) ===

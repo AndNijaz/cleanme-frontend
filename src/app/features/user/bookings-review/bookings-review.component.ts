@@ -11,6 +11,7 @@ import { Booking } from '../../../core/services/models/reservation.model';
 import { Review, ReviewDto } from '../../../core/services/models/review.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { FavoritesService } from '../../../core/services/favorites.service';
 
 @Component({
   selector: 'app-bookings-review',
@@ -22,6 +23,47 @@ import { environment } from '../../../../environments/environment';
     MatIconModule,
   ],
   templateUrl: './bookings-review.component.html',
+  styles: [
+    `
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 #f1f5f9;
+      }
+
+      .scroll-shadow {
+        position: relative;
+      }
+
+      .scroll-shadow::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 20px;
+        background: linear-gradient(transparent, rgba(255, 255, 255, 0.8));
+        pointer-events: none;
+      }
+    `,
+  ],
 })
 export class BookingsReviewComponent {
   bookings: any[] = [];
@@ -44,11 +86,13 @@ export class BookingsReviewComponent {
   initialMessage = '';
 
   isEditing: boolean = false;
+  favoriteCleanerIds: string[] = [];
 
   constructor(
     private reviewService: ReviewService,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private favoritesService: FavoritesService
   ) {
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
@@ -71,6 +115,13 @@ export class BookingsReviewComponent {
 
   ngOnInit(): void {
     this.loadBookingsWithReviews();
+    this.loadFavorites();
+  }
+
+  loadFavorites(): void {
+    this.favoritesService.getFavorites().subscribe((favoriteIds) => {
+      this.favoriteCleanerIds = favoriteIds;
+    });
   }
 
   buildGroupedData() {
@@ -84,13 +135,20 @@ export class BookingsReviewComponent {
       }
     >();
 
-    for (const booking of this.bookings) {
+    // Sort bookings by date (most recent first)
+    const sortedBookings = this.bookings.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateB.getTime() - dateA.getTime(); // Descending order (newest first)
+    });
+
+    for (const booking of sortedBookings) {
       const bookingWithReview = {
         ...booking,
         time: Array.isArray(booking.times)
           ? booking.times.join(' to ')
           : booking.times || '',
-        message: booking.comment,
+        message: booking.comment || booking.message, // Ensure comment is displayed
         review: booking.review, // ✅ use the one already attached in loadBookingsAndReviews
       };
 
@@ -104,6 +162,15 @@ export class BookingsReviewComponent {
         groupedMap.get(booking.cleanerName)!.bookings.push(bookingWithReview);
       }
     }
+
+    // Sort bookings within each cleaner group by date (most recent first)
+    groupedMap.forEach((group) => {
+      group.bookings.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateB.getTime() - dateA.getTime(); // Descending order (newest first)
+      });
+    });
 
     // console.log('Grouped bookings by cleaner:', groupedMap);
 
@@ -119,9 +186,7 @@ export class BookingsReviewComponent {
     console.log(group);
     console.log(booking);
     this.http
-      .get<any>(
-        `${environment['NG_APP_BASE_URL']}/cleaners/${group.cleanerId}`
-      )
+      .get<any>(`${environment['NG_APP_BASE_URL']}/cleaners/${group.cleanerId}`)
       .subscribe({
         next: (cleaner) => {
           this.selectedCleaner = {
@@ -221,6 +286,16 @@ export class BookingsReviewComponent {
     this.isReviewModalOpen = true;
   }
 
+  closeReviewModal(): void {
+    this.isReviewModalOpen = false;
+    this.isEditing = false;
+    this.editingReview = null;
+    this.selectedCleaner = null;
+    this.selectedBooking = null;
+    this.initialRating = 0;
+    this.initialMessage = '';
+  }
+
   handleReviewSubmit(payload: ReviewDto) {
     console.log('Review submit payload:', payload);
     const grb = this.bookings.filter(
@@ -234,9 +309,11 @@ export class BookingsReviewComponent {
       this.reviewService.updateReview(payload).subscribe({
         next: (response) => {
           console.log('Review update response:', response);
-          this.isReviewModalOpen = false;
-          this.isEditing = false;
+          this.closeReviewModal();
           this.loadBookingsWithReviews();
+        },
+        error: (error) => {
+          console.error('Error updating review:', error);
         },
       });
 
@@ -258,9 +335,50 @@ export class BookingsReviewComponent {
       .subscribe({
         next: (response) => {
           console.log('Review submit response:', response);
-          this.isReviewModalOpen = false;
+          this.closeReviewModal();
           this.loadBookingsWithReviews();
         },
+        error: (error) => {
+          console.error('Error submitting review:', error);
+        },
       });
+  }
+
+  isCleanerFavorite(cleanerId: string): boolean {
+    return this.favoriteCleanerIds.includes(cleanerId);
+  }
+
+  toggleCleanerFavorite(
+    event: Event,
+    cleanerId: string,
+    cleanerName: string
+  ): void {
+    event.stopPropagation(); // Prevent expanding the cleaner section
+
+    const isFavorite = this.isCleanerFavorite(cleanerId);
+
+    if (isFavorite) {
+      this.favoritesService.removeFromFavorites(cleanerId).subscribe({
+        next: () => {
+          this.favoriteCleanerIds = this.favoriteCleanerIds.filter(
+            (id) => id !== cleanerId
+          );
+          console.log(`❤️ Removed ${cleanerName} from favorites`);
+        },
+        error: (error) => {
+          console.error('❌ Failed to remove from favorites:', error);
+        },
+      });
+    } else {
+      this.favoritesService.addToFavorites(cleanerId).subscribe({
+        next: () => {
+          this.favoriteCleanerIds.push(cleanerId);
+          console.log(`❤️ Added ${cleanerName} to favorites`);
+        },
+        error: (error) => {
+          console.error('❌ Failed to add to favorites:', error);
+        },
+      });
+    }
   }
 }

@@ -24,13 +24,14 @@ export class ServiceReservationOneComponentComponent {
   datesPerPage = 7;
 
   timeSlots: string[] = [];
-  currentTimePage = 2;
-  timesPerPage = 10;
+  currentTimePage = 0;
+  timesPerPage = 15;
 
   formError: string = '';
   successMessage: string = '';
 
   cleanerId: string = '';
+  bookedTimeSlots: Set<string> = new Set();
 
   constructor(
     private router: Router,
@@ -45,11 +46,36 @@ export class ServiceReservationOneComponentComponent {
     console.log('Cleaner ID:', this.cleanerId);
     this.generateDates(365);
     this.generateTimeSlots();
+    this.loadBookedTimeSlots();
     this.selectedDate = this.dates[0].date;
   }
 
   isTimeSelected(time: string): boolean {
     return this.selectedTimes.includes(time);
+  }
+
+  isTimeBooked(time: string): boolean {
+    return this.bookedTimeSlots.has(time);
+  }
+
+  loadBookedTimeSlots() {
+    if (!this.cleanerId || !this.selectedDate) {
+      this.bookedTimeSlots = new Set();
+      return;
+    }
+
+    this.reservationService
+      .getBookedTimeSlots(this.cleanerId, this.selectedDate)
+      .subscribe({
+        next: (bookedTimes) => {
+          this.bookedTimeSlots = new Set(bookedTimes);
+          console.log('Loaded booked time slots:', bookedTimes);
+        },
+        error: (err) => {
+          console.error('Failed to load booked time slots:', err);
+          this.bookedTimeSlots = new Set();
+        },
+      });
   }
 
   generateDates(totalDays: number) {
@@ -91,7 +117,7 @@ export class ServiceReservationOneComponentComponent {
   }
 
   generateTimeSlots() {
-    for (let h = 0; h < 24; h++) {
+    for (let h = 8; h < 20; h++) {
       for (let m = 0; m < 60; m += 30) {
         this.timeSlots.push(
           `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
@@ -118,24 +144,37 @@ export class ServiceReservationOneComponentComponent {
     this.selectedDate = date;
     this.formError = '';
     this.successMessage = '';
+    this.selectedTimes = [];
+    this.loadBookedTimeSlots();
   }
 
   selectTime(time: string) {
+    // Don't allow selection of booked times
+    if (this.isTimeBooked(time)) {
+      return;
+    }
+
     const index = this.timeSlots.indexOf(time);
 
     if (this.selectedTimes.length === 0) {
+      // First time selection
       this.selectedTimes.push(time);
     } else {
+      // Check if we're extending an existing selection
       const lastIndex = this.timeSlots.indexOf(
         this.selectedTimes[this.selectedTimes.length - 1]
       );
       const firstIndex = this.timeSlots.indexOf(this.selectedTimes[0]);
 
+      // Allow consecutive time slot selection
       if (index === lastIndex + 1) {
+        // Extending forward
         this.selectedTimes.push(time);
       } else if (index === firstIndex - 1) {
+        // Extending backward
         this.selectedTimes.unshift(time);
       } else {
+        // Non-consecutive selection - start new selection
         this.selectedTimes = [time];
       }
     }
@@ -168,8 +207,15 @@ export class ServiceReservationOneComponentComponent {
 
     this.reservationService.submitReservation(reservationPayload).subscribe({
       next: (res) => {
-        this.successMessage = 'Reservation created!';
-        this.router.navigate(['/user/reservations']);
+        this.successMessage = 'Reservation created successfully!';
+        this.selectedTimes = [];
+        this.location = '';
+        this.comment = '';
+        // Reload booked time slots to reflect the new booking
+        this.loadBookedTimeSlots();
+        setTimeout(() => {
+          this.router.navigate(['/user/reservations']);
+        }, 2000);
       },
       error: (err) => {
         console.error('Reservation Error:', err);

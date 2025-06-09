@@ -1,58 +1,151 @@
-<div *ngFor="let group of groupedByCleaner" class="border border-gray-300 rounded-lg mb-6">
-  <!-- Cleaner Header -->
-  <div class="flex justify-between items-center p-4 bg-blue-50 hover:bg-blue-100 cursor-pointer rounded-t-lg"
-    (click)="toggleCleaner(group.cleanerName)">
-    <h3 class="text-lg font-semibold text-blue-700">
-      {{ group.cleanerName }}
-    </h3>
-    <mat-icon class="text-blue-700">
-      {{ expandedCleanerId === group.cleanerName ? 'expand_less' : 'expand_more' }}
-    </mat-icon>
+<div class="space-y-6 p-6">
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900 mb-2">My Bookings</h1>
+    <p class="text-gray-600">Manage your cleaning service bookings and leave reviews</p>
+  </div>
+  <div *ngFor="let group of groupedByCleaner"
+    class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <!-- Cleaner Header -->
+    <div
+      class="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-150 cursor-pointer transition-all duration-200"
+      (click)="toggleCleaner(group.cleanerName)">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center">
+          <mat-icon class="text-blue-600 text-lg">person</mat-icon>
+        </div>
+        <h3 class="text-lg font-semibold text-blue-700">
+          {{ group.cleanerName }}
+        </h3>
+      </div>
+
+      <!-- Favorite Button -->
+      <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-2 rounded-full hover:bg-white/50"
+        [class.text-red-500]="isCleanerFavorite(group.cleanerId)"
+        (click)="toggleCleanerFavorite($event, group.cleanerId, group.cleanerName)" aria-label="Toggle Favorite">
+        <mat-icon>{{ isCleanerFavorite(group.cleanerId) ? 'favorite' : 'favorite_border' }}</mat-icon>
+      </button>
+      <mat-icon class="text-blue-700 transition-transform duration-200"
+        [class.rotate-180]="expandedCleanerId === group.cleanerName">
+        expand_more
+      </mat-icon>
+    </div>
+
+    <!-- Expanded Panel -->
+    <div *ngIf="expandedCleanerId === group.cleanerName"
+      class="border-t border-gray-200 bg-gray-50 animate-in slide-in-from-top-2 duration-300">
+
+      <!-- Scrollable Container for Reviews - Shows exactly 2 review boxes -->
+      <div class="overflow-y-auto custom-scrollbar" [style.max-height.px]="group.bookings.length > 2 ? '480' : 'auto'"
+        [ngClass]="{'scroll-shadow': group.bookings.length > 2}">
+        <div *ngFor="let booking of group.bookings; let i = index"
+          class="p-5 border-b border-gray-200 last:border-b-0 bg-white">
+
+          <!-- Booking Info -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2 mb-2">
+              <mat-icon class="text-blue-600 text-sm">event</mat-icon>
+              <p class="font-medium text-gray-800">{{ booking.date | date:'mediumDate' }}</p>
+              <span class="text-gray-400">•</span>
+              <mat-icon class="text-blue-600 text-sm">schedule</mat-icon>
+              <p class="font-medium text-gray-800">{{ booking.time }}</p>
+            </div>
+
+            <div class="flex items-start gap-2 mt-2" *ngIf="booking.message">
+              <mat-icon class="text-gray-500 text-sm mt-0.5">chat_bubble_outline</mat-icon>
+              <p class="text-sm text-gray-700 bg-gray-50 p-2 rounded-lg flex-1">{{ booking.message }}</p>
+            </div>
+          </div>
+
+          <!-- Review Section -->
+          <div class="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg p-4">
+            <div *ngIf="booking.review; else leaveReviewSection">
+              <!-- Existing Review -->
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-semibold text-gray-800 flex items-center gap-2">
+                    <mat-icon class="text-yellow-500 text-lg">star</mat-icon>
+                    Your Review
+                  </h4>
+                  <button (click)="editReview(booking.review, booking)"
+                    class="text-sm text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
+                    <mat-icon class="text-sm">edit</mat-icon>
+                    Edit
+                  </button>
+                </div>
+
+                <!-- Star Rating -->
+                <div class="flex items-center gap-2">
+                  <div class="flex gap-0.5">
+                    <ng-container *ngFor="let star of [1,2,3,4,5]">
+                      <mat-icon class="text-lg cursor-pointer transition-colors duration-200 hover:scale-110"
+                        [ngClass]="booking.review.rating >= star ? 'text-yellow-500 hover:text-yellow-600' : 'text-gray-300 hover:text-gray-400'">
+                        {{ booking.review.rating >= star ? 'star' : 'star_border' }}
+                      </mat-icon>
+                    </ng-container>
+                  </div>
+                  <span class="text-sm font-medium text-gray-600">
+                    ({{ booking.review.rating }}/5)
+                  </span>
+                </div>
+
+                <!-- Review Comment -->
+                <div class="bg-white border border-gray-200 rounded-lg p-3">
+                  <p class="text-sm text-gray-700 leading-relaxed">
+                    {{ booking.review.comment || booking.review.message || 'No comment provided' }}
+                  </p>
+                </div>
+
+                <!-- Review Date -->
+                <p class="text-xs text-gray-500 flex items-center gap-1">
+                  <mat-icon class="text-xs">access_time</mat-icon>
+                  Reviewed on {{ booking.review.date | date:'mediumDate' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Leave Review Section -->
+            <ng-template #leaveReviewSection>
+              <div class="text-center space-y-3">
+                <div class="flex items-center justify-center gap-2 text-gray-600">
+                  <mat-icon class="text-yellow-500">star_border</mat-icon>
+                  <p class="text-sm font-medium">Share your experience</p>
+                </div>
+                <button (click)="leaveReview(group, booking)"
+                  class="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-6 py-2 rounded-full text-sm transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                  Leave Review
+                </button>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div *ngIf="group.bookings.length > 2" class="text-center py-2 bg-gray-50 border-t border-gray-200">
+          <div class="flex items-center justify-center gap-2 text-xs text-gray-500">
+            <mat-icon class="text-xs">keyboard_arrow_down</mat-icon>
+            <span>Scroll to see {{ group.bookings.length - 2 }} more booking{{ group.bookings.length - 2 > 1 ? 's' : ''
+              }}</span>
+            <mat-icon class="text-xs">keyboard_arrow_down</mat-icon>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Expanded Panel -->
-  <div *ngIf="expandedCleanerId === group.cleanerName" class="p-5 bg-white border-t border-gray-200 rounded-b-lg">
-    <div *ngFor="let booking of group.bookings" class="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-md shadow-sm">
-      <div class="mb-2">
-        <p class="font-medium text-gray-800">{{ booking.date }} from {{ booking.time }}</p>
-        <p class="text-sm text-gray-700 mt-1">{{ booking.message }}</p>
-      </div>
-
-      <!-- Review Section -->
-      <div *ngIf="booking.review; else leaveReviewBtn">
-        <div class="flex items-center gap-1 mb-1">
-          <ng-container *ngFor="let star of [1,2,3,4,5]">
-            <mat-icon [ngClass]="booking.review.rating >= star ? 'text-yellow-500' : 'text-gray-300'">star</mat-icon>
-          </ng-container>
-        </div>
-        <div *ngIf="booking.review.message" class="text-gray-600 text-sm italic mb-1">
-          <span class="font-semibold">Message:</span> {{ booking.review.message }}
-        </div>
-        <div *ngIf="booking.review.comment" class="text-gray-600 text-sm italic mb-1">
-          <span class="font-semibold">Comment:</span> {{ booking.review.comment }}
-        </div>
-        <button (click)="editReview(booking.review, booking)" class="text-sm text-blue-600 hover:underline">
-          Edit Review
-        </button>
-      </div>
-
-      <!-- Leave Review Button -->
-      <ng-template #leaveReviewBtn>
-        <button (click)="leaveReview(group, booking)" class="text-sm text-yellow-600 hover:underline">
-          Leave Review
-        </button>
-      </ng-template>
-
-
-
-    </div>
+  <!-- Empty State -->
+  <div *ngIf="groupedByCleaner.length === 0" class="text-center py-12">
+    <mat-icon class="text-gray-400 text-6xl mb-4">event_note</mat-icon>
+    <h3 class="text-lg font-medium text-gray-600 mb-2">No bookings found</h3>
+    <p class="text-gray-500">Your booking history will appear here</p>
   </div>
 </div>
 
-<!-- Shared Modal -->
-<app-modal [isOpen]="isReviewModalOpen" (close)="isReviewModalOpen = false">
+<!-- Enhanced Modal -->
+<app-modal [isOpen]="isReviewModalOpen" (close)="closeReviewModal()">
   <ng-container *ngIf="selectedCleaner">
     <app-leave-review-card [cleaner]="selectedCleaner" [initialRating]="initialRating" [initialMessage]="initialMessage"
-      [reviewId]="editingReview?.id" [isEditing]="!!editingReview" (submitReview)="handleReviewSubmit($event)" />
+      [reviewId]="editingReview?.id" [isEditing]="!!editingReview" (submitReview)="handleReviewSubmit($event)"
+      (close)="closeReviewModal()" />
   </ng-container>
 </app-modal>
