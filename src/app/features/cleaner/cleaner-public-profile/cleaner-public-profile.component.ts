@@ -283,6 +283,12 @@ export class CleanerPublicProfileComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    const cleanerId = this.route.snapshot.paramMap.get('id');
+    if (cleanerId) {
+      this.initializeReservationForm(); // Set up dates first
+      this.loadCleanerProfile(cleanerId); // Then load cleaner (will trigger loadBookedTimeSlots
+      this.loadCleanerReviews(cleanerId);
+    }
     this.route.params.subscribe((params) => {
       this.cleanerId = params['id'];
       console.log('🆔 Loading cleaner profile for ID:', this.cleanerId);
