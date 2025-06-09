@@ -26,14 +26,19 @@ export class LeaveReviewCardComponent implements OnInit {
 
   @Output() ratingChange = new EventEmitter<number>();
   @Output() submitReview = new EventEmitter<ReviewDto>();
+  @Output() close = new EventEmitter<void>();
 
   currentRating: number | undefined = 0;
   reviewMessage: string | undefined = '';
+  personalNote: string = '';
 
   allCleanerReviews: Review[] = [];
   showAllReviews = false;
 
-  constructor(private favoritesService: FavoritesService, private reviewService: ReviewService) {}
+  constructor(
+    private favoritesService: FavoritesService,
+    private reviewService: ReviewService
+  ) {}
 
   ngOnInit(): void {
     this.currentRating = this.initialRating;
@@ -44,34 +49,46 @@ export class LeaveReviewCardComponent implements OnInit {
     });
 
     if (this.cleaner?.id) {
-      this.reviewService.getReviewsForCleaner(this.cleaner.id).subscribe((reviews) => {
-        this.allCleanerReviews = reviews;
-      });
+      this.reviewService
+        .getReviewsForCleaner(this.cleaner.id)
+        .subscribe((reviews) => {
+          this.allCleanerReviews = reviews;
+        });
     }
   }
 
   setRating(star: number) {
     this.currentRating = star;
     this.ratingChange.emit(this.currentRating);
+    console.log('Rating set to:', star);
   }
 
   submitReviewHandler() {
-    if (!this.currentRating || !this.reviewMessage) {
-      console.warn('⚠️ Rating and message required');
+    if (!this.currentRating || this.currentRating === 0) {
+      console.warn('⚠️ Rating is required');
+      // You could show a toast notification here
       return;
     }
+
+    console.log('Submitting review:', {
+      rating: this.currentRating,
+      message: this.reviewMessage,
+      personalNote: this.personalNote,
+    });
 
     this.submitReview.emit({
       reviewId: this.reviewId,
       rating: this.currentRating,
-      message: this.reviewMessage,
+      message: this.reviewMessage || '',
     });
 
     // Refresh reviews after submit
     if (this.cleaner?.id) {
-      this.reviewService.getReviewsForCleaner(this.cleaner.id).subscribe((reviews) => {
-        this.allCleanerReviews = reviews;
-      });
+      this.reviewService
+        .getReviewsForCleaner(this.cleaner.id)
+        .subscribe((reviews) => {
+          this.allCleanerReviews = reviews;
+        });
     }
   }
 
@@ -98,14 +115,23 @@ export class LeaveReviewCardComponent implements OnInit {
 
   get averageRating(): number {
     if (!this.allCleanerReviews.length) return 0;
-    return this.allCleanerReviews.reduce((sum, r) => sum + r.rating, 0) / this.allCleanerReviews.length;
+    return (
+      this.allCleanerReviews.reduce((sum, r) => sum + r.rating, 0) /
+      this.allCleanerReviews.length
+    );
   }
 
   get displayedReviews() {
-    return this.showAllReviews ? this.allCleanerReviews : this.allCleanerReviews.slice(0, 3);
+    return this.showAllReviews
+      ? this.allCleanerReviews
+      : this.allCleanerReviews.slice(0, 2);
   }
 
   toggleShowAllReviews() {
     this.showAllReviews = !this.showAllReviews;
+  }
+
+  closeModal() {
+    this.close.emit();
   }
 }

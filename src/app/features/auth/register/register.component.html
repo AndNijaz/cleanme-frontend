@@ -1,52 +1,64 @@
-<form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="h-full flex justify-center items-center w-full">
-  <div class="w-1/2 mx-auto flex flex-col gap-8 max-xl:w-3/5 max-lg:w-4/5 max-md:w-full">
-    <div class="mb-8 px-24 max-md:px-4 max-md:mb-4">
+<form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="h-full flex justify-center items-center w-full px-4">
+  <div class="w-full max-w-2xl mx-auto flex flex-col gap-6 p-6">
+    <div class="mb-4">
       <app-toggle-button [options]="['User', 'Cleaner']" (toggleUserType)="setSelectedProfileType($event)" />
     </div>
 
-
-    <!--    NASTIMAJ DA NE GURA SVE VAN OKVIRA POROZRA, msm da je overflow neki hidden ili nesto - logika je ok-->
-
-    <!--    <div class="flex flex-col items-center gap-2">-->
-    <!--      <input type="file" id="fileInput" class="hidden" (change)="onFileSelected($event)" />-->
-    <!--      <label for="fileInput"-->
-    <!--             class="cursor-pointer bg-deepblue-200 text-gray-600 w-24 h-24 rounded-full flex items-center justify-center">-->
-    <!--        Add Photo-->
-    <!--      </label>-->
-    <!--      <img *ngIf="selectedImageUrl" [src]="selectedImageUrl" class="w-16 h-16 rounded-full object-cover" alt="Preview" />-->
-    <!--    </div>-->
-
-
-
-
-    <div class="flex gap-8 max-md:gap-2">
-      <app-input placeholder="Name" name="formName" [required]="true" [(ngModel)]="formName" />
-
-      <app-input placeholder="Surname" name="formSurname" [required]="true" [(ngModel)]="formSurname" />
+    <!-- Name and Surname Section -->
+    <div class="flex gap-4 max-md:flex-col max-md:gap-4">
+      <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+        <app-input placeholder="Enter your first name" name="formName" [required]="true" [(ngModel)]="formName" />
+      </div>
+      <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+        <app-input placeholder="Enter your last name" name="formSurname" [required]="true" [(ngModel)]="formSurname" />
+      </div>
     </div>
 
-    <app-input placeholder="Email" name="formEmail" [required]="true" [(ngModel)]="formEmail" />
-
-    <app-input placeholder="Address" name="formAddress" [required]="true" [(ngModel)]="formAddress" />
-
-    <app-input placeholder="Phone number" name="formPhoneNumber" [required]="true" [(ngModel)]="formPhoneNumber" />
-
-    <div class="relative">
-      <app-input placeholder="Password" name="formPassword" [required]="true" [(ngModel)]="formPassword"
-        [type]="showPassword ? 'text' : 'password'" />
-      <button type="button" (click)="toggleShowPassword()"
-        class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm">
-        {{ showPassword ? 'Hide' : 'Show' }}
-      </button>
+    <!-- Email Section -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+      <app-input placeholder="Enter your email address" name="formEmail" [required]="true" [(ngModel)]="formEmail" />
     </div>
 
-    <div class="relative">
-      <app-input placeholder="Confirm Password" name="formConfirmPassword" [required]="true"
-        [(ngModel)]="formConfirmPassword" class="mb-0.5" [type]="showPassword ? 'text' : 'password'" />
-      <button type="button" (click)="toggleShowPassword()"
-        class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm">
-        {{ showPassword ? 'Hide' : 'Show' }}
-      </button>
+    <!-- Address Section -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+      <app-input placeholder="Enter your full address" name="formAddress" [required]="true" [(ngModel)]="formAddress" />
+    </div>
+
+    <!-- Phone Number Section -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+      <app-input placeholder="Enter your phone number" name="formPhoneNumber" [required]="true"
+        [(ngModel)]="formPhoneNumber" />
+    </div>
+
+    <!-- Password Section -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+      <div class="relative">
+        <app-input placeholder="Create a password (min. 6 characters)" name="formPassword" [required]="true"
+          [(ngModel)]="formPassword" [type]="showPassword ? 'text' : 'password'" />
+        <button type="button" (click)="toggleShowPassword()"
+          class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm hover:text-blue-500">
+          {{ showPassword ? 'Hide' : 'Show' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Confirm Password Section -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+      <div class="relative">
+        <app-input placeholder="Confirm your password" name="formConfirmPassword" [required]="true"
+          [(ngModel)]="formConfirmPassword" class="mb-0.5" [type]="showPassword ? 'text' : 'password'" />
+        <button type="button" (click)="toggleShowPassword()"
+          class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm hover:text-blue-500">
+          {{ showPassword ? 'Hide' : 'Show' }}
+        </button>
+      </div>
     </div>
 
     <p class="text-sm text-center text-gray-600">
@@ -59,17 +71,14 @@
     </p>
 
     <p class="text-sm text-center text-gray-600">
-      Already have an account? 
+      Already have an account?
       <a routerLink="/login" class="text-blue-500 hover:underline">Login here</a>
     </p>
 
-    <div class="w-full text-center">
-      <app-button type="submit">
-        Register
+    <div class="w-full text-center mt-6">
+      <app-button type="submit" class="w-full max-w-sm">
+        Create Account
       </app-button>
     </div>
-
-    
-
   </div>
 </form>

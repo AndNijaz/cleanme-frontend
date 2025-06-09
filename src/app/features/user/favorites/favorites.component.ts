@@ -1,43 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import {
   CleanerCardComponent,
   CleanerCardModel,
 } from '../../cleaner/cleaner-card/cleaner-card.component';
 import { FavoritesService } from '../../../core/services/favorites.service';
 import { AuthService } from '../../../core/services/auth.service';
-
-// Temporary mock list – replace later with real service call to get cleaner data
-const MOCK_CLEANERS: CleanerCardModel[] = [
-  {
-    id: '1',
-    fullName: 'Amina Mujkić',
-    rating: 4.8,
-    reviewCount: 24,
-    location: 'Novo Sarajevo',
-    shortBio: 'Pouzdana i precizna čistačica s 4+ godina iskustva.',
-    services: ['Deep Cleaning', 'Office Cleaning'],
-    price: 15,
-    currency: 'BAM',
-    imageUrl: '',
-    isFavorite: true,
-  },
-  {
-    id: '2',
-    fullName: 'Lejla Dedić',
-    rating: 4.5,
-    reviewCount: 12,
-    location: 'Stari Grad',
-    shortBio: 'Specijalizovana za detaljno čišćenje i prozore.',
-    services: ['Window Washing', 'Floor Cleaning'],
-    price: 17,
-    currency: 'BAM',
-    imageUrl: '',
-    isFavorite: true,
-  },
-];
+import { CleanerService } from '../../../core/services/cleaner-service.service';
+import { ReviewService } from '../../../core/services/review.service';
 
 @Component({
   selector: 'app-favorites',
@@ -51,13 +23,48 @@ export class FavoritesComponent implements OnInit {
   constructor(
     private favoritesService: FavoritesService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cleanerService: CleanerService,
+    private reviewService: ReviewService
   ) {}
 
   ngOnInit(): void {
-    // This should eventually fetch IDs and hydrate from backend
-    this.favoritesService.getFavorites().subscribe((ids) => {
-      this.favorites = MOCK_CLEANERS.filter((c) => ids.includes(c.id));
+    this.loadFavoriteCleaners();
+  }
+
+  private loadFavoriteCleaners(): void {
+    // Get all cleaners and favorite IDs, then filter
+    forkJoin({
+      allCleaners: this.cleanerService.getCleaners(),
+      favoriteIds: this.favoritesService.getFavorites(),
+    }).subscribe({
+      next: ({ allCleaners, favoriteIds }) => {
+        // Filter cleaners that are in favorites
+        this.favorites = allCleaners.filter((cleaner) =>
+          favoriteIds.includes(cleaner.id)
+        );
+
+        // Mark them as favorites and load reviews
+        this.favorites.forEach((cleaner) => {
+          cleaner.isFavorite = true;
+
+          // Load reviews for each favorite cleaner
+          this.reviewService
+            .getReviewsForCleaner(cleaner.id)
+            .subscribe((reviews) => {
+              cleaner.rating = reviews.length
+                ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+                : 0;
+              cleaner.reviewCount = reviews.length;
+            });
+        });
+
+        console.log(`Loaded ${this.favorites.length} favorite cleaners`);
+      },
+      error: (error) => {
+        console.error('Error loading favorite cleaners:', error);
+        this.favorites = [];
+      },
     });
   }
 
@@ -66,14 +73,25 @@ export class FavoritesComponent implements OnInit {
     if (!cleaner) return;
 
     if (cleaner.isFavorite) {
-      this.favoritesService.removeFromFavorites(cleanerId).subscribe(() => {
-        cleaner.isFavorite = false;
-        this.favorites = this.favorites.filter((c) => c.id !== cleanerId);
+      this.favoritesService.removeFromFavorites(cleanerId).subscribe({
+        next: () => {
+          cleaner.isFavorite = false;
+          this.favorites = this.favorites.filter((c) => c.id !== cleanerId);
+          console.log(`Removed ${cleaner.fullName} from favorites`);
+        },
+        error: (error) => {
+          console.error('Error removing from favorites:', error);
+        },
       });
     } else {
-      this.favoritesService.addToFavorites(cleanerId).subscribe(() => {
-        cleaner.isFavorite = true;
-        // Optional: you might want to refetch full cleaner data
+      this.favoritesService.addToFavorites(cleanerId).subscribe({
+        next: () => {
+          cleaner.isFavorite = true;
+          console.log(`Added ${cleaner.fullName} to favorites`);
+        },
+        error: (error) => {
+          console.error('Error adding to favorites:', error);
+        },
       });
     }
   }

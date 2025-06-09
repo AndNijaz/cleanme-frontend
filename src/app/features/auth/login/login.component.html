@@ -1,34 +1,42 @@
-<form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="h-full flex justify-center items-center w-full">
-  <div class="w-1/2 mx-auto flex flex-col gap-8 max-xl:w-3/5 max-lg:w-4/5 max-md:w-full">
+<form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="h-full flex justify-center items-center w-full px-4">
+  <div class="w-full max-w-2xl mx-auto flex flex-col gap-6 p-6">
 
-    <app-input
-      placeholder="Email"
-      name="formEmail"
-      [required]="true"
-      [(ngModel)]="formEmail"
-    />
+    <!-- Welcome Section with Illustration -->
+    <div class="text-center mb-6">
+      <div class="mb-4">
+        <div
+          class="w-24 h-24 mx-auto bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-4">
+          <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+        </div>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome Back!</h2>
+      <p class="text-gray-600">Sign in to access your CleanMe account</p>
+    </div>
 
-    <div class="relative">
-      <app-input
-        placeholder="Password"
-        name="formPassword"
-        [required]="true"
-        [(ngModel)]="formPassword"
-        [type]="showPassword ? 'text' : 'password'"
-      />
+    <!-- Email Section -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+      <app-input placeholder="Enter your email address" name="formEmail" [required]="true" [(ngModel)]="formEmail" />
+    </div>
 
-      <!-- Dugme za show/hide password -->
-      <button
-        type="button"
-        (click)="toggleShowPassword()"
-        class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm"
-      >
-        {{ showPassword ? 'Hide' : 'Show' }}
-      </button>
+    <!-- Password Section -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+      <div class="relative">
+        <app-input placeholder="Enter your password" name="formPassword" [required]="true" [(ngModel)]="formPassword"
+          [type]="showPassword ? 'text' : 'password'" />
+        <button type="button" (click)="toggleShowPassword()"
+          class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm hover:text-blue-500">
+          {{ showPassword ? 'Hide' : 'Show' }}
+        </button>
+      </div>
     </div>
 
     <p class="text-sm text-center text-gray-600">
-      Don't have an account? 
+      Don't have an account?
       <a routerLink="/register" class="text-blue-500 hover:underline">Register here</a>
     </p>
 
@@ -36,13 +44,10 @@
       {{ errorMessage }}
     </p>
 
-    <div class="w-full text-center">
-      <app-button type="submit">
-        Login
+    <div class="w-full text-center mt-6">
+      <app-button type="submit" class="w-full max-w-sm">
+        Sign In
       </app-button>
     </div>
-
-    
-
   </div>
 </form>

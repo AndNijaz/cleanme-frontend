@@ -1,8 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ReviewService } from '../../../core/services/review.service';
-import { Review } from '../../../core/services/models/review.model';
+
 import { MatIconModule } from '@angular/material/icon';
 import { User } from '../../../core/services/user.service';
 
@@ -12,37 +11,59 @@ import { User } from '../../../core/services/user.service';
   imports: [CommonModule, FormsModule, MatIconModule],
   templateUrl: './profile-overview-card.component.html',
 })
-export class ProfileOverviewCardComponent implements OnInit {
+export class ProfileOverviewCardComponent {
   @Input() profile: User | null = null;
-  @Input() isEditing: boolean = false;
-  @Output() onToggleEdit = new EventEmitter<void>();
-  @Output() onSave = new EventEmitter<void>();
 
-  allCleanerReviews: Review[] = [];
-  averageRating: number = 0;
-  showAllReviews: boolean = false;
+  constructor() {}
 
-  get displayedReviews(): Review[] {
-    return this.showAllReviews ? this.allCleanerReviews : this.allCleanerReviews.slice(0, 3);
+  getAccountType(): string {
+    // This would come from user data in a real app
+    return 'Premium User';
   }
 
-  constructor(private reviewService: ReviewService) {}
+  getMemberSince(): string {
+    // This would come from user creation date
+    return 'March 2024';
+  }
 
-  ngOnInit(): void {
-    if (!this.profile || !this.profile.id) {
-      console.warn('ProfileOverviewCard: No id found in profile:', this.profile);
-      return;
+  getProfileCompletion(): number {
+    if (!this.profile) return 0;
+
+    let completed = 0;
+    const total = 6;
+
+    if (this.profile.firstName?.trim()) completed++;
+    if (this.profile.lastName?.trim()) completed++;
+    if (this.profile.email?.trim()) completed++;
+    if (this.profile.phone?.trim()) completed++;
+    if (
+      this.profile.country?.trim() &&
+      this.profile.city?.trim() &&
+      this.profile.street?.trim()
+    )
+      completed++;
+
+    return Math.round((completed / total) * 100);
+  }
+
+  getAccountStatus(): string {
+    const completion = this.getProfileCompletion();
+    if (completion >= 80) return 'Active';
+    if (completion >= 50) return 'Incomplete';
+    return 'Pending';
+  }
+
+  getStatusClasses(): string {
+    const status = this.getAccountStatus();
+    switch (status) {
+      case 'Active':
+        return 'bg-green-100 text-green-800';
+      case 'Incomplete':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Pending':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
-    this.reviewService.getReviewsForCleaner(this.profile.id).subscribe((reviews) => {
-      this.allCleanerReviews = reviews;
-      this.averageRating = reviews.length
-        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-        : 0;
-      console.log('ProfileOverviewCard: Reviews fetched:', reviews);
-    });
-  }
-
-  toggleShowAllReviews(): void {
-    this.showAllReviews = !this.showAllReviews;
   }
 }

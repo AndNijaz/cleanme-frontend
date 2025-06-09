@@ -119,9 +119,9 @@ export class RegisterComponent {
         console.log(res);
 
         if (res.userType === 'CLIENT') {
-          this.router.navigate(['/dashboard/user']);
+          this.router.navigate(['/user/dashboard']);
         } else {
-          this.router.navigate(['/cleaner-post']);
+          this.router.navigate(['/cleaner/dashboard']);
         }
       },
       error: (err) => {

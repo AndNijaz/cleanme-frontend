@@ -18,7 +18,6 @@ export class ButtonComponent {
   }
 
   get getClass() {
-    return `cursor-pointer bg-gradient-to-r from-[#FFD749] to-[#FFD749] text-black font-medium py-2 px-6 rounded-full shadow-md hover:brightness-105 ${this.class}`;
+    return `cursor-pointer bg-gradient-to-r from-[#FFD749] to-[#FFD749] text-black font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl hover:brightness-105 transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 ${this.class}`;
   }
-
 }
