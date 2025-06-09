@@ -84,7 +84,7 @@ export class CleanerPublicProfileComponent implements OnInit {
     const cleanerId = this.route.snapshot.paramMap.get('id');
     if (cleanerId) {
       this.initializeReservationForm(); // Set up dates first
-      this.loadCleanerProfile(cleanerId); // Then load cleaner (will trigger loadBookedTimeSlots)
+      this.loadCleanerProfile(cleanerId); // Then load cleaner (will trigger loadBookedTimeSlots
       this.loadCleanerReviews(cleanerId);
     }
   }
