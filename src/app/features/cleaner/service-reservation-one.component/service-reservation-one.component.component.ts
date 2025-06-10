@@ -41,8 +41,13 @@ export class ServiceReservationOneComponentComponent {
   ) {}
 
   ngOnInit() {
-    this.cleanerId =
-      this.route.snapshot.paramMap.get('id') || 'mock-cleaner-id'; // fallback
+    this.cleanerId = this.route.snapshot.paramMap.get('id') || '';
+
+    if (!this.cleanerId) {
+      this.formError = 'Invalid cleaner ID. Please try again.';
+      return;
+    }
+
     console.log(
       '🔧 Initializing reservation component for cleaner ID:',
       this.cleanerId
@@ -217,14 +222,20 @@ export class ServiceReservationOneComponentComponent {
       return;
     }
 
+    const authData = this.authService.getAuthData();
+    if (!authData?.userId) {
+      this.formError = 'Please log in to make a reservation.';
+      return;
+    }
+
     const reservationPayload: ReservationRequest = {
-      userId: this.authService.getAuthData()?.userId || 'mock-user-id', // fallback
+      userId: authData.userId,
       cleanerId: this.cleanerId,
       date: this.selectedDate,
-      times: this.selectedTimes, // or process to fit backend
+      times: this.selectedTimes,
       location: this.location.trim(),
       comment: this.comment.trim(),
-      status: 'PENDING', // hardcoded for now
+      status: 'PENDING',
     };
 
     this.reservationService.submitReservation(reservationPayload).subscribe({

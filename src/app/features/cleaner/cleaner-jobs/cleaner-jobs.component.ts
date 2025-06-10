@@ -81,56 +81,11 @@ export class CleanerJobsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading jobs:', error);
-        this.error = 'Failed to load jobs. Showing sample data.';
+        this.error = 'Failed to load jobs. Please try again later.';
         this.loading = false;
-
-        // Fallback to mock data
-        this.loadMockData();
         this.filterJobs();
       },
     });
-  }
-
-  private loadMockData() {
-    this.jobs = [
-      {
-        id: '1',
-        clientName: 'Alice Johnson',
-        address: '123 Main St, Downtown',
-        date: '2024-01-15',
-        time: '10:00',
-        duration: 3,
-        service: 'House Cleaning',
-        status: 'confirmed',
-        rate: 75,
-        notes: 'Please focus on kitchen and bathrooms',
-        clientPhone: '+1 (555) 123-4567',
-      },
-      {
-        id: '2',
-        clientName: 'Bob Smith',
-        address: '456 Oak Ave, Uptown',
-        date: '2024-01-16',
-        time: '14:00',
-        duration: 2,
-        service: 'Office Cleaning',
-        status: 'pending',
-        rate: 50,
-        clientPhone: '+1 (555) 987-6543',
-      },
-      {
-        id: '3',
-        clientName: 'Carol Wilson',
-        address: '789 Pine Rd, Suburb',
-        date: '2024-01-14',
-        time: '09:00',
-        duration: 4,
-        service: 'Deep Cleaning',
-        status: 'completed',
-        rate: 120,
-        notes: 'Move-out cleaning, very thorough',
-      },
-    ];
   }
 
   private extractDateFromString(dateStr: string): string {

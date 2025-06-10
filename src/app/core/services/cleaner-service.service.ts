@@ -186,43 +186,8 @@ export class CleanerService {
 
       catchError((error) => {
         console.error('Error fetching cleaners:', error);
-        // Return mock data as fallback
-        return of([
-          {
-            id: '1',
-            fullName: 'Bahra Zedic',
-            rating: 4.8,
-            reviewCount: 128,
-            location: 'Bojnik, Otes, Bjelave, Dobrinja',
-            shortBio:
-              'Pedantna, pouzdana i brza – čišćenje mi nije posao, nego zadovoljstvo.',
-            services: ['Deep Cleaning', 'Window Washing'],
-            price: 15,
-            currency: 'BAM',
-          },
-          {
-            id: '2',
-            fullName: 'Azra Mujkic',
-            rating: 4.6,
-            reviewCount: 95,
-            location: 'Ilidža, Grbavica',
-            shortBio: 'Pouzdana i tačna. Čistim stanove i poslovne prostore.',
-            services: ['Floor Cleaning', 'Office Cleaning'],
-            price: 17,
-            currency: 'BAM',
-          },
-          {
-            id: '3',
-            fullName: 'Nijaz Andelić',
-            rating: 4.9,
-            reviewCount: 140,
-            location: 'Stup, Hrasno, Grbavica',
-            shortBio: 'Iskustvo od 5 godina. Koristim ekološka sredstva.',
-            services: ['Bathroom Deep Clean', 'Furniture Cleaning'],
-            price: 18,
-            currency: 'BAM',
-          },
-        ]);
+        // Return empty array instead of mock data
+        return of([]);
       })
     );
   }

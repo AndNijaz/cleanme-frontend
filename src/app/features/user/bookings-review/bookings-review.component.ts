@@ -23,47 +23,7 @@ import { FavoritesService } from '../../../core/services/favorites.service';
     MatIconModule,
   ],
   templateUrl: './bookings-review.component.html',
-  styles: [
-    `
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 8px;
-      }
-
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 4px;
-      }
-
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 4px;
-      }
-
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-      }
-
-      .custom-scrollbar {
-        scrollbar-width: thin;
-        scrollbar-color: #cbd5e1 #f1f5f9;
-      }
-
-      .scroll-shadow {
-        position: relative;
-      }
-
-      .scroll-shadow::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 20px;
-        background: linear-gradient(transparent, rgba(255, 255, 255, 0.8));
-        pointer-events: none;
-      }
-    `,
-  ],
+  styleUrls: ['./bookings-review.component.css'],
 })
 export class BookingsReviewComponent {
   bookings: any[] = [];
@@ -208,23 +168,8 @@ export class BookingsReviewComponent {
         },
         error: (err) => {
           console.error('Error fetching cleaner details:', err);
-          // fallback to mock data if needed
-          this.selectedCleaner = {
-            id: group.cleanerId,
-            fullName: group.cleanerName,
-            rating: 0,
-            reviewCount: 0,
-            location: 'Unknown',
-            shortBio: 'Mock cleaner profile',
-            services: [],
-            price: 0,
-            currency: '$',
-          };
-          this.selectedBooking = booking;
-          this.initialRating = 0;
-          this.initialMessage = '';
-          this.editingReview = null;
-          this.isReviewModalOpen = true;
+          // Close modal if we can't load cleaner data
+          this.closeReviewModal();
         },
       });
   }

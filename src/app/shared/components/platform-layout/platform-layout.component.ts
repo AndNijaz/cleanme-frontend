@@ -6,6 +6,7 @@ import {
   SidebarService,
 } from '../../../core/services/sidebar.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { UserService, User } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-platform-layout',
@@ -20,11 +21,13 @@ export class PlatformLayoutComponent implements OnInit {
   profileDropdownOpen = false;
   userRole: string | null = null;
   isMobile = false;
+  currentUser: User | null = null;
 
   constructor(
     private router: Router,
     private authService: AuthService,
-    private sidebarService: SidebarService
+    private sidebarService: SidebarService,
+    private userService: UserService
   ) {
     this.checkScreenSize();
   }
@@ -45,11 +48,25 @@ export class PlatformLayoutComponent implements OnInit {
   ngOnInit(): void {
     this.userRole = this.authService.getUserRole();
     this.setupSidebar(this.router.url);
+    this.loadCurrentUser();
 
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.setupSidebar(event.urlAfterRedirects);
       }
+    });
+  }
+
+  private loadCurrentUser(): void {
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+      },
+      error: (error) => {
+        console.error('Error loading user data:', error);
+        // Fallback to auth data if user service fails
+        this.currentUser = null;
+      },
     });
   }
 
@@ -62,7 +79,11 @@ export class PlatformLayoutComponent implements OnInit {
 
   private setupSidebar(currentUrl: string) {
     const role = this.authService.getUserRole();
-    this.sidebarItems = this.sidebarService.getSidebar(role, currentUrl);
+    if (role) {
+      this.sidebarItems = this.sidebarService.getSidebar(role, currentUrl);
+    } else {
+      this.sidebarItems = [];
+    }
   }
 
   toggleSidebar(): void {
@@ -73,25 +94,48 @@ export class PlatformLayoutComponent implements OnInit {
     this.profileDropdownOpen = !this.profileDropdownOpen;
   }
 
-  onBrowseCleaners(): void {
-    this.router.navigate(['/cleaners']);
-    // Close sidebar on mobile after navigation
-    if (this.isMobile) {
-      this.sidebarCollapsed = true;
+  onSearch(query: string): void {
+    if (query.trim()) {
+      this.router.navigate(['/cleaners'], {
+        queryParams: { search: query.trim() },
+      });
+      // Close sidebar on mobile after navigation
+      if (this.isMobile) {
+        this.sidebarCollapsed = true;
+      }
+    } else {
+      this.router.navigate(['/cleaners']);
     }
   }
 
   getUserName(): string {
+    // First try current user data from API
+    if (this.currentUser?.firstName && this.currentUser?.lastName) {
+      return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
+    }
+
+    // Fallback to auth data
     const authData = this.authService.getAuthData();
     if (authData?.firstName && authData?.lastName) {
       return `${authData.firstName} ${authData.lastName}`;
     }
+
     return 'User';
   }
 
   getUserEmail(): string {
+    // First try auth data from localStorage
     const authData = this.authService.getAuthData();
-    // For now, return a placeholder since email is not in the AuthResponse
+    if (authData?.email) {
+      return authData.email;
+    }
+
+    // Fallback to current user data from API
+    if (this.currentUser?.email) {
+      return this.currentUser.email;
+    }
+
+    // Return a fallback if no email is available
     return 'user@example.com';
   }
 
@@ -107,6 +151,7 @@ export class PlatformLayoutComponent implements OnInit {
 
   getIconPath(label: string): string {
     const iconMap: { [key: string]: string } = {
+      'Browse Cleaners': 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
       'My Profile':
         'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
       'My Bookings':
@@ -134,5 +179,9 @@ export class PlatformLayoutComponent implements OnInit {
   onLogOut(): void {
     this.authService.clearAuthData();
     this.router.navigate(['']);
+  }
+
+  onDashboardClick(): void {
+    this.router.navigate(['/user/dashboard']);
   }
 }

@@ -37,6 +37,11 @@ export class AuthService {
     localStorage.setItem('token', res.token);
     localStorage.setItem('userId', res.userId);
     localStorage.setItem('userType', res.userType);
+    localStorage.setItem('firstName', res.firstName);
+    localStorage.setItem('lastName', res.lastName);
+    localStorage.setItem('email', res.email);
+    localStorage.setItem('address', res.address);
+    localStorage.setItem('phoneNumber', res.phoneNumber);
   }
 
   getAuthData(): AuthResponse | null {
@@ -45,30 +50,21 @@ export class AuthService {
     const userType = localStorage.getItem('userType') as UserType | null;
     const firstName = localStorage.getItem('firstName') ?? '';
     const lastName = localStorage.getItem('lastName') ?? '';
+    const email = localStorage.getItem('email') ?? '';
     const phoneNumber = localStorage.getItem('phoneNumber') ?? '';
     const address = localStorage.getItem('address') ?? '';
 
     if (!token || !userId || !userType) {
-      // mock fallback for development
-      return {
-        token: 'mock-token',
-        userId: 'mock-user-id1',
-        userType: 'CLIENT',
-        firstName: 'Mock',
-        lastName: 'User',
-        // email: "mock@example.com",
-        address: '123 Mock St',
-        phoneNumber: '123-456-7890',
-      };
+      return null;
     }
 
-    // return { token, userId, userType, firstName, lastName, email, address, phoneNumber };
     return {
       token,
       userId,
       userType,
       firstName,
       lastName,
+      email,
       address,
       phoneNumber,
     };
@@ -78,20 +74,19 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     localStorage.removeItem('userType');
+    localStorage.removeItem('firstName');
+    localStorage.removeItem('lastName');
+    localStorage.removeItem('email');
+    localStorage.removeItem('address');
+    localStorage.removeItem('phoneNumber');
   }
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
   }
 
-  getUserRole(): 'CLEANER' | 'CLIENT' {
+  getUserRole(): 'CLEANER' | 'CLIENT' | null {
     const role = (localStorage.getItem('userType') as UserType | null) ?? null;
-
-    // Mock fallback for development
-    if (!role) {
-      return 'CLIENT'; // or 'CLEANER' if you're working on that flow
-    }
-
     return role;
   }
 }

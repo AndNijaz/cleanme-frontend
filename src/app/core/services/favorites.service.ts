@@ -35,18 +35,6 @@ export class FavoritesService {
       return userId;
     }
 
-    // Fallback: try to get from AuthService if available
-    try {
-      // If no userId in localStorage, check if we have a mock fallback
-      const userType = localStorage.getItem('userType');
-      if (userType) {
-        // Return mock user ID for development (matches AuthService fallback)
-        return 'mock-user-id1';
-      }
-    } catch (error) {
-      console.error('Error getting user ID:', error);
-    }
-
     throw new Error('No current user found. Please log in again.');
   }
 

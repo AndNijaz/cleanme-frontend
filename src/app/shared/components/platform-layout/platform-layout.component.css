@@ -143,3 +143,21 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
+
+/* Collapsed sidebar icon improvements */
+.sidebar-collapsed-icon {
+  min-width: 20px;
+  min-height: 20px;
+}
+
+/* Better spacing for collapsed navigation items */
+.nav-item.collapsed {
+  margin-bottom: 8px;
+  border-radius: 12px;
+}
+
+/* Icon hover effect in collapsed state */
+.nav-item:hover svg {
+  transform: scale(1.1);
+  transition: transform 0.2s ease-in-out;
+}

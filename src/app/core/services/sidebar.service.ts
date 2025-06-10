@@ -12,9 +12,9 @@ export interface SidebarItem {
 export class SidebarService {
   private readonly config: Record<UserRole, SidebarItem[]> = {
     CLIENT: [
+      { label: 'Browse Cleaners', route: '/cleaners' },
       { label: 'My Bookings', route: '/user/reservations' },
       { label: 'Favorites', route: '/user/favorites' },
-      { label: 'Payments', route: '/user/payments' },
       { label: 'My Profile', route: '/user/profile' },
     ],
     CLEANER: [

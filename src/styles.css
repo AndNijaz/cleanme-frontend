@@ -9,12 +9,36 @@ body {
 
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 @theme {
   --color-deepblue-500: #083f87;
   --color-deepblue-300: #0d65d9;
   --color-deepblue-200: #e4f0ff;
   --color-blacknavy: #020f21;
   --font-display: "Poppins", sans-serif;
+}
+
+/* Dark mode configuration for Tailwind v4 */
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-scheme: light;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-scheme: dark;
+  }
+}
+
+/* Manual theme control */
+[data-theme="light"] {
+  --color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --color-scheme: dark;
 }
 
 html,

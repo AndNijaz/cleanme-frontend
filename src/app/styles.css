@@ -32,3 +32,25 @@ body {
     @apply rounded-2xl p-6 shadow-lg max-w-md w-full;
   }
 }
+
+/* Dark mode configuration for Tailwind v4 */
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-scheme: light;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-scheme: dark;
+  }
+}
+
+/* Manual theme control */
+[data-theme="light"] {
+  --color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --color-scheme: dark;
+}

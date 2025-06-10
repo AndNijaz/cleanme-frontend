@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { delay, tap, catchError } from 'rxjs/operators';
+import { tap, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import {
   Booking,
@@ -92,30 +92,9 @@ export class ReservationService {
 
   // === GET BOOKINGS FOR CLEANER (for cleaner dashboard) ===
   getCleanerBookings(cleanerId: string): Observable<Booking[]> {
-    // ✅ Mock version – sample list for visual testing
-    return of([
-      {
-        id: '3-2023-03-24-1',
-        cleanerId: '1',
-        cleanerName: 'Bahra Zedic',
-        date: '21.3.2023',
-        time: '17:00 to 21:00',
-        message: 'Deep cleaning of apartment with extra care on the windows.',
-        profileImage: '',
-      },
-      {
-        id: '3-2023-03-24-3',
-        cleanerId: '2',
-        cleanerName: 'Amina Mujić',
-        date: '24.3.2023',
-        time: '10:00 to 13:00',
-        message: 'Office cleaning with focus on electronics and shared space.',
-        profileImage: '',
-      },
-    ]).pipe(delay(300));
-
-    // 🟢 Uncomment for real backend:
-    // return this.http.get<Booking[]>(`${this.BASE_URL}/cleaner/${cleanerId}`);
+    return this.http.get<Booking[]>(`${this.BASE_URL}/cleaner/${cleanerId}`, {
+      headers: this.getHeaders(),
+    });
   }
 
   // === UPDATE RESERVATION STATUS (accept/decline by cleaner) ===

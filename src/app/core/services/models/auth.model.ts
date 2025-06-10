@@ -20,6 +20,7 @@ export interface AuthResponse {
   userId: string;
   firstName: string;
   lastName: string;
+  email: string;
   userType: UserType;
   address: string;
   phoneNumber: string;

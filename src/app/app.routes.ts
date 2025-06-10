@@ -19,7 +19,7 @@ import { PlatformLayoutComponent } from './shared/components/platform-layout/pla
 import { SharedProfileComponent } from './features/shared-profile/shared-profile.component';
 import { CleanerPublicProfileComponent } from './features/cleaner/cleaner-public-profile/cleaner-public-profile.component';
 import { FavoritesComponent } from './features/user/favorites/favorites.component';
-import { PaymentsComponent } from './features/user/payments/payments.component';
+
 import { ServiceReservationOneComponentComponent } from './features/cleaner/service-reservation-one.component/service-reservation-one.component.component';
 import { BookingsReviewComponent } from './features/user/bookings-review/bookings-review.component';
 import { authGuard } from './core/guards/auth.guard';
@@ -57,7 +57,6 @@ export const routes: Routes = [
           { path: 'reservations', component: BookingsReviewComponent },
           { path: 'favorites', component: FavoritesComponent },
           // { path: 'reviews', component: ReviewsComponent },
-          { path: 'payments', component: PaymentsComponent },
           { path: 'settings', component: SettingsComponent },
         ],
       },
