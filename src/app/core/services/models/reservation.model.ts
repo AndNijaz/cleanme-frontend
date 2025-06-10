@@ -1,10 +1,17 @@
 export interface Booking {
-  id: string;
-  cleanerId: string;
-  cleanerName: string;
-  date: string;
-  time: string;
-  message: string;
+  rid: string; // UUID from backend
+  date: string; // LocalDate from backend
+  time: string; // LocalTime from backend
+  location: string; // String from backend
+  status: string; // ReservationStatus enum from backend
+  comment: string; // String from backend
+  cleanerName: string; // String from backend
+  clientName: string; // String from backend - client's full name
+  clientPhone: string; // String from backend - client's phone number
+  // Legacy fields for backward compatibility
+  id?: string;
+  cleanerId?: string;
+  message?: string;
   profileImage?: string;
   bookingId?: string;
 }

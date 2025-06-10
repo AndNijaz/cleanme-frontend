@@ -2,6 +2,15 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { User } from '../../../core/services/user.service';
+import {
+  PREDEFINED_SERVICES,
+  ServiceType,
+} from '../../../shared/constants/services.constant';
+
+export interface ProfileData {
+  services?: { icon: string; name: string; description: string }[];
+  hourlyRate?: number;
+}
 
 @Component({
   selector: 'app-profile-services-card',
@@ -11,15 +20,29 @@ import { User } from '../../../core/services/user.service';
 })
 export class ProfileServicesCardComponent {
   @Input() profile: User | null = null;
+  @Input() profileData: ProfileData | null = null;
 
   getServices(): { icon: string; name: string; description: string }[] {
-    // Return empty array - services should come from the actual profile data
-    // If this component is still needed, the parent component should pass services via @Input
-    return [];
+    if (this.profileData?.services) {
+      return this.profileData.services.map((service) => ({
+        icon: service.icon,
+        name: service.name,
+        description: service.description,
+      }));
+    }
+
+    // Return predefined services as fallback
+    return PREDEFINED_SERVICES.map((service) => ({
+      icon: service.emoji,
+      name: service.name,
+      description: service.shortDescription,
+    }));
   }
 
   getHourlyRate(): string {
-    // Return empty string - hourly rate should come from the actual profile data
-    return '';
+    if (this.profileData?.hourlyRate) {
+      return this.profileData.hourlyRate.toString();
+    }
+    return '25'; // Default hourly rate
   }
 }

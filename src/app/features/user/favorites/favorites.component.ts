@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import {
-  CleanerCardComponent,
-  CleanerCardModel,
-} from '../../cleaner/cleaner-card/cleaner-card.component';
+import { CleanerCardModel } from '../../cleaner/cleaner-card/cleaner-card.component';
 import { FavoritesService } from '../../../core/services/favorites.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CleanerService } from '../../../core/services/cleaner-service.service';
@@ -14,7 +11,7 @@ import { ReviewService } from '../../../core/services/review.service';
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [CommonModule, CleanerCardComponent],
+  imports: [CommonModule, RouterModule],
   templateUrl: './favorites.component.html',
 })
 export class FavoritesComponent implements OnInit {
@@ -30,6 +27,26 @@ export class FavoritesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFavoriteCleaners();
+  }
+
+  getAverageRating(): string {
+    if (this.favorites.length === 0) return '0.0';
+
+    const validRatings = this.favorites.filter((f) => f.rating && f.rating > 0);
+    if (validRatings.length === 0) return '0.0';
+
+    const average =
+      validRatings.reduce((sum, f) => sum + (f.rating || 0), 0) /
+      validRatings.length;
+    return average.toFixed(1);
+  }
+
+  getInitials(fullName: string): string {
+    return fullName
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase();
   }
 
   private loadFavoriteCleaners(): void {

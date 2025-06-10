@@ -18,6 +18,7 @@ export interface BookingWithReview {
   comment: string;
   cleanerName: string;
   cleanerId: string;
+  status?: string; // ✅ Added status field
   review?: Review;
 }
 

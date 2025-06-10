@@ -11,6 +11,7 @@ import { InputComponent } from '../../../shared/components/input/input.component
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -21,6 +22,7 @@ import { RegisterRequest } from '../../../core/services/models/auth.model';
   selector: 'app-register',
   standalone: true,
   imports: [
+    CommonModule,
     InputComponent,
     ButtonComponent,
     FormsModule,
@@ -119,9 +121,11 @@ export class RegisterComponent {
         console.log(res);
 
         if (res.userType === 'CLIENT') {
+          // Clients can go directly to dashboard or to post-registration
           this.router.navigate(['/user/dashboard']);
         } else {
-          this.router.navigate(['/cleaner/dashboard']);
+          // Cleaners MUST complete post-registration setup
+          this.router.navigate(['/cleaner-post']);
         }
       },
       error: (err) => {
