@@ -176,6 +176,17 @@ export class PlatformLayoutComponent implements OnInit {
     return iconMap[label] || 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z';
   }
 
+  getSettingsRoute(): string {
+    const role = this.authService.getUserRole();
+    if (role === 'CLIENT') {
+      return '/user/settings';
+    } else if (role === 'CLEANER') {
+      return '/cleaner/settings';
+    }
+    // Default fallback
+    return '/user/settings';
+  }
+
   onLogOut(): void {
     this.authService.clearAuthData();
     this.router.navigate(['']);

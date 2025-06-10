@@ -46,8 +46,19 @@ export class CleanerJobsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.cleanerId = localStorage.getItem('userId') || '';
+    this.initializeCleaner();
     this.loadJobs();
+  }
+
+  private initializeCleaner() {
+    // Get cleaner info from auth service first
+    const authData = this.authService.getAuthData();
+    if (authData) {
+      this.cleanerId = authData.userId;
+    } else {
+      // Fallback to localStorage
+      this.cleanerId = localStorage.getItem('userId') || '';
+    }
   }
 
   loadJobs() {
@@ -63,19 +74,30 @@ export class CleanerJobsComponent implements OnInit {
     this.reservationService.getCleanerBookings(this.cleanerId).subscribe({
       next: (bookings) => {
         // Convert booking data to job format
-        this.jobs = bookings.map((booking) => ({
-          id: booking.id,
-          clientName: 'Client', // You may need to fetch client name separately
-          address: booking.date, // This might contain address info
-          date: this.extractDateFromString(booking.date),
-          time: this.extractTimeFromString(booking.time),
-          duration: this.extractDurationFromString(booking.time),
-          service: 'Cleaning Service',
-          status: 'confirmed' as Job['status'],
-          rate: 0, // You may need to calculate this
-          notes: booking.message,
-          clientPhone: '',
-        }));
+        this.jobs = bookings.map((booking, index) => {
+          const bookingDate = this.parseBookingDate(booking.date);
+
+          return {
+            id:
+              booking.rid || booking.id || booking.bookingId || `job-${index}`,
+            clientName: booking.clientName || this.extractClientName(booking),
+            address: this.extractLocationFromBooking(booking),
+            date: this.formatBackendDate(booking.date),
+            time: this.extractTimeFromString(booking.time),
+            duration: this.extractDurationFromString(booking.time),
+            service: 'House Cleaning Service',
+            status: booking.status
+              ? this.mapBackendStatus(booking.status)
+              : this.determineJobStatus(bookingDate),
+            rate: this.calculateJobRate(booking),
+            notes:
+              booking.comment ||
+              booking.message ||
+              'No special instructions provided',
+            clientPhone: booking.clientPhone || 'Phone not provided', // Real phone from backend
+          };
+        });
+
         this.loading = false;
         this.filterJobs();
       },
@@ -83,54 +105,79 @@ export class CleanerJobsComponent implements OnInit {
         console.error('Error loading jobs:', error);
         this.error = 'Failed to load jobs. Please try again later.';
         this.loading = false;
+        this.jobs = []; // Clear jobs on error
         this.filterJobs();
       },
     });
   }
 
-  private extractDateFromString(dateStr: string): string {
-    // Extract date from format like "21.3.2023"
-    const parts = dateStr.split('.');
-    if (parts.length === 3) {
-      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(
-        2,
-        '0'
-      )}`;
+  private extractClientName(booking: any): string {
+    // Try different fields for client name
+    if (booking.clientName) return booking.clientName;
+    if (booking.cleanerName) return booking.cleanerName;
+    if (booking.userName) return booking.userName;
+
+    // Extract from message if available
+    const nameMatch = booking.message?.match(/name:\s*(.+)|client:\s*(.+)/i);
+    if (nameMatch) {
+      const extractedName = nameMatch[1] || nameMatch[2];
+      return extractedName.trim();
     }
-    return dateStr;
+
+    return 'Client'; // Fallback
   }
 
   private extractTimeFromString(timeStr: string): string {
-    // Extract start time from format like "17:00 to 21:00"
-    return timeStr.split(' ')[0] || timeStr;
+    if (!timeStr) return '09:00';
+
+    // Handle formats like "17:00 to 21:00" or "17:00-21:00" or just "17:00"
+    const timeMatch = timeStr.match(/(\d{1,2}:\d{2})/);
+    return timeMatch ? timeMatch[1] : timeStr.substring(0, 5);
   }
 
   private extractDurationFromString(timeStr: string): number {
-    // Calculate duration from format like "17:00 to 21:00"
-    const parts = timeStr.split(' to ');
-    if (parts.length === 2) {
-      const start = parts[0].split(':');
-      const end = parts[1].split(':');
-      const startTime = parseInt(start[0]) + parseInt(start[1]) / 60;
-      const endTime = parseInt(end[0]) + parseInt(end[1]) / 60;
-      return endTime - startTime;
+    if (!timeStr) return 3; // Default 3 hours
+
+    // Look for patterns like "17:00 to 21:00" or "17:00-21:00"
+    const rangeMatch = timeStr.match(
+      /(\d{1,2}):(\d{2})\s*(?:to|-)\s*(\d{1,2}):(\d{2})/
+    );
+    if (rangeMatch) {
+      const startHour = parseInt(rangeMatch[1]);
+      const startMin = parseInt(rangeMatch[2]);
+      const endHour = parseInt(rangeMatch[3]);
+      const endMin = parseInt(rangeMatch[4]);
+
+      const startTime = startHour + startMin / 60;
+      const endTime = endHour + endMin / 60;
+      const duration = endTime - startTime;
+
+      return duration > 0 ? duration : 3;
     }
-    return 2; // Default duration
+
+    return 3; // Default 3 hours
   }
 
   filterJobs() {
     if (this.selectedStatus === 'all') {
-      this.filteredJobs = this.jobs;
+      this.filteredJobs = [...this.jobs];
     } else {
       this.filteredJobs = this.jobs.filter(
         (job) => job.status === this.selectedStatus
       );
     }
 
-    // Sort by date (newest first)
-    this.filteredJobs.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
+    // Sort by date (newest first for pending/confirmed, oldest first for completed)
+    this.filteredJobs.sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+
+      if (this.selectedStatus === 'completed') {
+        return dateB - dateA; // Newest completed first
+      } else {
+        return dateA - dateB; // Nearest upcoming first
+      }
+    });
   }
 
   onStatusFilterChange(event: any) {
@@ -139,20 +186,14 @@ export class CleanerJobsComponent implements OnInit {
   }
 
   getStatusText(status: string): string {
-    switch (status) {
-      case 'pending':
-        return 'Pending Approval';
-      case 'confirmed':
-        return 'Confirmed';
-      case 'in-progress':
-        return 'In Progress';
-      case 'completed':
-        return 'Completed';
-      case 'cancelled':
-        return 'Cancelled';
-      default:
-        return status;
-    }
+    const statusMap = {
+      pending: 'Pending Approval',
+      confirmed: 'Confirmed',
+      'in-progress': 'In Progress',
+      completed: 'Completed',
+      cancelled: 'Cancelled',
+    };
+    return statusMap[status as keyof typeof statusMap] || status;
   }
 
   formatDate(dateString: string): string {
@@ -168,15 +209,29 @@ export class CleanerJobsComponent implements OnInit {
   updateJobStatus(jobId: string, newStatus: Job['status']) {
     const job = this.jobs.find((j) => j.id === jobId);
     if (job) {
+      const oldStatus = job.status;
+
       // Update locally first for immediate UI feedback
       job.status = newStatus;
       this.filterJobs();
 
-      // Update in backend
+      // Update in backend - map frontend status to backend status
+      const backendStatus = this.mapFrontendToBackendStatus(newStatus);
+
+      // Build complete UpdateReservationDto with all required fields
+      const updateData = {
+        cleanerId: this.cleanerId,
+        date: job.date,
+        time: job.time,
+        location: job.address,
+        status: backendStatus,
+        comment: job.notes || '',
+      };
+
+      console.log('Sending update data:', updateData);
+
       this.reservationService
-        .updateReservationStatus(jobId, {
-          status: newStatus.toUpperCase() as any,
-        })
+        .updateReservationStatus(jobId, updateData as any)
         .subscribe({
           next: (response) => {
             console.log('Job status updated successfully:', response);
@@ -184,25 +239,186 @@ export class CleanerJobsComponent implements OnInit {
           error: (error) => {
             console.error('Error updating job status:', error);
             // Revert the status change if backend update fails
-            job.status = job.status; // You might want to store the previous status
+            job.status = oldStatus;
             this.filterJobs();
+            this.error = 'Failed to update job status. Please try again.';
+
+            // Clear error after 5 seconds
+            setTimeout(() => {
+              this.error = null;
+            }, 5000);
           },
         });
     }
   }
 
+  // Quick action methods
+  confirmJob(jobId: string) {
+    this.updateJobStatus(jobId, 'confirmed');
+  }
+
+  startJob(jobId: string) {
+    this.updateJobStatus(jobId, 'in-progress');
+  }
+
+  completeJob(jobId: string) {
+    this.updateJobStatus(jobId, 'completed');
+  }
+
+  cancelJob(jobId: string) {
+    if (confirm('Are you sure you want to cancel this job?')) {
+      this.updateJobStatus(jobId, 'cancelled');
+    }
+  }
+
+  // Statistics methods
   getTotalEarnings(): number {
     return this.jobs
       .filter((job) => job.status === 'completed')
-      .reduce((total, job) => total + job.rate, 0);
+      .reduce((total, job) => total + job.rate * job.duration, 0);
   }
 
   getUpcomingJobs(): Job[] {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     return this.jobs.filter(
       (job) =>
-        (job.status === 'confirmed' || job.status === 'pending') &&
-        job.date >= today
+        new Date(job.date) >= today &&
+        (job.status === 'confirmed' || job.status === 'pending')
     );
+  }
+
+  formatCurrency(amount: number): string {
+    return `${amount.toFixed(2)} BAM`;
+  }
+
+  // Utility methods
+  private parseBookingDate(dateStr: string): Date {
+    if (!dateStr) return new Date();
+
+    // Handle different date formats
+    if (dateStr.includes('.')) {
+      // Format: "21.3.2023"
+      const parts = dateStr.split('.');
+      if (parts.length === 3) {
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]) - 1; // JS months are 0-indexed
+        const year = parseInt(parts[2]);
+        return new Date(year, month, day);
+      }
+    }
+
+    // Handle ISO format or other standard formats
+    return new Date(dateStr);
+  }
+
+  private formatBackendDate(dateStr: string): string {
+    const date = this.parseBookingDate(dateStr);
+    return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+  }
+
+  private extractLocationFromBooking(booking: any): string {
+    // Use location field first (from backend)
+    if (booking.location) return booking.location;
+    if (booking.address) return booking.address;
+
+    // Try to extract from comment or message
+    const textToSearch = booking.comment || booking.message;
+    if (textToSearch) {
+      const locationMatch = textToSearch.match(
+        /(?:address|location|at)\s*:?\s*(.+)/i
+      );
+      if (locationMatch) {
+        return locationMatch[1].trim();
+      }
+    }
+
+    return 'Address will be provided';
+  }
+
+  private determineJobStatus(bookingDate: Date): Job['status'] {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const bookingDateOnly = new Date(bookingDate);
+    bookingDateOnly.setHours(0, 0, 0, 0);
+
+    if (bookingDateOnly < today) {
+      return 'completed';
+    } else if (bookingDateOnly.getTime() === today.getTime()) {
+      const now = new Date();
+      const currentHour = now.getHours();
+
+      // If it's today and past typical cleaning hours, mark as completed
+      if (currentHour > 18) {
+        return 'completed';
+      } else if (currentHour > 8) {
+        return 'in-progress';
+      } else {
+        return 'confirmed';
+      }
+    } else {
+      return 'confirmed';
+    }
+  }
+
+  // Map backend status to frontend status
+  private mapBackendStatus(backendStatus: string): Job['status'] {
+    const statusMap: Record<string, Job['status']> = {
+      PENDING: 'pending',
+      CONFIRMED: 'confirmed',
+      ONGOING: 'in-progress',
+      FINISHED: 'completed',
+      CANCELLED: 'cancelled',
+    };
+
+    return statusMap[backendStatus?.toUpperCase()] || 'pending';
+  }
+
+  // Map frontend status to backend status
+  private mapFrontendToBackendStatus(frontendStatus: Job['status']): string {
+    const statusMap: Record<Job['status'], string> = {
+      pending: 'PENDING',
+      confirmed: 'CONFIRMED',
+      'in-progress': 'ONGOING',
+      completed: 'FINISHED',
+      cancelled: 'CANCELLED',
+    };
+
+    return statusMap[frontendStatus] || 'PENDING';
+  }
+
+  private calculateJobRate(booking: any): number {
+    // Try to extract rate from booking data
+    if (booking.rate) return booking.rate;
+    if (booking.price) return booking.price;
+
+    // Default rate
+    return 25; // BAM per hour
+  }
+
+  // Contact client method
+  contactClient(phoneNumber: string) {
+    // Open phone app on mobile or copy to clipboard on desktop
+    if (navigator.userAgent.match(/Android|iPhone/i)) {
+      window.location.href = `tel:${phoneNumber}`;
+    } else {
+      // Copy to clipboard for desktop users
+      navigator.clipboard
+        .writeText(phoneNumber)
+        .then(() => {
+          alert(`Phone number ${phoneNumber} copied to clipboard!`);
+        })
+        .catch(() => {
+          // Fallback for older browsers
+          const textArea = document.createElement('textarea');
+          textArea.value = phoneNumber;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert(`Phone number ${phoneNumber} copied to clipboard!`);
+        });
+    }
   }
 }

@@ -92,9 +92,13 @@ export class ReservationService {
 
   // === GET BOOKINGS FOR CLEANER (for cleaner dashboard) ===
   getCleanerBookings(cleanerId: string): Observable<Booking[]> {
-    return this.http.get<Booking[]>(`${this.BASE_URL}/cleaner/${cleanerId}`, {
-      headers: this.getHeaders(),
-    });
+    // Use the correct cleaner endpoint that exists in the backend
+    return this.http.get<Booking[]>(
+      `${environment['NG_APP_BASE_URL']}/cleaners/${cleanerId}/reservations`,
+      {
+        headers: this.getHeaders(),
+      }
+    );
   }
 
   // === UPDATE RESERVATION STATUS (accept/decline by cleaner) ===
@@ -102,11 +106,26 @@ export class ReservationService {
     reservationId: string,
     updated: Partial<ReservationRequest>
   ): Observable<ReservationRequest> {
-    // 🟢 Real backend only
-    return this.http.put<ReservationRequest>(
-      `${this.BASE_URL}/${reservationId}`,
-      updated
-    );
+    console.log('🔄 Updating reservation status:', reservationId, updated);
+    console.log('🔗 PUT URL:', `${this.BASE_URL}/${reservationId}`);
+    console.log('🔑 Headers:', this.getHeaders());
+
+    return this.http
+      .put<ReservationRequest>(`${this.BASE_URL}/${reservationId}`, updated, {
+        headers: this.getHeaders(),
+      })
+      .pipe(
+        tap((response) =>
+          console.log('✅ Update reservation success:', response)
+        ),
+        catchError((error) => {
+          console.error('❌ Update reservation error:', error);
+          console.error('❌ Error status:', error.status);
+          console.error('❌ Error message:', error.message);
+          console.error('❌ Error details:', error.error);
+          throw error;
+        })
+      );
   }
 
   // === CANCEL RESERVATION (universal route) ===

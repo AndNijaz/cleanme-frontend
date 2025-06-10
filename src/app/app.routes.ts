@@ -8,6 +8,8 @@ import { AuthLayoutComponent } from './features/auth/auth-layout/auth-layout.com
 import { UserInfoComponent } from './features/auth/user-info/user-info.component';
 import { BrowseCleanersComponent } from './features/cleaner/browse-cleaners/browse-cleaners.component';
 import { CleanerJobsComponent } from './features/cleaner/cleaner-jobs/cleaner-jobs.component';
+import { CleanerServicesComponent } from './features/cleaner/cleaner-services/cleaner-services.component';
+import { CleanerAvailabilityComponent } from './features/cleaner/cleaner-availability/cleaner-availability.component';
 import { SettingsComponent } from './features/shared/settings/settings.component';
 
 import { CleanerInfoComponent } from './features/auth/cleaner-info/cleaner-info.component';
@@ -73,8 +75,8 @@ export const routes: Routes = [
           },
 
           { path: 'jobs', component: CleanerJobsComponent },
-          { path: 'services', component: HomePageComponent },
-          { path: 'availability', component: HomePageComponent },
+          { path: 'services', component: CleanerServicesComponent },
+          { path: 'availability', component: CleanerAvailabilityComponent },
           { path: 'reviews', component: HomePageComponent },
           { path: 'earnings', component: HomePageComponent },
           { path: 'settings', component: SettingsComponent },

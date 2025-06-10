@@ -47,29 +47,23 @@ export class BookingService {
     // Get userId from localStorage (set during login)
     const userId = localStorage.getItem('userId') || '';
 
-    // Convert to the format expected by the existing reservation service
-    const reservationRequest: ReservationRequest = {
-      userId: userId,
-      cleanerId: booking.cleanerId,
-      date: booking.date,
-      times: [booking.time],
+    console.log('Creating booking:', booking);
+
+    // Send data in the exact format expected by CreateReservationDto
+    const reservationData = {
+      date: booking.date, // LocalDate format (YYYY-MM-DD)
+      time: booking.time, // LocalTime format (HH:MM:SS or HH:MM)
       location: booking.location,
+      status: 'PENDING', // ReservationStatus enum
       comment: booking.specialInstructions || '',
-      status: 'PENDING',
+      cleanerID: booking.cleanerId, // UUID format
     };
 
-    console.log('Creating booking:', reservationRequest);
+    console.log('Sending reservation data to backend:', reservationData);
 
     return this.http.post<BookingResponse>(
       `${this.BASE_URL}`,
-      {
-        date: reservationRequest.date,
-        time: reservationRequest.times[0],
-        location: reservationRequest.location,
-        status: reservationRequest.status,
-        comment: reservationRequest.comment,
-        cleanerID: reservationRequest.cleanerId,
-      },
+      reservationData,
       { headers: this.getHeaders() }
     );
   }

@@ -1,143 +1,445 @@
-<div class="space-y-6 p-6">
-  <!-- Page Header -->
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold text-gray-900 mb-2">My Bookings</h1>
-    <p class="text-gray-600">Manage your cleaning service bookings and leave reviews</p>
-  </div>
-  <div *ngFor="let group of groupedByCleaner"
-    class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-    <!-- Cleaner Header -->
-    <div
-      class="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-150 cursor-pointer transition-all duration-200"
-      (click)="toggleCleaner(group.cleanerName)">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center">
-          <mat-icon class="text-blue-600 text-lg">person</mat-icon>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
+  <!-- Enhanced Page Header -->
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1
+            class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+            My Bookings</h1>
+          <p class="text-gray-600 text-lg mb-3">Manage your cleaning service bookings and leave reviews</p>
+
+          <!-- Real-time Update Indicator -->
+          <div
+            class="inline-flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-full text-sm text-green-700">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span>Live updates • Status changes from cleaners appear automatically</span>
+          </div>
         </div>
-        <h3 class="text-lg font-semibold text-blue-700">
-          {{ group.cleanerName }}
-        </h3>
-      </div>
 
-      <!-- Favorite Button -->
-      <button class="text-gray-400 hover:text-red-500 transition-colors duration-200 p-2 rounded-full hover:bg-white/50"
-        [class.text-red-500]="isCleanerFavorite(group.cleanerId)"
-        (click)="toggleCleanerFavorite($event, group.cleanerId, group.cleanerName)" aria-label="Toggle Favorite">
-        <mat-icon>{{ isCleanerFavorite(group.cleanerId) ? 'favorite' : 'favorite_border' }}</mat-icon>
-      </button>
-      <mat-icon class="text-blue-700 transition-transform duration-200"
-        [class.rotate-180]="expandedCleanerId === group.cleanerName">
-        expand_more
-      </mat-icon>
-    </div>
-
-    <!-- Expanded Panel -->
-    <div *ngIf="expandedCleanerId === group.cleanerName"
-      class="border-t border-gray-200 bg-gray-50 animate-in slide-in-from-top-2 duration-300">
-
-      <!-- Scrollable Container for Reviews - Shows exactly 2 review boxes -->
-      <div class="overflow-y-auto custom-scrollbar" [style.max-height.px]="group.bookings.length > 2 ? '480' : 'auto'"
-        [ngClass]="{'scroll-shadow': group.bookings.length > 2}">
-        <div *ngFor="let booking of group.bookings; let i = index"
-          class="p-5 border-b border-gray-200 last:border-b-0 bg-white">
-
-          <!-- Booking Info -->
-          <div class="mb-4">
-            <div class="flex items-center gap-2 mb-2">
-              <mat-icon class="text-blue-600 text-sm">event</mat-icon>
-              <p class="font-medium text-gray-800">{{ booking.date | date:'mediumDate' }}</p>
-              <span class="text-gray-400">•</span>
-              <mat-icon class="text-blue-600 text-sm">schedule</mat-icon>
-              <p class="font-medium text-gray-800">{{ booking.time }}</p>
+        <!-- Booking Stats with Refresh Button -->
+        <div class="mt-6 md:mt-0 flex flex-col md:flex-row md:items-end gap-4">
+          <div class="grid grid-cols-3 gap-4 flex-1">
+            <div class="text-center p-4 bg-blue-50 rounded-xl border border-blue-100">
+              <div class="text-2xl font-bold text-blue-600">{{ getTotalBookings() }}</div>
+              <div class="text-xs text-blue-500 font-medium">Total</div>
             </div>
-
-            <div class="flex items-start gap-2 mt-2" *ngIf="booking.message">
-              <mat-icon class="text-gray-500 text-sm mt-0.5">chat_bubble_outline</mat-icon>
-              <p class="text-sm text-gray-700 bg-gray-50 p-2 rounded-lg flex-1">{{ booking.message }}</p>
+            <div class="text-center p-4 bg-green-50 rounded-xl border border-green-100">
+              <div class="text-2xl font-bold text-green-600">{{ getCompletedBookings() }}</div>
+              <div class="text-xs text-green-500 font-medium">Completed</div>
+            </div>
+            <div class="text-center p-4 bg-purple-50 rounded-xl border border-purple-100">
+              <div class="text-2xl font-bold text-purple-600">{{ getUpcomingBookings() }}</div>
+              <div class="text-xs text-purple-500 font-medium">Upcoming</div>
             </div>
           </div>
 
-          <!-- Review Section -->
-          <div class="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg p-4">
-            <div *ngIf="booking.review; else leaveReviewSection">
-              <!-- Existing Review -->
-              <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                  <h4 class="font-semibold text-gray-800 flex items-center gap-2">
-                    <mat-icon class="text-yellow-500 text-lg">star</mat-icon>
-                    Your Review
-                  </h4>
-                  <button (click)="editReview(booking.review, booking)"
-                    class="text-sm text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
-                    <mat-icon class="text-sm">edit</mat-icon>
-                    Edit
-                  </button>
-                </div>
+          <!-- Refresh Button with Loading State -->
+          <button (click)="refreshBookings()" [disabled]="isRefreshing"
+            class="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl font-medium transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            [class.opacity-75]="isRefreshing" [class.cursor-not-allowed]="isRefreshing">
+            <mat-icon class="text-lg" [class.animate-spin]="isRefreshing">
+              {{ isRefreshing ? 'sync' : 'refresh' }}
+            </mat-icon>
+            <span class="hidden sm:inline">{{ isRefreshing ? 'Updating...' : 'Refresh' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
-                <!-- Star Rating -->
-                <div class="flex items-center gap-2">
-                  <div class="flex gap-0.5">
-                    <ng-container *ngFor="let star of [1,2,3,4,5]">
-                      <mat-icon class="text-lg cursor-pointer transition-colors duration-200 hover:scale-110"
-                        [ngClass]="booking.review.rating >= star ? 'text-yellow-500 hover:text-yellow-600' : 'text-gray-300 hover:text-gray-400'">
-                        {{ booking.review.rating >= star ? 'star' : 'star_border' }}
-                      </mat-icon>
-                    </ng-container>
+    <!-- Bookings List -->
+    <div class="space-y-6">
+      <div *ngFor="let group of groupedByCleaner"
+        class="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+
+        <!-- Enhanced Cleaner Header -->
+        <div
+          class="flex justify-between items-center p-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 cursor-pointer transition-all duration-300"
+          (click)="toggleCleaner(group.cleanerName)">
+          <div class="flex items-center gap-4">
+            <!-- Enhanced Avatar -->
+            <div class="relative">
+              <div
+                class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center ring-4 ring-white/30">
+                <mat-icon class="text-white text-2xl">person</mat-icon>
+              </div>
+              <!-- Status indicator -->
+              <div
+                class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white flex items-center justify-center">
+                <mat-icon class="text-white text-xs">verified</mat-icon>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-xl font-bold text-white mb-1">{{ group.cleanerName }}</h3>
+              <div class="flex items-center gap-3 text-white/80 text-sm">
+                <span class="flex items-center gap-1">
+                  <mat-icon class="text-sm">event</mat-icon>
+                  {{ group.bookings.length }} booking{{ group.bookings.length !== 1 ? 's' : '' }}
+                </span>
+                <span class="flex items-center gap-1">
+                  <mat-icon class="text-sm">star</mat-icon>
+                  {{ getCleanerAverageRating(group.bookings) }}/5
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <!-- Enhanced Favorite Button -->
+            <button
+              class="text-white hover:text-red-300 transition-colors duration-200 p-3 rounded-full hover:bg-white/20"
+              [class.text-red-300]="isCleanerFavorite(group.cleanerId)"
+              (click)="toggleCleanerFavorite($event, group.cleanerId, group.cleanerName)" aria-label="Toggle Favorite">
+              <mat-icon>{{ isCleanerFavorite(group.cleanerId) ? 'favorite' : 'favorite_border' }}</mat-icon>
+            </button>
+
+            <!-- Expand/Collapse Button -->
+            <div class="p-2 rounded-full bg-white/10 backdrop-blur-sm">
+              <mat-icon class="text-white transition-transform duration-300 text-xl"
+                [class.rotate-180]="expandedCleanerId === group.cleanerName">
+                expand_more
+              </mat-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enhanced Expanded Panel with Better UX -->
+        <div *ngIf="expandedCleanerId === group.cleanerName"
+          class="border-t border-gray-100 bg-gradient-to-b from-gray-50 to-white animate-in slide-in-from-top-2 duration-300">
+
+          <!-- Booking Cards Grid Layout (No Scrolling) -->
+          <div class="p-6 space-y-4">
+
+            <!-- Individual Booking Cards -->
+            <div *ngFor="let booking of group.bookings; let i = index"
+              class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 p-6">
+
+              <!-- Enhanced Booking Info -->
+              <div class="mb-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                  <div class="flex items-center gap-4 mb-4 md:mb-0">
+                    <!-- Enhanced Booking Card Header -->
+                    <div class="flex items-center gap-4">
+                      <!-- Booking Number with Better Design -->
+                      <div
+                        class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                        <span class="text-sm">#{{ i + 1 }}</span>
+                      </div>
+
+                      <!-- Date & Time Info with Better Layout -->
+                      <div class="flex-1">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                          <div class="flex items-center gap-2 text-gray-700">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                              <mat-icon class="text-blue-600 text-sm">event</mat-icon>
+                            </div>
+                            <span class="font-semibold">{{ booking.date | date:'EEEE, MMMM d, y' }}</span>
+                          </div>
+                          <div class="flex items-center gap-2 text-gray-700">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                              <mat-icon class="text-green-600 text-sm">schedule</mat-icon>
+                            </div>
+                            <span class="font-semibold">{{ booking.time }}</span>
+                          </div>
+                        </div>
+                        <div class="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                          <mat-icon class="text-xs">info</mat-icon>
+                          {{ getTimeUntilBooking(booking.date) }}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <span class="text-sm font-medium text-gray-600">
-                    ({{ booking.review.rating }}/5)
-                  </span>
+
+                  <!-- Enhanced Status Section with Better Design -->
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <!-- Enhanced Booking Status Badge -->
+                    <div class="inline-flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium shadow-sm"
+                      [ngClass]="getBookingStatusClasses(booking.date)">
+                      <div class="w-3 h-3 rounded-full animate-pulse"
+                        [ngClass]="getBookingStatusDotClasses(booking.date)"></div>
+                      <span class="font-semibold">{{ getBookingStatus(booking.date) }}</span>
+                    </div>
+
+                    <!-- Action Buttons with Better Styling -->
+                    <div class="flex gap-2">
+                      <!-- Progress Track Button for Active Bookings -->
+                      <button *ngIf="isActiveBooking(booking) && (booking.rid || booking.id)"
+                        (click)="toggleBookingProgress(booking.rid || booking.id || '')"
+                        class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl text-sm font-medium transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5">
+                        <mat-icon class="text-sm">timeline</mat-icon>
+                        {{ expandedBookingProgress === (booking.rid || booking.id) ? 'Hide' : 'Track' }}
+                      </button>
+
+                      <!-- Quick Review Button -->
+                      <button *ngIf="!booking.review && canLeaveReview(booking)" (click)="leaveReview(group, booking)"
+                        class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-xl text-sm font-medium transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5">
+                        <mat-icon class="text-sm">star</mat-icon>
+                        Review
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                <!-- Review Comment -->
-                <div class="bg-white border border-gray-200 rounded-lg p-3">
-                  <p class="text-sm text-gray-700 leading-relaxed">
-                    {{ booking.review.comment || booking.review.message || 'No comment provided' }}
-                  </p>
+                <!-- Enhanced Booking Progress Section -->
+                <div *ngIf="expandedBookingProgress === (booking.rid || booking.id) && isActiveBooking(booking)"
+                  class="mt-4 p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200 rounded-2xl shadow-inner">
+
+                  <!-- Use full BookingProgressComponent if we have a real booking ID -->
+                  <div *ngIf="booking.rid || booking.id">
+                    <app-booking-progress [bookingId]="booking.rid || booking.id || ''"></app-booking-progress>
+                  </div>
+
+                  <!-- Enhanced Fallback view if no booking ID -->
+                  <div *ngIf="!(booking.rid || booking.id)" class="text-center py-12">
+                    <div class="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                      <mat-icon class="text-blue-600 text-2xl">info</mat-icon>
+                    </div>
+                    <h4 class="text-lg font-semibold text-blue-900 mb-2">Progress tracking not available</h4>
+                    <p class="text-blue-700 mb-4">This booking doesn't support real-time tracking</p>
+                    <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                      Contact Support
+                    </button>
+                  </div>
                 </div>
 
-                <!-- Review Date -->
-                <p class="text-xs text-gray-500 flex items-center gap-1">
-                  <mat-icon class="text-xs">access_time</mat-icon>
-                  Reviewed on {{ booking.review.date | date:'mediumDate' }}
-                </p>
+                <!-- Enhanced Special Instructions -->
+                <div *ngIf="booking.message" class="mb-6">
+                  <div class="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-5 shadow-sm">
+                    <div class="flex items-start gap-4">
+                      <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <mat-icon class="text-blue-600 text-lg">chat_bubble_outline</mat-icon>
+                      </div>
+                      <div class="flex-1">
+                        <h5 class="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                          Special Instructions
+                          <span class="px-2 py-1 bg-blue-200 text-blue-800 text-xs rounded-full">Important</span>
+                        </h5>
+                        <p class="text-blue-700 text-sm leading-relaxed bg-white rounded-lg p-3 border border-blue-100">
+                          {{ booking.message }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Enhanced Review Section -->
+              <div
+                class="bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 border border-amber-200 rounded-xl p-6 shadow-sm">
+                <div *ngIf="booking.review; else leaveReviewSection">
+                  <!-- Existing Review -->
+                  <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                      <h4 class="font-bold text-gray-800 flex items-center gap-3">
+                        <div
+                          class="w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center">
+                          <mat-icon class="text-white text-lg">star</mat-icon>
+                        </div>
+                        Your Review
+                      </h4>
+                      <button (click)="editReview(booking.review, booking)"
+                        class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 text-sm font-medium hover:shadow-md">
+                        <mat-icon class="text-sm">edit</mat-icon>
+                        Edit Review
+                      </button>
+                    </div>
+
+                    <!-- Enhanced Star Rating -->
+                    <div class="flex items-center justify-between bg-white rounded-lg p-4 border border-amber-200">
+                      <div class="flex items-center gap-3">
+                        <div class="flex gap-1">
+                          <ng-container *ngFor="let star of [1,2,3,4,5]">
+                            <mat-icon class="text-2xl transition-all duration-200"
+                              [ngClass]="booking.review.rating >= star ? 'text-yellow-400' : 'text-gray-300'">
+                              {{ booking.review.rating >= star ? 'star' : 'star_border' }}
+                            </mat-icon>
+                          </ng-container>
+                        </div>
+                        <span class="text-lg font-bold text-gray-700">{{ booking.review.rating }}/5</span>
+                      </div>
+                      <div class="text-sm text-gray-500 font-medium">{{ getRatingText(booking.review.rating) }}</div>
+                    </div>
+
+                    <!-- Enhanced Review Comment -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                      <div class="flex items-start gap-3">
+                        <mat-icon class="text-gray-400 text-lg mt-1">format_quote</mat-icon>
+                        <div class="flex-1">
+                          <p class="text-gray-700 leading-relaxed italic">
+                            "{{ booking.review.comment || booking.review.message || 'No comment provided' }}"
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Review Date -->
+                    <div
+                      class="flex items-center justify-between text-xs text-gray-500 bg-white rounded-lg p-3 border border-gray-100">
+                      <span class="flex items-center gap-2">
+                        <mat-icon class="text-xs">access_time</mat-icon>
+                        Reviewed on {{ booking.review.date | date:'mediumDate' }}
+                      </span>
+                      <span class="flex items-center gap-2">
+                        <mat-icon class="text-xs">visibility</mat-icon>
+                        Public review
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Enhanced Leave Review Section with Smart Restrictions -->
+                <ng-template #leaveReviewSection>
+                  <div class="text-center space-y-4">
+                    <div
+                      class="w-16 h-16 mx-auto rounded-full flex items-center justify-center shadow-lg transition-all duration-300"
+                      [ngClass]="{
+                        'bg-gradient-to-r from-yellow-400 to-orange-400': canLeaveReview(booking),
+                        'bg-gradient-to-r from-gray-300 to-gray-400': !canLeaveReview(booking)
+                      }">
+                      <mat-icon class="text-white text-2xl">
+                        {{ canLeaveReview(booking) ? 'star_border' : 'schedule' }}
+                      </mat-icon>
+                    </div>
+
+                    <div>
+                      <h5 class="font-bold text-gray-800 text-lg mb-2">
+                        {{ canLeaveReview(booking) ? 'Share Your Experience' : 'Review Pending' }}
+                      </h5>
+                      <p class="text-gray-600 text-sm mb-2">
+                        {{ canLeaveReview(booking) ? 'Help other customers by rating this cleaning service' : 'Reviews
+                        can be left after service completion or 48 hours' }}
+                      </p>
+
+                      <!-- Review Status Message -->
+                      <div class="px-3 py-2 rounded-lg text-xs font-medium inline-block" [ngClass]="{
+                             'bg-green-100 text-green-800': canLeaveReview(booking),
+                             'bg-yellow-100 text-yellow-800': !canLeaveReview(booking)
+                           }">
+                        {{ getReviewAvailabilityMessage(booking) }}
+                      </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-wrap gap-2 mt-6 pt-4 border-t border-gray-200">
+                      <button *ngIf="!booking.review && canLeaveReview(booking)" (click)="leaveReview(group, booking)"
+                        class="bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2">
+                        <mat-icon class="text-lg">star</mat-icon>
+                        Leave Review
+                      </button>
+
+                      <!-- Disabled Review Button with Better Visual Feedback -->
+                      <div *ngIf="!booking.review && !canLeaveReview(booking)" class="relative group">
+                        <button disabled
+                          class="bg-gray-300 text-gray-500 font-bold px-4 py-2 rounded-lg text-sm cursor-not-allowed flex items-center gap-2 relative">
+                          <mat-icon class="text-lg">schedule</mat-icon>
+                          Review Pending
+                        </button>
+
+                        <!-- Enhanced Tooltip -->
+                        <div
+                          class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                          <div class="bg-gray-800 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
+                            <div class="font-medium mb-1">{{ getReviewAvailabilityMessage(booking) }}</div>
+                            <div class="text-gray-300" *ngIf="getTimeUntilReviewAvailable(booking)">
+                              {{ getTimeUntilReviewAvailable(booking) }}
+                            </div>
+                            <!-- Tooltip arrow -->
+                            <div
+                              class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button *ngIf="booking.review" (click)="editReview(booking.review, booking)"
+                        class="bg-gradient-to-r from-blue-400 to-indigo-400 hover:from-blue-500 hover:to-indigo-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2">
+                        <mat-icon class="text-lg">edit</mat-icon>
+                        Edit Review
+                      </button>
+
+                      <!-- Contact button for ongoing services -->
+                      <button *ngIf="booking.status && ['confirmed', 'ongoing'].includes(booking.status.toLowerCase())"
+                        (click)="contactCleaner(booking)"
+                        class="bg-gradient-to-r from-green-400 to-emerald-400 hover:from-green-500 hover:to-emerald-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2">
+                        <mat-icon class="text-lg">phone</mat-icon>
+                        Contact Cleaner
+                      </button>
+
+                      <!-- Cancel button for pending bookings -->
+                      <button *ngIf="booking.status && booking.status.toLowerCase() === 'pending'"
+                        (click)="cancelBooking(booking)"
+                        class="bg-gradient-to-r from-red-400 to-rose-400 hover:from-red-500 hover:to-rose-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2">
+                        <mat-icon class="text-lg">cancel</mat-icon>
+                        Cancel Booking
+                      </button>
+                    </div>
+
+                    <!-- Review Availability Status Banner -->
+                    <div *ngIf="!booking.review" class="mt-4 p-3 rounded-lg border" [ngClass]="{
+                           'bg-green-50 border-green-200': canLeaveReview(booking),
+                           'bg-yellow-50 border-yellow-200': !canLeaveReview(booking)
+                         }">
+                      <div class="flex items-center gap-3">
+                        <div class="flex-shrink-0">
+                          <mat-icon [ngClass]="{
+                            'text-green-600': canLeaveReview(booking),
+                            'text-yellow-600': !canLeaveReview(booking)
+                          }">
+                            {{ canLeaveReview(booking) ? 'check_circle' : 'schedule' }}
+                          </mat-icon>
+                        </div>
+                        <div class="flex-1">
+                          <p class="text-sm font-medium" [ngClass]="{
+                            'text-green-800': canLeaveReview(booking),
+                            'text-yellow-800': !canLeaveReview(booking)
+                          }">
+                            {{ getReviewAvailabilityMessage(booking) }}
+                          </p>
+                          <p *ngIf="!canLeaveReview(booking) && getTimeUntilReviewAvailable(booking)"
+                            class="text-xs text-yellow-700 mt-1">
+                            Time remaining: {{ getTimeUntilReviewAvailable(booking) }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-template>
               </div>
             </div>
-
-            <!-- Leave Review Section -->
-            <ng-template #leaveReviewSection>
-              <div class="text-center space-y-3">
-                <div class="flex items-center justify-center gap-2 text-gray-600">
-                  <mat-icon class="text-yellow-500">star_border</mat-icon>
-                  <p class="text-sm font-medium">Share your experience</p>
-                </div>
-                <button (click)="leaveReview(group, booking)"
-                  class="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-6 py-2 rounded-full text-sm transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                  Leave Review
-                </button>
-              </div>
-            </ng-template>
           </div>
-        </div>
 
-        <!-- Scroll Indicator -->
-        <div *ngIf="group.bookings.length > 2" class="text-center py-2 bg-gray-50 border-t border-gray-200">
-          <div class="flex items-center justify-center gap-2 text-xs text-gray-500">
-            <mat-icon class="text-xs">keyboard_arrow_down</mat-icon>
-            <span>Scroll to see {{ group.bookings.length - 2 }} more booking{{ group.bookings.length - 2 > 1 ? 's' : ''
-              }}</span>
-            <mat-icon class="text-xs">keyboard_arrow_down</mat-icon>
+          <!-- Booking Summary Footer -->
+          <div *ngIf="group.bookings.length > 1"
+            class="text-center py-4 bg-gradient-to-r from-gray-50 to-white border-t border-gray-200">
+            <div class="flex items-center justify-center gap-3 text-sm text-gray-600">
+              <mat-icon class="text-blue-500">event_note</mat-icon>
+              <span class="font-medium">{{ group.bookings.length }} booking{{ group.bookings.length > 1 ? 's' : '' }}
+                with {{ group.cleanerName }}</span>
+              <mat-icon class="text-green-500">verified</mat-icon>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Empty State -->
-  <div *ngIf="groupedByCleaner.length === 0" class="text-center py-12">
-    <mat-icon class="text-gray-400 text-6xl mb-4">event_note</mat-icon>
-    <h3 class="text-lg font-medium text-gray-600 mb-2">No bookings found</h3>
-    <p class="text-gray-500">Your booking history will appear here</p>
+    <!-- Enhanced Empty State -->
+    <div *ngIf="groupedByCleaner.length === 0" class="text-center py-16">
+      <div class="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
+        <div
+          class="w-24 h-24 mx-auto bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mb-6">
+          <mat-icon class="text-gray-400 text-4xl">event_note</mat-icon>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-700 mb-4">No Bookings Yet</h3>
+        <p class="text-gray-500 mb-6 leading-relaxed">
+          Your booking history will appear here once you start using our cleaning services.
+        </p>
+        <button routerLink="/cleaners"
+          class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold px-8 py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+          <mat-icon class="mr-2">search</mat-icon>
+          Find Cleaners
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 

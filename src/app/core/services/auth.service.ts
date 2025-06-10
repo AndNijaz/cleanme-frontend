@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import {
@@ -29,7 +29,29 @@ export class AuthService {
 
   // === CLEANER SETUP ===
   setupCleaner(data: CleanerSetupRequest): Observable<void> {
-    return this.http.post<void>(`${this.BASE_URL}/cleaner-setup`, data);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+
+    return this.http.post<void>(`${this.BASE_URL}/cleaner-setup`, data, {
+      headers,
+    });
+  }
+
+  // === CLEANER UPDATE ===
+  updateCleaner(cleanerId: string, data: any): Observable<void> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+
+    const baseUrl = environment['NG_APP_BASE_URL'];
+    return this.http.put<void>(`${baseUrl}/cleaners/${cleanerId}`, data, {
+      headers,
+    });
   }
 
   // === AUTH STORAGE ===

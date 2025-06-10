@@ -11,6 +11,10 @@ import { AvailabilityComponent } from './availability/availability.component';
 import { Router } from '@angular/router';
 import { LineErrorComponent } from './line-error/line-error.component';
 import { AuthService } from '../../../core/services/auth.service';
+import {
+  PREDEFINED_SERVICES,
+  ServiceType,
+} from '../../../shared/constants/services.constant';
 
 @Component({
   selector: 'app-cleaner-info',
@@ -46,20 +50,17 @@ export class CleanerInfoComponent {
   formCurrency: string = '0';
   formDistance: string = '0';
 
-  services = [
-    {
-      src: 'icon-1.svg',
-      text: 'Deep House Cleaning',
-    },
-    { src: 'icon-4.svg', text: 'Office Cleaning' },
-    { src: 'icon-2.svg', text: 'Window Cleaning' },
-    { src: 'icon-3.svg', text: 'Floor Cleaning' },
-  ];
+  services = PREDEFINED_SERVICES.map((service) => ({
+    src: service.icon,
+    text: service.name,
+  }));
 
   step1Error: string = '';
   step2Error: string = '';
   step3Error: string = '';
   step4Error: string = '';
+
+  isSubmitting: boolean = false;
 
   handleServiceClicked(serviceName: string) {
     this.step1Error = '';
@@ -91,13 +92,8 @@ export class CleanerInfoComponent {
   descriptions: { title: string; description: string }[] = [];
 
   getIcon(title: string): string {
-    const icons: Record<string, string> = {
-      'Deep House Cleaning': 'icon-1.svg',
-      'Office Cleaning': 'icon-4.svg',
-      'Window Cleaning': 'icon-2.svg',
-      'Floor Cleaning': 'icon-3.svg',
-    };
-    return icons[title] || 'default-icon.svg';
+    const service = PREDEFINED_SERVICES.find((s) => s.name === title);
+    return service?.icon || 'default-icon.svg';
   }
 
   onNextStep() {
@@ -120,6 +116,8 @@ export class CleanerInfoComponent {
   onSubmit() {
     if (!this.validateStep(4)) return;
 
+    this.isSubmitting = true;
+
     // Get latest availability data to ensure we have the most up-to-date version
     if (this.availabilityComp) {
       this.availabilityData = this.availabilityComp.getFormattedAvailability();
@@ -128,6 +126,7 @@ export class CleanerInfoComponent {
     const authData = this.authService.getAuthData();
     if (!authData || !authData.userId) {
       console.error('No authenticated user found');
+      this.isSubmitting = false;
       return;
     }
 
@@ -141,9 +140,22 @@ export class CleanerInfoComponent {
       bio: this.descriptions.map((d) => `${d.title}: ${d.description}`),
     };
 
+    console.log('📤 Submitting cleaner setup request:', request);
+
     this.authService.setupCleaner(request).subscribe({
-      next: () => this.router.navigate(['/dashboard/cleaner']),
-      error: (err) => console.error('Cleaner setup failed:', err),
+      next: () => {
+        console.log('✅ Cleaner setup completed successfully');
+        // Show success message before redirect
+        setTimeout(() => {
+          this.router.navigate(['/cleaner/dashboard']);
+        }, 1500);
+      },
+      error: (err) => {
+        console.error('❌ Cleaner setup failed:', err);
+        this.isSubmitting = false;
+        // Show user-friendly error message
+        alert('Setup failed. Please try again or contact support.');
+      },
     });
   }
 

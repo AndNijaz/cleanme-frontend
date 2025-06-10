@@ -5,6 +5,7 @@ import {
   CleanerService,
   CleanerCardModel,
 } from '../../../core/services/cleaner-service.service';
+import { FavoritesService } from '../../../core/services/favorites.service';
 
 interface Cleaner {
   id: string;
@@ -16,6 +17,7 @@ interface Cleaner {
   avatar: string;
   isAvailable: boolean;
   distance: number;
+  isFavorite?: boolean;
 }
 
 @Component({
@@ -33,6 +35,7 @@ export class BrowseCleanersComponent implements OnInit {
   sortBy: string = 'rating';
   loading: boolean = false;
   error: string | null = null;
+  favoriteIds: string[] = [];
 
   // Expose Math to template
   Math = Math;
@@ -46,10 +49,72 @@ export class BrowseCleanersComponent implements OnInit {
     'Move-in/Move-out',
   ];
 
-  constructor(private cleanerService: CleanerService, private router: Router) {}
+  constructor(
+    private cleanerService: CleanerService,
+    private router: Router,
+    private favoritesService: FavoritesService
+  ) {}
 
   ngOnInit() {
+    this.loadFavorites();
     this.loadCleaners();
+  }
+
+  loadFavorites() {
+    this.favoritesService.getFavorites().subscribe({
+      next: (favoriteIds) => {
+        this.favoriteIds = favoriteIds;
+        this.updateFavoriteStatus();
+        console.log('Loaded favorite IDs:', favoriteIds);
+      },
+      error: (error) => {
+        console.error('Error loading favorites:', error);
+        this.favoriteIds = [];
+      },
+    });
+  }
+
+  updateFavoriteStatus() {
+    this.cleaners.forEach((cleaner) => {
+      cleaner.isFavorite = this.favoriteIds.includes(cleaner.id);
+    });
+    this.filteredCleaners.forEach((cleaner) => {
+      cleaner.isFavorite = this.favoriteIds.includes(cleaner.id);
+    });
+  }
+
+  toggleFavorite(event: Event, cleanerId: string) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const cleaner = this.cleaners.find((c) => c.id === cleanerId);
+    if (!cleaner) return;
+
+    const isCurrentlyFavorite = cleaner.isFavorite;
+
+    if (isCurrentlyFavorite) {
+      this.favoritesService.removeFromFavorites(cleanerId).subscribe({
+        next: () => {
+          this.favoriteIds = this.favoriteIds.filter((id) => id !== cleanerId);
+          this.updateFavoriteStatus();
+          console.log(`Removed ${cleaner.name} from favorites`);
+        },
+        error: (error) => {
+          console.error('Error removing from favorites:', error);
+        },
+      });
+    } else {
+      this.favoritesService.addToFavorites(cleanerId).subscribe({
+        next: () => {
+          this.favoriteIds.push(cleanerId);
+          this.updateFavoriteStatus();
+          console.log(`Added ${cleaner.name} to favorites`);
+        },
+        error: (error) => {
+          console.error('Error adding to favorites:', error);
+        },
+      });
+    }
   }
 
   loadCleaners() {
@@ -133,6 +198,7 @@ export class BrowseCleanersComponent implements OnInit {
             avatar: '',
             isAvailable: true,
             distance: distance,
+            isFavorite: this.favoriteIds.includes(card.id),
           };
 
           console.log(`✅ Final cleaner: ${cleanerObj.name}`);
@@ -140,10 +206,12 @@ export class BrowseCleanersComponent implements OnInit {
           console.log(`  - Price: ${cleanerObj.hourlyRate} BAM/hour`);
           console.log(`  - Reviews: ${cleanerObj.reviewCount}`);
           console.log(`  - Distance: ${cleanerObj.distance} km`);
+          console.log(`  - Favorite: ${cleanerObj.isFavorite}`);
           return cleanerObj;
         });
 
         this.filteredCleaners = [...this.cleaners];
+        this.updateFavoriteStatus();
         this.loading = false;
       },
       error: (error) => {

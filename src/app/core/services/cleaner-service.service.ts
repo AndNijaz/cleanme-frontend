@@ -13,6 +13,7 @@ export interface PublicCleanerProfile {
   rating: number;
   reviewCount: number;
   ratingLabel: string;
+  availability?: { [day: string]: { from: string; to: string } }[];
   services: {
     icon: string;
     name: string;
@@ -69,24 +70,26 @@ export class CleanerService {
             id: cleaner.id,
             fullName: `${cleaner.firstName} ${cleaner.lastName}`,
             address: this.formatLocation(cleaner),
-            bio: cleaner.bio || 'No bio available',
+            bio: Array.isArray(cleaner.bio)
+              ? cleaner.bio.join(', ')
+              : cleaner.bio || 'No bio available',
             zones: cleaner.zones || [],
             hourlyRate: cleaner.hourlyRate || 0,
             minHours: cleaner.minHours || 1,
             rating: cleaner.averageRating || 0,
             reviewCount: cleaner.reviewCount || 0,
             ratingLabel: this.getRatingLabel(cleaner.averageRating),
-            services: cleaner.services_offered,
+            availability: cleaner.availability || [],
+            services: [],
           };
-          console.log(cleaner.services_offered);
-          // Format services with specific descriptions based on service names
-          if (typeof cleaner.services === 'string') {
+
+          // Format services from servicesOffered string
+          if (
+            cleaner.servicesOffered &&
+            typeof cleaner.servicesOffered === 'string'
+          ) {
             profile.services = this.formatDetailedServicesWithDescriptions(
-              cleaner.services
-            );
-          } else if (Array.isArray(cleaner.services)) {
-            profile.services = this.formatDetailedServicesWithDescriptions(
-              cleaner.services.map((s: any) => s.name).join(', ')
+              cleaner.servicesOffered
             );
           } else {
             profile.services = [

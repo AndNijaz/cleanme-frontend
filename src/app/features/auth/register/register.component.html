@@ -1,84 +1,100 @@
-<form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="h-full flex justify-center items-center w-full px-4">
-  <div class="w-full max-w-2xl mx-auto flex flex-col gap-6 p-6">
-    <div class="mb-4">
-      <app-toggle-button [options]="['User', 'Cleaner']" (toggleUserType)="setSelectedProfileType($event)" />
+<form (ngSubmit)="onSubmit()" #registerForm="ngForm"
+  class="h-full overflow-y-auto flex justify-center items-start w-full px-4 py-4">
+  <div class="w-full max-w-2xl mx-auto flex flex-col gap-4 p-4">
+
+    <!-- Header -->
+    <div class="text-center mb-4">
+      <h2 class="text-xl font-bold text-gray-800 mb-1">Join CleanMe</h2>
+      <p class="text-gray-600 text-sm">Create your account to get started</p>
     </div>
 
-    <!-- Name and Surname Section -->
-    <div class="flex gap-4 max-md:flex-col max-md:gap-4">
+    <!-- Role Selection -->
+    <div class="mb-3">
+      <label class="block text-sm font-medium text-gray-700 mb-2 text-center">I want to join as:</label>
+      <app-toggle-button [options]="['Client', 'Cleaner']" (toggleUserType)="setSelectedProfileType($event)" />
+      <p class="text-xs text-gray-500 mt-1 text-center">
+        <span *ngIf="selectedProfileType === 'user'">Book cleaning services</span>
+        <span *ngIf="selectedProfileType === 'cleaner'">Offer cleaning services</span>
+      </p>
+    </div>
+
+    <!-- Name Section -->
+    <div class="flex gap-3">
       <div class="flex-1">
-        <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-        <app-input placeholder="Enter your first name" name="formName" [required]="true" [(ngModel)]="formName" />
+        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+        <app-input placeholder="First name" name="formName" [required]="true" [(ngModel)]="formName" />
       </div>
       <div class="flex-1">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-        <app-input placeholder="Enter your last name" name="formSurname" [required]="true" [(ngModel)]="formSurname" />
+        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+        <app-input placeholder="Last name" name="formSurname" [required]="true" [(ngModel)]="formSurname" />
       </div>
     </div>
 
-    <!-- Email Section -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-      <app-input placeholder="Enter your email address" name="formEmail" [required]="true" [(ngModel)]="formEmail" />
+    <!-- Email and Phone -->
+    <div class="flex gap-3">
+      <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <app-input placeholder="your@email.com" name="formEmail" [required]="true" [(ngModel)]="formEmail" />
+      </div>
+      <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+        <app-input placeholder="Phone number" name="formPhoneNumber" [required]="true" [(ngModel)]="formPhoneNumber" />
+      </div>
     </div>
 
-    <!-- Address Section -->
+    <!-- Address -->
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
       <app-input placeholder="Enter your full address" name="formAddress" [required]="true" [(ngModel)]="formAddress" />
     </div>
 
-    <!-- Phone Number Section -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-      <app-input placeholder="Enter your phone number" name="formPhoneNumber" [required]="true"
-        [(ngModel)]="formPhoneNumber" />
-    </div>
-
-    <!-- Password Section -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-      <div class="relative">
-        <app-input placeholder="Create a password (min. 6 characters)" name="formPassword" [required]="true"
-          [(ngModel)]="formPassword" [type]="showPassword ? 'text' : 'password'" />
-        <button type="button" (click)="toggleShowPassword()"
-          class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm hover:text-blue-500">
-          {{ showPassword ? 'Hide' : 'Show' }}
-        </button>
+    <!-- Passwords -->
+    <div class="flex gap-3">
+      <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <div class="relative">
+          <app-input placeholder="Password (min. 6)" name="formPassword" [required]="true" [(ngModel)]="formPassword"
+            [type]="showPassword ? 'text' : 'password'" />
+          <button type="button" (click)="toggleShowPassword()"
+            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs hover:text-blue-500">
+            {{ showPassword ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+      </div>
+      <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Confirm</label>
+        <div class="relative">
+          <app-input placeholder="Confirm password" name="formConfirmPassword" [required]="true"
+            [(ngModel)]="formConfirmPassword" [type]="showPassword ? 'text' : 'password'" />
+          <button type="button" (click)="toggleShowPassword()"
+            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs hover:text-blue-500">
+            {{ showPassword ? 'Hide' : 'Show' }}
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Confirm Password Section -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-      <div class="relative">
-        <app-input placeholder="Confirm your password" name="formConfirmPassword" [required]="true"
-          [(ngModel)]="formConfirmPassword" class="mb-0.5" [type]="showPassword ? 'text' : 'password'" />
-        <button type="button" (click)="toggleShowPassword()"
-          class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm hover:text-blue-500">
-          {{ showPassword ? 'Hide' : 'Show' }}
-        </button>
-      </div>
-    </div>
-
-    <p class="text-sm text-center text-gray-600">
-      By signing up, you agree to our
-      <a href="/terms" class="text-blue-500 hover:underline">Terms and Conditions</a>.
-    </p>
-
-    <p class="text-red-500 text-center mt-1 max-md:mb-2">
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="text-red-500 text-center text-sm">
       {{ errorMessage }}
-    </p>
+    </div>
 
-    <p class="text-sm text-center text-gray-600">
-      Already have an account?
-      <a routerLink="/login" class="text-blue-500 hover:underline">Login here</a>
-    </p>
-
-    <div class="w-full text-center mt-6">
-      <app-button type="submit" class="w-full max-w-sm">
-        Create Account
+    <!-- Submit Button -->
+    <div class="mt-4">
+      <app-button type="submit" class="w-full">
+        <span *ngIf="selectedProfileType === 'cleaner'">Start My Cleaning Business</span>
+        <span *ngIf="selectedProfileType === 'user'">Create My Account</span>
       </app-button>
+    </div>
+
+    <!-- Links -->
+    <div class="text-center space-y-2">
+      <p class="text-xs text-gray-600">
+        By signing up, you agree to our <a href="/terms" class="text-blue-500 hover:underline">Terms</a>
+      </p>
+      <p class="text-sm text-gray-600">
+        Already have an account? <a routerLink="/login" class="text-blue-500 hover:underline">Login here</a>
+      </p>
     </div>
   </div>
 </form>
