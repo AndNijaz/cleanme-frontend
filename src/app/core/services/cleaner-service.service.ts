@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+
 export interface PublicCleanerProfile {
   fullName: string;
   address: string;
@@ -50,14 +51,15 @@ export class CleanerService {
   private readonly BASE_URL = `${environment['NG_APP_BASE_URL']}/cleaners`;
 
   constructor(private http: HttpClient) {}
+
   private getAuthHeaders(): HttpHeaders {
-    // Get the token from local storage
-    const token = localStorage.getItem('token'); // or whatever key you use to store the token
+    const token = localStorage.getItem('token');
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     });
   }
+
   getCleanerPublicProfile(cleanerId: string): Observable<PublicCleanerProfile> {
     const headers = this.getAuthHeaders();
 
@@ -65,7 +67,6 @@ export class CleanerService {
       .get<any>(`${this.BASE_URL}/${cleanerId}`, { headers })
       .pipe(
         map((cleaner: any) => {
-          // Get base profile data
           const profile: PublicCleanerProfile & { id: string } = {
             id: cleaner.id,
             fullName: `${cleaner.firstName} ${cleaner.lastName}`,
@@ -83,7 +84,6 @@ export class CleanerService {
             services: [],
           };
 
-          // Format services from servicesOffered string
           if (
             cleaner.servicesOffered &&
             typeof cleaner.servicesOffered === 'string'
@@ -105,19 +105,11 @@ export class CleanerService {
           return profile;
         }),
         catchError((error) => {
-          console.error(
-            `❌ Error fetching cleaner profile for ID ${cleanerId}:`,
-            error
-          );
-          console.error(
-            "Backend probably doesn't have cleaner_details for this ID"
-          );
-
-          // Instead of returning wrong profile, throw the error
           throw error;
         })
       );
   }
+
   private getRatingLabel(rating: number): string {
     if (!rating) return 'no ratings';
     if (rating >= 4.8) return 'outstanding';
@@ -126,7 +118,7 @@ export class CleanerService {
     if (rating >= 3.0) return 'good';
     return 'average';
   }
-  // New helper function for service descriptions
+
   private formatDetailedServicesWithDescriptions(
     servicesString: string
   ): { icon: string; name: string; description: string }[] {
@@ -154,7 +146,6 @@ export class CleanerService {
     });
   }
 
-  // Helper function to get appropriate icon for service
   private getServiceIcon(serviceName: string): string {
     const iconMap: { [key: string]: string } = {
       'Deep Cleaning': '🧼',
@@ -172,52 +163,45 @@ export class CleanerService {
 
     return this.http.get<any[]>(`${this.BASE_URL}`, { headers }).pipe(
       map((cleaners: any[]) => {
-        // Transform each cleaner from backend format to CleanerCardModel
         return cleaners.map((cleaner) => ({
           id: cleaner.id,
           fullName: `${cleaner.firstName} ${cleaner.lastName}`,
-          rating: cleaner.averageRating || 0, // Default to 0 if no rating
+          rating: cleaner.averageRating || 0,
           reviewCount: cleaner.reviewCount || 0,
-          location: this.formatLocation(cleaner), // Helper function to format location
+          location: this.formatLocation(cleaner),
           shortBio: cleaner.bio || 'No bio available',
-          services: this.formatServices(cleaner), // Helper function to format services
-          price: cleaner.hourlyRate || 0, // Assuming hourlyRate is the price
-          currency: '$', // Default currency
-          isFavorite: false, // Default to not favorite
+          services: this.formatServices(cleaner),
+          price: cleaner.hourlyRate || 0,
+          currency: '$',
+          isFavorite: false,
         }));
       }),
-
-      catchError((error) => {
-        console.error('Error fetching cleaners:', error);
-        // Return empty array instead of mock data
+      catchError(() => {
         return of([]);
       })
     );
   }
 
-  // Helper function to format location
   private formatLocation(cleaner: any): string {
     if (cleaner.address) {
       return cleaner.address;
     }
-    if (cleaner.zones && cleaner.zones.length > 0) {
-      return cleaner.zones.join(', ');
-    }
-    return 'Location not specified';
+    return 'Location not available';
   }
 
-  // Helper function to format services
   private formatServices(cleaner: any): string[] {
-    if (cleaner.services && cleaner.services.length > 0) {
-      return cleaner.services.map((service: any) => service.name);
+    if (
+      cleaner.servicesOffered &&
+      typeof cleaner.servicesOffered === 'string'
+    ) {
+      return cleaner.servicesOffered.split(',').map((s: string) => s.trim());
     }
-    return ['Standard Cleaning']; // Default service
+    return ['Standard Cleaning'];
   }
 
   getCleanerCardById(id: string): Observable<CleanerCardModel | null> {
     return this.getCleaners().pipe(
-      // map is from rxjs/operators
-      map((cleaners) => cleaners.find((c) => c.id === id) ?? null)
+      map((cleaners) => cleaners.find((cleaner) => cleaner.id === id) || null)
     );
   }
 }
@@ -229,10 +213,10 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   getCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.BASE_URL}/me`);
+    return this.http.get<User>(`${this.BASE_URL}/profile`);
   }
 
   updateCurrentUser(user: User): Observable<User> {
-    return this.http.put<User>(`${this.BASE_URL}/me`, user);
+    return this.http.put<User>(`${this.BASE_URL}/profile`, user);
   }
 }
