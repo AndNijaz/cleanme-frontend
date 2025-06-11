@@ -21,8 +21,6 @@ export class SidebarService {
       { label: 'My Jobs', route: '/cleaner/jobs' },
       { label: 'Services', route: '/cleaner/services' },
       { label: 'Availability', route: '/cleaner/availability' },
-      { label: 'Earnings', route: '/cleaner/earnings' },
-      { label: 'Reviews', route: '/cleaner/reviews' },
       { label: 'My Profile', route: '/cleaner/profile' },
     ],
   };
