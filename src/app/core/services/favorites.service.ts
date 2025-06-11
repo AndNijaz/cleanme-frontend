@@ -1,147 +1,183 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, tap } from 'rxjs';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { StorageService } from './storage.service';
 
-export interface FavouriteDto {
+export interface FavoriteItem {
   cleanerId: string;
   cleanerName: string;
+  hourlyRate: number;
+  rating: number;
+  dateAdded: string;
 }
 
-export interface AddFavouriteRequest {
-  clientId: string;
-  cleanerId: string;
-}
-
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class FavoritesService {
-  private readonly BASE_URL = `${environment['NG_APP_BASE_URL']}/favourites`;
-  private favoriteIds: Set<string> = new Set(); // Cache for performance
+  private readonly FAVORITES_KEY = 'user_favorites';
+  private favoritesSubject = new BehaviorSubject<FavoriteItem[]>([]);
+  public favorites$ = this.favoritesSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
-
-  private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({
-      Authorization: token ? `Bearer ${token}` : '',
-      'Content-Type': 'application/json',
-    });
+  constructor(private storageService: StorageService) {
+    this.loadFavorites();
   }
 
-  private getCurrentUserId(): string {
-    // Get current user ID from localStorage (stored by AuthService)
-    const userId = localStorage.getItem('userId');
-    if (userId && userId !== 'null' && userId !== 'undefined') {
-      return userId;
-    }
-
-    throw new Error('No current user found. Please log in again.');
-  }
-
-  // === GET ===
-  getFavorites(): Observable<string[]> {
+  /**
+   * Load favorites from localStorage
+   */
+  private loadFavorites(): void {
     try {
-      const userId = this.getCurrentUserId();
-      const headers = this.getAuthHeaders();
+      const userId = this.storageService.getUserId();
+      if (!userId) {
+        this.favoritesSubject.next([]);
+        return;
+      }
 
-      return this.http
-        .get<FavouriteDto[]>(`${this.BASE_URL}/${userId}`, { headers })
-        .pipe(
-          map((favorites) => favorites.map((fav) => fav.cleanerId)),
-          tap((favoriteIds) => {
-            // Update local cache
-            this.favoriteIds = new Set(favoriteIds);
-            console.log('Loaded favorites:', favoriteIds);
-          }),
-          // Handle errors gracefully
-          tap({
-            error: (error) => {
-              console.error('Error loading favorites:', error);
-              // Keep existing cache if API fails
-            },
-          })
-        );
+      const userFavoritesKey = `${this.FAVORITES_KEY}_${userId}`;
+      const stored = localStorage.getItem(userFavoritesKey);
+      const favorites = stored ? JSON.parse(stored) : [];
+      this.favoritesSubject.next(favorites);
     } catch (error) {
-      console.error('Error getting user ID for favorites:', error);
-      // Return empty array if user not authenticated
-      return new Observable((observer) => {
-        observer.next([]);
-        observer.complete();
-      });
+      console.error('❌ Error loading favorites:', error);
+      this.favoritesSubject.next([]);
     }
   }
 
-  // === POST ===
-  addToFavorites(cleanerId: string): Observable<void> {
+  /**
+   * Save favorites to localStorage
+   */
+  private saveFavorites(favorites: FavoriteItem[]): void {
     try {
-      const clientId = this.getCurrentUserId();
-      const headers = this.getAuthHeaders();
+      const userId = this.storageService.getUserId();
+      if (!userId) {
+        console.warn('⚠️ Cannot save favorites: User not logged in');
+        return;
+      }
 
-      const request: AddFavouriteRequest = {
-        clientId,
-        cleanerId,
-      };
-
-      return this.http.post<void>(this.BASE_URL, request, { headers }).pipe(
-        tap(() => {
-          this.favoriteIds.add(cleanerId);
-          console.log(`Added ${cleanerId} to favorites`);
-        }),
-        tap({
-          error: (error) => {
-            console.error(`Error adding ${cleanerId} to favorites:`, error);
-          },
-        })
-      );
+      const userFavoritesKey = `${this.FAVORITES_KEY}_${userId}`;
+      localStorage.setItem(userFavoritesKey, JSON.stringify(favorites));
+      this.favoritesSubject.next(favorites);
     } catch (error) {
-      console.error('Error getting user ID for adding favorite:', error);
-      return new Observable((observer) => {
-        observer.error(new Error('User not authenticated'));
-      });
+      console.error('❌ Error saving favorites:', error);
     }
   }
 
-  // === DELETE ===
-  removeFromFavorites(cleanerId: string): Observable<void> {
-    try {
-      const clientId = this.getCurrentUserId();
-      const headers = this.getAuthHeaders();
+  /**
+   * Add a cleaner to favorites
+   */
+  addToFavorites(
+    cleanerId: string,
+    cleanerName: string,
+    hourlyRate: number = 0,
+    rating: number = 0
+  ): boolean {
+    if (!this.storageService.isLoggedIn()) {
+      console.warn('⚠️ User must be logged in to add favorites');
+      return false;
+    }
 
-      console.log(
-        `Attempting to remove favorite: clientId=${clientId}, cleanerId=${cleanerId}`
-      );
-      console.log(`DELETE URL: ${this.BASE_URL}/${clientId}/${cleanerId}`);
+    const currentFavorites = this.favoritesSubject.value;
 
-      return this.http
-        .delete<void>(`${this.BASE_URL}/${clientId}/${cleanerId}`, { headers })
-        .pipe(
-          tap(() => {
-            this.favoriteIds.delete(cleanerId);
-            console.log(`✅ Successfully removed ${cleanerId} from favorites`);
-          }),
-          tap({
-            error: (error) => {
-              console.error(
-                `❌ Error removing ${cleanerId} from favorites:`,
-                error
-              );
-              console.error(
-                'Full error details:',
-                JSON.stringify(error, null, 2)
-              );
-            },
-          })
-        );
-    } catch (error) {
-      console.error('Error getting user ID for removing favorite:', error);
-      return new Observable((observer) => {
-        observer.error(new Error('User not authenticated'));
-      });
+    // Check if already in favorites
+    if (this.isFavorite(cleanerId)) {
+      console.log('ℹ️ Cleaner already in favorites');
+      return false;
+    }
+
+    const newFavorite: FavoriteItem = {
+      cleanerId,
+      cleanerName,
+      hourlyRate,
+      rating,
+      dateAdded: new Date().toISOString(),
+    };
+
+    const updatedFavorites = [...currentFavorites, newFavorite];
+    this.saveFavorites(updatedFavorites);
+
+    console.log(`💖 Added ${cleanerName} to favorites`);
+    return true;
+  }
+
+  /**
+   * Remove a cleaner from favorites
+   */
+  removeFromFavorites(cleanerId: string): boolean {
+    const currentFavorites = this.favoritesSubject.value;
+    const updatedFavorites = currentFavorites.filter(
+      (fav) => fav.cleanerId !== cleanerId
+    );
+
+    if (updatedFavorites.length === currentFavorites.length) {
+      console.log('ℹ️ Cleaner was not in favorites');
+      return false;
+    }
+
+    this.saveFavorites(updatedFavorites);
+    console.log(`💔 Removed cleaner from favorites`);
+    return true;
+  }
+
+  /**
+   * Toggle favorite status of a cleaner
+   */
+  toggleFavorite(
+    cleanerId: string,
+    cleanerName: string,
+    hourlyRate: number = 0,
+    rating: number = 0
+  ): boolean {
+    if (this.isFavorite(cleanerId)) {
+      this.removeFromFavorites(cleanerId);
+      return false; // Removed from favorites
+    } else {
+      this.addToFavorites(cleanerId, cleanerName, hourlyRate, rating);
+      return true; // Added to favorites
     }
   }
 
-  // === UTILITY ===
+  /**
+   * Check if a cleaner is in favorites
+   */
   isFavorite(cleanerId: string): boolean {
-    return this.favoriteIds.has(cleanerId);
+    return this.favoritesSubject.value.some(
+      (fav) => fav.cleanerId === cleanerId
+    );
+  }
+
+  /**
+   * Get all favorites
+   */
+  getFavorites(): FavoriteItem[] {
+    return this.favoritesSubject.value;
+  }
+
+  /**
+   * Get favorites as observable
+   */
+  getFavorites$(): Observable<FavoriteItem[]> {
+    return this.favorites$;
+  }
+
+  /**
+   * Get favorites count
+   */
+  getFavoritesCount(): number {
+    return this.favoritesSubject.value.length;
+  }
+
+  /**
+   * Clear all favorites
+   */
+  clearAllFavorites(): void {
+    this.saveFavorites([]);
+    console.log('🗑️ Cleared all favorites');
+  }
+
+  /**
+   * Refresh favorites (reload from storage)
+   */
+  refreshFavorites(): void {
+    this.loadFavorites();
   }
 }

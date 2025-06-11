@@ -211,42 +211,69 @@ export class CleanerJobsComponent implements OnInit {
     if (job) {
       const oldStatus = job.status;
 
+      console.log('🔄 Updating job status:', {
+        jobId,
+        oldStatus,
+        newStatus,
+        cleanerId: this.cleanerId,
+      });
+
       // Update locally first for immediate UI feedback
       job.status = newStatus;
       this.filterJobs();
 
-      // Update in backend - map frontend status to backend status
+      // Map frontend status to backend status
       const backendStatus = this.mapFrontendToBackendStatus(newStatus);
 
-      // Build complete UpdateReservationDto with all required fields
+      // Build complete UpdateReservationDto with ALL required fields
       const updateData = {
-        cleanerId: this.cleanerId,
-        date: job.date,
-        time: job.time,
-        location: job.address,
-        status: backendStatus,
-        comment: job.notes || '',
+        cleanerId: this.cleanerId, // Backend expects cleanerId (UUID)
+        date: job.date, // Backend expects LocalDate
+        time: job.time, // Backend expects LocalTime
+        location: job.address, // Backend expects location string
+        status: backendStatus, // Backend expects ReservationStatus enum
+        comment: job.notes || '', // Backend expects comment (optional)
       };
 
-      console.log('Sending update data:', updateData);
+      console.log('📤 Sending complete update data:', updateData);
 
       this.reservationService
         .updateReservationStatus(jobId, updateData as any)
         .subscribe({
           next: (response) => {
-            console.log('Job status updated successfully:', response);
+            console.log('✅ Job status updated successfully:', response);
+            // Optionally reload jobs to get fresh data from backend
+            // this.loadJobs();
           },
           error: (error) => {
-            console.error('Error updating job status:', error);
+            console.error('❌ Error updating job status:', error);
+            console.error('❌ Error details:', {
+              status: error.status,
+              statusText: error.statusText,
+              message: error.message,
+              error: error.error,
+            });
+
             // Revert the status change if backend update fails
             job.status = oldStatus;
             this.filterJobs();
-            this.error = 'Failed to update job status. Please try again.';
 
-            // Clear error after 5 seconds
+            // Show user-friendly error message
+            if (error.status === 403) {
+              this.error =
+                'You do not have permission to update this job. Please contact support.';
+            } else if (error.status === 404) {
+              this.error = 'Job not found. It may have been deleted.';
+            } else if (error.status === 401) {
+              this.error = 'Please log in again to update jobs.';
+            } else {
+              this.error = 'Failed to update job status. Please try again.';
+            }
+
+            // Clear error after 8 seconds
             setTimeout(() => {
               this.error = null;
-            }, 5000);
+            }, 8000);
           },
         });
     }
@@ -366,8 +393,7 @@ export class CleanerJobsComponent implements OnInit {
   private mapBackendStatus(backendStatus: string): Job['status'] {
     const statusMap: Record<string, Job['status']> = {
       PENDING: 'pending',
-      CONFIRMED: 'confirmed',
-      ONGOING: 'in-progress',
+      ONGOING: 'in-progress', // Map ONGOING to in-progress by default
       FINISHED: 'completed',
       CANCELLED: 'cancelled',
     };
@@ -379,7 +405,7 @@ export class CleanerJobsComponent implements OnInit {
   private mapFrontendToBackendStatus(frontendStatus: Job['status']): string {
     const statusMap: Record<Job['status'], string> = {
       pending: 'PENDING',
-      confirmed: 'CONFIRMED',
+      confirmed: 'ONGOING', // Backend doesn't have CONFIRMED, use ONGOING
       'in-progress': 'ONGOING',
       completed: 'FINISHED',
       cancelled: 'CANCELLED',

@@ -21,19 +21,19 @@
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
             </div>
-            <input type="text" placeholder="Search cleaners..." (input)="onSearch($event)"
+            <input type="text" placeholder="Search cleaners..." [value]="searchTerm" (input)="onSearch($event)"
               class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200 hover:border-gray-400 bg-white shadow-sm">
           </div>
 
           <!-- Enhanced Specialty Filter -->
-          <select (change)="onSpecialtyChange($event)"
+          <select [value]="selectedSpecialty" (change)="onSpecialtyChange($event)"
             class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200 hover:border-gray-400 bg-white shadow-sm">
             <option value="">All Specialties</option>
             <option *ngFor="let specialty of specialties" [value]="specialty">{{ specialty }}</option>
           </select>
 
           <!-- Sort by -->
-          <select (change)="onSortChange($event)"
+          <select [value]="sortBy" (change)="onSortChange($event)"
             class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200 hover:border-gray-400 bg-white shadow-sm">
             <option value="rating">Best Rated</option>
             <option value="price-low">Lowest Price</option>
@@ -70,6 +70,47 @@
 
     <!-- Enhanced Cleaners Grid -->
     <div *ngIf="!loading && !error">
+      <!-- Results Summary and Active Filters -->
+      <div
+        class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div class="mb-3 sm:mb-0">
+          <h2 class="text-lg font-semibold text-gray-900">
+            {{ filteredCleaners.length }} cleaner{{ filteredCleaners.length !== 1 ? 's' : '' }} found
+          </h2>
+          <div *ngIf="searchTerm || selectedSpecialty" class="flex flex-wrap gap-2 mt-2">
+            <span *ngIf="searchTerm"
+              class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+              Search: "{{ searchTerm }}"
+              <button (click)="searchTerm = ''; updateUrlParams(); filterCleaners()"
+                class="ml-2 text-blue-600 hover:text-blue-800">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </span>
+            <span *ngIf="selectedSpecialty"
+              class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
+              {{ selectedSpecialty }}
+              <button (click)="selectedSpecialty = ''; updateUrlParams(); filterCleaners()"
+                class="ml-2 text-indigo-600 hover:text-indigo-800">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </span>
+          </div>
+        </div>
+        <div class="text-sm text-gray-500">
+          Sorted by:
+          <span class="font-medium text-gray-900">
+            {{ sortBy === 'rating' ? 'Best Rated' :
+            sortBy === 'price-low' ? 'Lowest Price' :
+            sortBy === 'price-high' ? 'Highest Price' :
+            sortBy === 'distance' ? 'Nearest' : sortBy }}
+          </span>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div *ngFor="let cleaner of filteredCleaners"
           class="group bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">

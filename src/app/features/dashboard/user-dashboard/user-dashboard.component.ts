@@ -4,9 +4,10 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoritesService } from '../../../core/services/favorites.service';
 import { ReservationService } from '../../../core/services/reservation.service';
-import { BookingService } from '../../../services/booking.service';
+import { BookingService } from '../../../core/services/booking.service';
 import { BookingProgressComponent } from '../../../components/booking-progress/booking-progress.component';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 
 interface DashboardBooking {
   rid?: string; // Add booking ID
@@ -52,61 +53,150 @@ export class UserDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loadDashboardData();
-
-    // Auto-refresh removed - using manual refresh button only
   }
 
   getUserName(): string {
     const authData = this.authService.getAuthData();
+
+    // First, try to get name from auth service
     if (authData?.firstName && authData?.lastName) {
-      return `${authData.firstName} ${authData.lastName}`;
+      const firstName = authData.firstName.trim();
+      const lastName = authData.lastName.trim();
+
+      // Make sure we don't have placeholder values
+      if (
+        firstName !== 'sada' &&
+        lastName !== 'sada' &&
+        firstName !== '' &&
+        lastName !== ''
+      ) {
+        return `${firstName} ${lastName}`;
+      }
     }
-    return 'User';
+
+    // Fallback to localStorage directly
+    const firstNameLS = localStorage.getItem('firstName');
+    const lastNameLS = localStorage.getItem('lastName');
+
+    if (
+      firstNameLS &&
+      lastNameLS &&
+      firstNameLS !== 'sada' &&
+      lastNameLS !== 'sada'
+    ) {
+      return `${firstNameLS.trim()} ${lastNameLS.trim()}`;
+    }
+
+    // Final fallback based on user type
+    const userType = this.authService.getUserRole();
+
+    return userType === 'CLIENT' ? 'Valued Client' : 'User';
+  }
+
+  getUserRole(): 'CLIENT' | 'CLEANER' | null {
+    return this.authService.getUserRole();
+  }
+
+  getDashboardTitle(): string {
+    const userRole = this.getUserRole();
+    const userName = this.getUserName();
+
+    if (userRole === 'CLIENT') {
+      return `Welcome back, ${userName}!`;
+    } else if (userRole === 'CLEANER') {
+      return `Welcome back, ${userName}!`;
+    }
+
+    return `Welcome back, ${userName}!`;
+  }
+
+  getDashboardSubtitle(): string {
+    const userRole = this.getUserRole();
+
+    if (userRole === 'CLIENT') {
+      return "Here's what's happening with your cleaning services";
+    } else if (userRole === 'CLEANER') {
+      return "Here's your cleaning business overview for today";
+    }
+
+    return "Here's your dashboard overview";
   }
 
   private loadDashboardData() {
-    console.log('📡 Loading dashboard data...');
+    this.isLoading = true;
+    this.error = null;
 
-    // Get current user ID from auth data
-    const authData = this.authService.getAuthData();
-    if (!authData?.userId) {
-      console.warn('❌ No authenticated user found');
-      this.error = 'Please log in to view your dashboard';
-      this.isLoading = false;
-      return;
-    }
+    console.log('🔄 Starting dashboard data load...');
 
-    const userId = authData.userId;
-    console.log(`👤 Loading data for user: ${userId}`);
-
-    // Load all dashboard data in parallel
-    forkJoin({
-      favorites: this.favoritesService.getFavorites(),
-      reservations: this.reservationService.getUserReservations(),
-    }).subscribe({
-      next: ({ favorites, reservations }) => {
+    // Fallback timeout - if loading takes too long, show error
+    setTimeout(() => {
+      if (this.isLoading) {
+        console.error('⏰ Loading timeout - forcing completion');
         this.isLoading = false;
-        this.error = null;
-
-        console.log('📊 Dashboard data loaded successfully:', {
-          favoritesCount: favorites.length,
-          reservationsCount: reservations.length,
-          reservations: reservations,
-        });
-
-        // Set favorites count
-        this.favoriteCount = favorites.length;
-
-        // Process reservations
-        this.processReservations(reservations);
-      },
-      error: (error) => {
-        console.error('❌ Error loading dashboard data:', error);
-        this.isLoading = false;
-        this.error = 'Failed to load dashboard data. Please try again.';
+        this.error = 'Loading took too long. Please refresh the page.';
         this.setFallbackData();
-      },
-    });
+      }
+    }, 15000); // 15 second timeout
+
+    // Step 1: Load favorites first
+    this.favoritesService
+      .getFavorites$()
+      .pipe(
+        catchError((error) => {
+          console.error('❌ Favorites error:', error);
+          return of([]); // Return empty array on error
+        })
+      )
+      .subscribe({
+        next: (favorites) => {
+          console.log('✅ Favorites loaded:', favorites.length);
+          this.favoriteCount = favorites.length;
+
+          // Step 2: Load reservations after favorites
+          this.loadReservations();
+        },
+        error: (error) => {
+          console.error('❌ Critical error loading favorites:', error);
+          this.handleLoadingError();
+        },
+      });
+  }
+
+  private loadReservations() {
+    console.log('🔄 Loading reservations...');
+
+    this.reservationService
+      .getUserReservations()
+      .pipe(
+        catchError((error) => {
+          console.error('❌ Reservations error:', error);
+          return of([]); // Return empty array on error
+        })
+      )
+      .subscribe({
+        next: (reservations) => {
+          console.log('✅ Reservations loaded:', reservations.length);
+
+          // Process the data
+          this.processReservations(reservations);
+
+          // Mark loading as complete
+          this.isLoading = false;
+          this.error = null;
+
+          console.log('🎉 Dashboard loading COMPLETE!');
+        },
+        error: (error) => {
+          console.error('❌ Critical error loading reservations:', error);
+          this.handleLoadingError();
+        },
+      });
+  }
+
+  private handleLoadingError() {
+    this.isLoading = false;
+    this.error = 'Failed to load dashboard data. Please try again.';
+    this.setFallbackData();
   }
 
   private processReservations(reservations: any[]) {
@@ -185,6 +275,16 @@ export class UserDashboardComponent implements OnInit {
         }" → "${normalizedStatus}"`
       );
 
+      // Extra debugging for status mapping
+      console.log(
+        `🔍 DEBUG - Original status: "${
+          reservation.status
+        }" (type: ${typeof reservation.status})`
+      );
+      console.log(
+        `🔍 DEBUG - Normalized status: "${normalizedStatus}" (type: ${typeof normalizedStatus})`
+      );
+
       return {
         rid: reservation.rid || reservation.id, // Include the booking ID
         cleanerName: reservation.cleanerName || 'Cleaner',
@@ -248,56 +348,46 @@ export class UserDashboardComponent implements OnInit {
 
     console.log(`🔧 Normalizing status: "${status}" (${typeof status})`);
 
-    // Handle all possible backend status values (case-insensitive)
+    // Handle backend status values exactly as they come from the API
     const statusUpper = status.toUpperCase();
-    const statusLower = status.toLowerCase();
 
-    // Pending states
-    if (['PENDING', 'pending'].includes(status)) {
-      console.log('✅ Mapped to: pending');
-      return 'pending';
+    // Map backend statuses to frontend statuses
+    switch (statusUpper) {
+      case 'PENDING':
+        console.log('✅ Mapped to: pending');
+        return 'pending';
+
+      case 'ONGOING':
+        // ONGOING means cleaner confirmed and is working
+        console.log('✅ Mapped to: confirmed (cleaner is working)');
+        return 'confirmed';
+
+      case 'FINISHED':
+        console.log('✅ Mapped to: completed');
+        return 'completed';
+
+      case 'CANCELLED':
+        console.log('✅ Mapped to: cancelled');
+        return 'cancelled';
+
+      // Handle any legacy or additional statuses
+      case 'CONFIRMED':
+        console.log('✅ Mapped to: confirmed (legacy status)');
+        return 'confirmed';
+
+      case 'COMPLETED':
+        console.log('✅ Mapped to: completed (legacy status)');
+        return 'completed';
+
+      case 'IN_PROGRESS':
+      case 'IN-PROGRESS':
+        console.log('✅ Mapped to: confirmed (in progress)');
+        return 'confirmed';
+
+      default:
+        console.log(`⚠️ Unknown status "${status}", defaulting to pending`);
+        return 'pending';
     }
-
-    // Confirmed states
-    if (['CONFIRMED', 'confirmed'].includes(status)) {
-      console.log('✅ Mapped to: confirmed');
-      return 'confirmed';
-    }
-
-    // Ongoing states (treat as confirmed for display)
-    if (['ONGOING', 'ongoing', 'IN_PROGRESS', 'in_progress'].includes(status)) {
-      console.log('✅ Mapped to: confirmed (ongoing work)');
-      return 'confirmed';
-    }
-
-    // Completed states - handle all possible completion statuses
-    if (
-      [
-        'COMPLETED',
-        'completed',
-        'FINISHED',
-        'finished',
-        'DONE',
-        'done',
-        'SUCCESS',
-        'success',
-        'COMPLETE',
-        'complete',
-      ].includes(status)
-    ) {
-      console.log('✅ Mapped to: completed');
-      return 'completed';
-    }
-
-    // Cancelled states
-    if (['CANCELLED', 'cancelled', 'CANCELED', 'canceled'].includes(status)) {
-      console.log('✅ Mapped to: cancelled');
-      return 'cancelled';
-    }
-
-    // Fallback for any unmapped status
-    console.log(`⚠️ Unknown status "${status}", defaulting to pending`);
-    return 'pending';
   }
 
   private calculateCost(reservation: any): number {
@@ -351,7 +441,16 @@ export class UserDashboardComponent implements OnInit {
 
   // Action methods
   refreshDashboard() {
+    console.log('🔄 Manual refresh triggered by user');
+
+    // Show loading state
+    this.isLoading = true;
+    this.error = null;
+
+    // Force fresh data reload
     this.loadDashboardData();
+
+    console.log('✅ Manual refresh initiated');
   }
 
   // Progress tracking methods

@@ -44,9 +44,8 @@ export class LeaveReviewCardComponent implements OnInit {
     this.currentRating = this.initialRating;
     this.reviewMessage = this.initialMessage;
 
-    this.favoritesService.getFavorites().subscribe((ids) => {
-      this.cleaner.isFavorite = ids.includes(this.cleaner.id);
-    });
+    // Check if cleaner is in favorites using new service
+    this.cleaner.isFavorite = this.favoritesService.isFavorite(this.cleaner.id);
 
     if (this.cleaner?.id) {
       this.reviewService
@@ -94,23 +93,24 @@ export class LeaveReviewCardComponent implements OnInit {
 
   toggleFavorite() {
     const id = this.cleaner.id;
-    this.cleaner.isFavorite = !this.cleaner.isFavorite;
+    const currentFavoriteStatus = this.cleaner.isFavorite;
 
-    const op = this.cleaner.isFavorite
-      ? this.favoritesService.addToFavorites(id)
-      : this.favoritesService.removeFromFavorites(id);
-
-    op.subscribe({
-      next: () => {
-        console.log(
-          `❤️ Favorite updated: ${this.cleaner.fullName} (${this.cleaner.isFavorite})`
-        );
-      },
-      error: () => {
-        this.cleaner.isFavorite = !this.cleaner.isFavorite; // revert on failure
-        console.error('❌ Failed to update favorite status');
-      },
-    });
+    if (currentFavoriteStatus) {
+      const success = this.favoritesService.removeFromFavorites(id);
+      if (success) {
+        this.cleaner.isFavorite = false;
+        console.log(`💔 Removed ${this.cleaner.fullName} from favorites`);
+      }
+    } else {
+      const success = this.favoritesService.addToFavorites(
+        id,
+        this.cleaner.fullName
+      );
+      if (success) {
+        this.cleaner.isFavorite = true;
+        console.log(`💖 Added ${this.cleaner.fullName} to favorites`);
+      }
+    }
   }
 
   get averageRating(): number {

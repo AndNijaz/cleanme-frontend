@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
-import { CleanerCardModel } from '../../cleaner/cleaner-card/cleaner-card.component';
-import { FavoritesService } from '../../../core/services/favorites.service';
-import { AuthService } from '../../../core/services/auth.service';
-import { CleanerService } from '../../../core/services/cleaner-service.service';
-import { ReviewService } from '../../../core/services/review.service';
+import { Subscription } from 'rxjs';
+import {
+  FavoritesService,
+  FavoriteItem,
+} from '../../../core/services/favorites.service';
+import { StorageService } from '../../../core/services/storage.service';
 
 @Component({
   selector: 'app-favorites',
@@ -14,19 +14,30 @@ import { ReviewService } from '../../../core/services/review.service';
   imports: [CommonModule, RouterModule],
   templateUrl: './favorites.component.html',
 })
-export class FavoritesComponent implements OnInit {
-  favorites: CleanerCardModel[] = [];
+export class FavoritesComponent implements OnInit, OnDestroy {
+  favorites: FavoriteItem[] = [];
+  loading: boolean = false;
+  private favoritesSubscription?: Subscription;
 
   constructor(
     private favoritesService: FavoritesService,
-    private authService: AuthService,
-    private router: Router,
-    private cleanerService: CleanerService,
-    private reviewService: ReviewService
+    private storageService: StorageService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadFavoriteCleaners();
+    if (!this.storageService.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    this.loadFavorites();
+  }
+
+  ngOnDestroy(): void {
+    if (this.favoritesSubscription) {
+      this.favoritesSubscription.unsubscribe();
+    }
   }
 
   getAverageRating(): string {
@@ -41,79 +52,65 @@ export class FavoritesComponent implements OnInit {
     return average.toFixed(1);
   }
 
-  getInitials(fullName: string): string {
-    return fullName
+  getInitials(cleanerName: string): string {
+    return cleanerName
       .split(' ')
       .map((n) => n[0])
       .join('')
-      .toUpperCase();
+      .toUpperCase()
+      .substring(0, 2);
   }
 
-  private loadFavoriteCleaners(): void {
-    // Get all cleaners and favorite IDs, then filter
-    forkJoin({
-      allCleaners: this.cleanerService.getCleaners(),
-      favoriteIds: this.favoritesService.getFavorites(),
-    }).subscribe({
-      next: ({ allCleaners, favoriteIds }) => {
-        // Filter cleaners that are in favorites
-        this.favorites = allCleaners.filter((cleaner) =>
-          favoriteIds.includes(cleaner.id)
-        );
-
-        // Mark them as favorites and load reviews
-        this.favorites.forEach((cleaner) => {
-          cleaner.isFavorite = true;
-
-          // Load reviews for each favorite cleaner
-          this.reviewService
-            .getReviewsForCleaner(cleaner.id)
-            .subscribe((reviews) => {
-              cleaner.rating = reviews.length
-                ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-                : 0;
-              cleaner.reviewCount = reviews.length;
-            });
-        });
-
-        console.log(`Loaded ${this.favorites.length} favorite cleaners`);
-      },
-      error: (error) => {
-        console.error('Error loading favorite cleaners:', error);
-        this.favorites = [];
-      },
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
     });
   }
 
-  toggleFavorite(cleanerId: string) {
-    const cleaner = this.favorites.find((c) => c.id === cleanerId);
-    if (!cleaner) return;
+  private loadFavorites(): void {
+    this.loading = true;
 
-    if (cleaner.isFavorite) {
-      this.favoritesService.removeFromFavorites(cleanerId).subscribe({
-        next: () => {
-          cleaner.isFavorite = false;
-          this.favorites = this.favorites.filter((c) => c.id !== cleanerId);
-          console.log(`Removed ${cleaner.fullName} from favorites`);
+    // Subscribe to favorites changes
+    this.favoritesSubscription = this.favoritesService
+      .getFavorites$()
+      .subscribe({
+        next: (favorites) => {
+          this.favorites = favorites;
+          this.loading = false;
+          console.log(`📋 Loaded ${favorites.length} favorite cleaners`);
         },
         error: (error) => {
-          console.error('Error removing from favorites:', error);
+          console.error('❌ Error loading favorites:', error);
+          this.favorites = [];
+          this.loading = false;
         },
       });
-    } else {
-      this.favoritesService.addToFavorites(cleanerId).subscribe({
-        next: () => {
-          cleaner.isFavorite = true;
-          console.log(`Added ${cleaner.fullName} to favorites`);
-        },
-        error: (error) => {
-          console.error('Error adding to favorites:', error);
-        },
-      });
+  }
+
+  removeFromFavorites(cleanerId: string): void {
+    const favorite = this.favorites.find((f) => f.cleanerId === cleanerId);
+    if (!favorite) return;
+
+    const success = this.favoritesService.removeFromFavorites(cleanerId);
+    if (success) {
+      console.log(`💔 Removed ${favorite.cleanerName} from favorites`);
     }
   }
 
-  navigateToDetails(cleanerId: string) {
+  navigateToDetails(cleanerId: string): void {
     this.router.navigate(['/cleaner', cleanerId]);
+  }
+
+  clearAllFavorites(): void {
+    if (
+      confirm(
+        'Are you sure you want to remove all cleaners from your favorites?'
+      )
+    ) {
+      this.favoritesService.clearAllFavorites();
+      console.log('🗑️ Cleared all favorites');
+    }
   }
 }

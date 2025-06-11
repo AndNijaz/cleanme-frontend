@@ -151,9 +151,8 @@ export class BookingsReviewComponent {
   }
 
   loadFavorites(): void {
-    this.favoritesService.getFavorites().subscribe((favoriteIds) => {
-      this.favoriteCleanerIds = favoriteIds;
-    });
+    const favorites = this.favoritesService.getFavorites();
+    this.favoriteCleanerIds = favorites.map((fav) => fav.cleanerId);
   }
 
   buildGroupedData() {
@@ -417,27 +416,22 @@ export class BookingsReviewComponent {
     event.stopPropagation(); // Prevent cleaner card expansion
 
     if (this.isCleanerFavorite(cleanerId)) {
-      this.favoritesService.removeFromFavorites(cleanerId).subscribe({
-        next: () => {
-          this.favoriteCleanerIds = this.favoriteCleanerIds.filter(
-            (id) => id !== cleanerId
-          );
-          console.log(`Removed ${cleanerName} from favorites`);
-        },
-        error: (error: any) => {
-          console.error('Error removing favorite:', error);
-        },
-      });
+      const success = this.favoritesService.removeFromFavorites(cleanerId);
+      if (success) {
+        this.favoriteCleanerIds = this.favoriteCleanerIds.filter(
+          (id) => id !== cleanerId
+        );
+        console.log(`Removed ${cleanerName} from favorites`);
+      }
     } else {
-      this.favoritesService.addToFavorites(cleanerId).subscribe({
-        next: () => {
-          this.favoriteCleanerIds.push(cleanerId);
-          console.log(`Added ${cleanerName} to favorites`);
-        },
-        error: (error: any) => {
-          console.error('Error adding favorite:', error);
-        },
-      });
+      const success = this.favoritesService.addToFavorites(
+        cleanerId,
+        cleanerName
+      );
+      if (success) {
+        this.favoriteCleanerIds.push(cleanerId);
+        console.log(`Added ${cleanerName} to favorites`);
+      }
     }
   }
 

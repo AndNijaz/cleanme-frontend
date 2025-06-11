@@ -77,8 +77,6 @@ export const routes: Routes = [
           { path: 'jobs', component: CleanerJobsComponent },
           { path: 'services', component: CleanerServicesComponent },
           { path: 'availability', component: CleanerAvailabilityComponent },
-          { path: 'reviews', component: HomePageComponent },
-          { path: 'earnings', component: HomePageComponent },
           { path: 'settings', component: SettingsComponent },
         ],
       },

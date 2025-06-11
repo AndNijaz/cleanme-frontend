@@ -15,6 +15,7 @@ import { CommonModule } from '@angular/common';
 
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ValidationService } from '../../../core/services/validation.service';
 import { ToggleButtonComponent } from '../../../shared/components/toggle-button/toggle-button.component';
 import { RegisterRequest } from '../../../core/services/models/auth.model';
 
@@ -36,7 +37,8 @@ export class RegisterComponent {
     private httpClient: HttpClient,
     private destroyRef: DestroyRef,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private validationService: ValidationService
   ) {}
 
   @ViewChildren(InputComponent) inputs!: QueryList<InputComponent>;
@@ -75,31 +77,20 @@ export class RegisterComponent {
 
     this.errorMessage = '';
 
-    if (
-      !this.formName.trim() ||
-      !this.formSurname.trim() ||
-      !this.formEmail.trim() ||
-      !this.formAddress.trim() ||
-      !this.formPhoneNumber.trim() ||
-      !this.formPassword.trim() ||
-      !this.formConfirmPassword.trim()
-    ) {
-      this.errorMessage = 'Please fill in all fields.';
-      return;
-    }
+    // Use ValidationService for form validation
+    const validationResult = this.validationService.validateRegistrationForm({
+      firstName: this.formName,
+      lastName: this.formSurname,
+      email: this.formEmail,
+      address: this.formAddress,
+      phoneNumber: this.formPhoneNumber,
+      password: this.formPassword,
+      confirmPassword: this.formConfirmPassword,
+    });
 
-    if (!this.isValidEmail(this.formEmail)) {
-      this.errorMessage = 'Please enter a valid email address.';
-      return;
-    }
-
-    if (this.formPassword.length < 6) {
-      this.errorMessage = 'Password must be at least 6 characters.';
-      return;
-    }
-
-    if (this.formPassword !== this.formConfirmPassword) {
-      this.errorMessage = 'Passwords do not match.';
+    if (!validationResult.isValid) {
+      this.errorMessage =
+        this.validationService.getFirstError(validationResult);
       return;
     }
 
@@ -141,11 +132,6 @@ export class RegisterComponent {
   setSelectedProfileType(event: number) {
     if (event === 0) this.selectedProfileType = 'user';
     if (event === 1) this.selectedProfileType = 'cleaner';
-  }
-
-  private isValidEmail(email: string): boolean {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
   }
 
   onFileSelected(event: Event): void {

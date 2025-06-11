@@ -10,12 +10,16 @@ import {
 } from './models/auth.model';
 import { UserType } from './models/user.model';
 import { environment } from '../../../environments/environment';
+import { StorageService } from './storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly BASE_URL = `${environment['NG_APP_BASE_URL']}/auth`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private storageService: StorageService
+  ) {}
 
   // === REGISTER ===
   register(data: RegisterRequest): Observable<AuthResponse> {
@@ -29,12 +33,7 @@ export class AuthService {
 
   // === CLEANER SETUP ===
   setupCleaner(data: CleanerSetupRequest): Observable<void> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    });
-
+    const headers = this.getAuthHeaders();
     return this.http.post<void>(`${this.BASE_URL}/cleaner-setup`, data, {
       headers,
     });
@@ -42,73 +41,40 @@ export class AuthService {
 
   // === CLEANER UPDATE ===
   updateCleaner(cleanerId: string, data: any): Observable<void> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    });
-
+    const headers = this.getAuthHeaders();
     const baseUrl = environment['NG_APP_BASE_URL'];
     return this.http.put<void>(`${baseUrl}/cleaners/${cleanerId}`, data, {
       headers,
     });
   }
 
+  // === PRIVATE HELPER ===
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.storageService.getToken();
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+  }
+
   // === AUTH STORAGE ===
   saveAuthData(res: AuthResponse): void {
-    localStorage.setItem('token', res.token);
-    localStorage.setItem('userId', res.userId);
-    localStorage.setItem('userType', res.userType);
-    localStorage.setItem('firstName', res.firstName);
-    localStorage.setItem('lastName', res.lastName);
-    localStorage.setItem('email', res.email);
-    localStorage.setItem('address', res.address);
-    localStorage.setItem('phoneNumber', res.phoneNumber);
+    this.storageService.setAuthData(res);
   }
 
   getAuthData(): AuthResponse | null {
-    const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId');
-    const userType = localStorage.getItem('userType') as UserType | null;
-    const firstName = localStorage.getItem('firstName') ?? '';
-    const lastName = localStorage.getItem('lastName') ?? '';
-    const email = localStorage.getItem('email') ?? '';
-    const phoneNumber = localStorage.getItem('phoneNumber') ?? '';
-    const address = localStorage.getItem('address') ?? '';
-
-    if (!token || !userId || !userType) {
-      return null;
-    }
-
-    return {
-      token,
-      userId,
-      userType,
-      firstName,
-      lastName,
-      email,
-      address,
-      phoneNumber,
-    };
+    return this.storageService.getAuthData();
   }
 
   clearAuthData(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userType');
-    localStorage.removeItem('firstName');
-    localStorage.removeItem('lastName');
-    localStorage.removeItem('email');
-    localStorage.removeItem('address');
-    localStorage.removeItem('phoneNumber');
+    this.storageService.clearAuthData();
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    return this.storageService.isLoggedIn();
   }
 
   getUserRole(): 'CLEANER' | 'CLIENT' | null {
-    const role = (localStorage.getItem('userType') as UserType | null) ?? null;
-    return role;
+    return this.storageService.getUserType();
   }
 }

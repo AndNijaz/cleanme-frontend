@@ -4,7 +4,8 @@ import { RouterModule } from '@angular/router';
 import { ReservationService } from '../../../core/services/reservation.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CleanerService } from '../../../core/services/cleaner-service.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { Booking } from '../../../core/services/models/reservation.model';
 import {
   CleanerServicesCardComponent,
@@ -88,20 +89,39 @@ export class CleanerDashboardComponent implements OnInit {
       return;
     }
 
-    // Load both bookings and cleaner profile data
+    console.log('🔄 Starting cleaner dashboard data load...');
+
+    // Load both bookings and cleaner profile data without timeout for now
     forkJoin({
-      bookings: this.reservationService.getCleanerBookings(this.cleanerId),
-      cleanerProfile: this.cleanerService.getCleanerPublicProfile(
-        this.cleanerId
+      bookings: this.reservationService.getCleanerBookings(this.cleanerId).pipe(
+        tap(() => console.log('✅ Cleaner bookings loaded')),
+        catchError((error) => {
+          console.error('❌ Cleaner bookings error:', error);
+          return of([]); // Return empty array on error
+        })
       ),
+      cleanerProfile: this.cleanerService
+        .getCleanerPublicProfile(this.cleanerId)
+        .pipe(
+          tap(() => console.log('✅ Cleaner profile loaded')),
+          catchError((error) => {
+            console.error('❌ Cleaner profile error:', error);
+            return of({}); // Return empty object on error
+          })
+        ),
     }).subscribe({
-      next: (data) => {
-        this.processBookingsData(data.bookings);
-        this.processCleanerProfile(data.cleanerProfile);
+      next: ({ bookings, cleanerProfile }) => {
+        console.log('📊 Starting to process cleaner dashboard data...');
+
+        this.processBookingsData(bookings);
+        this.processCleanerProfile(cleanerProfile);
         this.isLoading = false;
+
+        console.log('📊 Cleaner dashboard data loaded successfully');
+        console.log('✨ Cleaner dashboard processing complete!');
       },
       error: (error) => {
-        console.error('Error loading cleaner dashboard data:', error);
+        console.error('❌ Error loading cleaner dashboard data:', error);
         this.error = 'Failed to load dashboard data. Please try again.';
         this.isLoading = false;
         this.setFallbackData();
@@ -288,7 +308,48 @@ export class CleanerDashboardComponent implements OnInit {
 
   // Template helper methods
   getCleanerName(): string {
-    return this.cleanerName;
+    const authData = this.authService.getAuthData();
+
+    // First, try to get name from auth service
+    if (authData?.firstName && authData?.lastName) {
+      const firstName = authData.firstName.trim();
+      const lastName = authData.lastName.trim();
+
+      // Make sure we don't have placeholder values
+      if (
+        firstName !== 'sada' &&
+        lastName !== 'sada' &&
+        firstName !== '' &&
+        lastName !== ''
+      ) {
+        return `${firstName} ${lastName}`;
+      }
+    }
+
+    // Fallback to localStorage directly
+    const firstNameLS = localStorage.getItem('firstName');
+    const lastNameLS = localStorage.getItem('lastName');
+
+    if (
+      firstNameLS &&
+      lastNameLS &&
+      firstNameLS !== 'sada' &&
+      lastNameLS !== 'sada'
+    ) {
+      return `${firstNameLS.trim()} ${lastNameLS.trim()}`;
+    }
+
+    // Final fallback
+
+    return this.cleanerName || 'Professional Cleaner';
+  }
+
+  getDashboardTitle(): string {
+    return `Welcome back, ${this.getCleanerName()}!`;
+  }
+
+  getDashboardSubtitle(): string {
+    return "Here's your cleaning business overview for today";
   }
 
   formatCurrency(amount: number): string {

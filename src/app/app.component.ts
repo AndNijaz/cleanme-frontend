@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ThemeService } from './core/services/theme.service';
 
@@ -8,12 +8,6 @@ import { ThemeService } from './core/services/theme.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'CleanMe - Find your cleaner';
-
-  constructor(private themeService: ThemeService) {}
-
-  ngOnInit(): void {
-    // Theme service is initialized on construction, no need for explicit init
-  }
 }

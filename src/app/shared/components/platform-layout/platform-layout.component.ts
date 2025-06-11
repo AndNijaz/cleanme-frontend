@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, HostListener } from '@angular/core';
+import { Component,  OnInit, HostListener } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import {
   SidebarItem,

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import {
   CleanerService,
   CleanerCardModel,
@@ -27,7 +28,7 @@ interface Cleaner {
   templateUrl: './browse-cleaners.component.html',
   styleUrl: './browse-cleaners.component.css',
 })
-export class BrowseCleanersComponent implements OnInit {
+export class BrowseCleanersComponent implements OnInit, OnDestroy {
   cleaners: Cleaner[] = [];
   filteredCleaners: Cleaner[] = [];
   searchTerm: string = '';
@@ -49,29 +50,64 @@ export class BrowseCleanersComponent implements OnInit {
     'Move-in/Move-out',
   ];
 
+  private routeSubscription?: Subscription;
+
   constructor(
     private cleanerService: CleanerService,
     private router: Router,
-    private favoritesService: FavoritesService
+    private favoritesService: FavoritesService,
+    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit() {
     this.loadFavorites();
-    this.loadCleaners();
+
+    // Read initial URL parameters
+    this.activatedRoute.queryParams.subscribe((params) => {
+      // Set initial values from URL parameters
+      this.searchTerm = params['search'] || '';
+      this.selectedSpecialty = params['specialty'] || '';
+      this.sortBy = params['sort'] || 'rating';
+
+      // Load cleaners and apply filters
+      this.loadCleaners();
+    });
+
+    // Subscribe to URL parameter changes
+    this.routeSubscription = this.activatedRoute.queryParams.subscribe(
+      (params) => {
+        // Only update if cleaners are already loaded to avoid duplicate API calls
+        if (this.cleaners.length > 0) {
+          const newSearch = params['search'] || '';
+          const newSpecialty = params['specialty'] || '';
+          const newSort = params['sort'] || 'rating';
+
+          // Check if parameters actually changed to avoid infinite loops
+          if (
+            newSearch !== this.searchTerm ||
+            newSpecialty !== this.selectedSpecialty ||
+            newSort !== this.sortBy
+          ) {
+            this.searchTerm = newSearch;
+            this.selectedSpecialty = newSpecialty;
+            this.sortBy = newSort;
+            this.filterCleaners();
+          }
+        }
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    this.routeSubscription?.unsubscribe();
   }
 
   loadFavorites() {
-    this.favoritesService.getFavorites().subscribe({
-      next: (favoriteIds) => {
-        this.favoriteIds = favoriteIds;
-        this.updateFavoriteStatus();
-        console.log('Loaded favorite IDs:', favoriteIds);
-      },
-      error: (error) => {
-        console.error('Error loading favorites:', error);
-        this.favoriteIds = [];
-      },
-    });
+    // Get favorite cleaner IDs from new service
+    const favorites = this.favoritesService.getFavorites();
+    this.favoriteIds = favorites.map((fav) => fav.cleanerId);
+    this.updateFavoriteStatus();
+    console.log('Loaded favorite IDs:', this.favoriteIds);
   }
 
   updateFavoriteStatus() {
@@ -93,30 +129,28 @@ export class BrowseCleanersComponent implements OnInit {
     const isCurrentlyFavorite = cleaner.isFavorite;
 
     if (isCurrentlyFavorite) {
-      this.favoritesService.removeFromFavorites(cleanerId).subscribe({
-        next: () => {
-          this.favoriteIds = this.favoriteIds.filter((id) => id !== cleanerId);
-          this.updateFavoriteStatus();
-          console.log(`Removed ${cleaner.name} from favorites`);
-        },
-        error: (error) => {
-          console.error('Error removing from favorites:', error);
-        },
-      });
+      const success = this.favoritesService.removeFromFavorites(cleanerId);
+      if (success) {
+        this.favoriteIds = this.favoriteIds.filter((id) => id !== cleanerId);
+        this.updateFavoriteStatus();
+        console.log(`Removed ${cleaner.name} from favorites`);
+      }
     } else {
-      this.favoritesService.addToFavorites(cleanerId).subscribe({
-        next: () => {
-          this.favoriteIds.push(cleanerId);
-          this.updateFavoriteStatus();
-          console.log(`Added ${cleaner.name} to favorites`);
-        },
-        error: (error) => {
-          console.error('Error adding to favorites:', error);
-        },
-      });
+      const success = this.favoritesService.addToFavorites(
+        cleanerId,
+        cleaner.name,
+        cleaner.hourlyRate,
+        cleaner.rating
+      );
+      if (success) {
+        this.favoriteIds.push(cleanerId);
+        this.updateFavoriteStatus();
+        console.log(`Added ${cleaner.name} to favorites`);
+      }
     }
   }
 
+  // OPTIMIZED: Add pagination and prefetching
   loadCleaners() {
     this.loading = true;
     this.error = null;
@@ -141,51 +175,55 @@ export class BrowseCleanersComponent implements OnInit {
           );
           console.log(`  - Original location: ${card.location}`);
 
-          // More robust rating parsing - try to extract real rating
+          // More robust rating parsing - use backend rating properly
           let parsedRating = 0;
-          if (typeof card.rating === 'number' && card.rating > 0) {
+          if (typeof card.rating === 'number') {
             parsedRating = card.rating;
           } else if (typeof card.rating === 'string' && card.rating !== '') {
-            parsedRating = parseFloat(card.rating);
+            const parsed = parseFloat(card.rating);
+            if (!isNaN(parsed)) {
+              parsedRating = parsed;
+            }
           }
 
-          // If backend rating is 0, let's give some test ratings for now
-          if (parsedRating === 0) {
-            // Generate a realistic rating between 3.5 and 5.0 for testing
-            parsedRating = Math.random() * 1.5 + 3.5;
-            console.log(
-              `  ⚠️ Backend rating was 0, using test rating: ${parsedRating.toFixed(
-                1
-              )}`
-            );
-          }
-
-          // Normalize rating to 0-5 range
+          // Use backend rating (including 0 ratings)
           let normalizedRating = Math.min(5, Math.max(0, parsedRating));
 
-          // Handle price - remove strange phone number format
+          // Handle price - use backend price properly
           let cleanPrice = 0;
-          if (typeof card.price === 'number' && card.price > 0) {
+          if (typeof card.price === 'number') {
             cleanPrice = card.price;
-          } else {
-            // Generate reasonable price for testing
-            cleanPrice = Math.floor(Math.random() * 20) + 15; // 15-35 BAM/hour
+          } else if (typeof card.price === 'string' && card.price !== '') {
+            // Try to parse string price
+            const parsedPrice = parseFloat(card.price);
+            if (!isNaN(parsedPrice)) {
+              cleanPrice = parsedPrice;
+            }
           }
 
-          // Handle review count
-          let reviewCount =
-            card.reviewCount || Math.floor(Math.random() * 200) + 10;
+          console.log(`  - Parsed price: ${cleanPrice} BAM/hour`);
 
-          // Handle distance - extract from location or generate
+          // Handle review count - use backend count properly
+          let reviewCount = 0;
+          if (typeof card.reviewCount === 'number') {
+            reviewCount = card.reviewCount;
+          } else if (
+            typeof card.reviewCount === 'string' &&
+            card.reviewCount !== ''
+          ) {
+            const parsed = parseInt(card.reviewCount);
+            if (!isNaN(parsed)) {
+              reviewCount = parsed;
+            }
+          }
+
+          // Handle distance - extract from location or default to 0
           let distance = 0;
           if (card.location && card.location.includes('km')) {
             const distanceMatch = card.location.match(/(\d+\.?\d*)\s*km/);
             if (distanceMatch) {
               distance = parseFloat(distanceMatch[1]);
             }
-          }
-          if (distance === 0) {
-            distance = Math.round((Math.random() * 4 + 1) * 10) / 10; // 1.0-5.0 km
           }
 
           const cleanerObj = {
@@ -212,7 +250,15 @@ export class BrowseCleanersComponent implements OnInit {
 
         this.filteredCleaners = [...this.cleaners];
         this.updateFavoriteStatus();
+
+        // Apply filters and sorting based on URL parameters
+        this.filterCleaners();
+
         this.loading = false;
+
+        // OPTIMIZATION: Prefetch popular cleaner profiles for better performance
+        const popularCleaners = this.cleaners.slice(0, 6).map((c) => c.id);
+        this.cleanerService.prefetchCleanerProfiles(popularCleaners);
       },
       error: (error) => {
         console.error('❌ Error loading cleaners from backend:', error);
@@ -225,27 +271,63 @@ export class BrowseCleanersComponent implements OnInit {
 
   onSearch(event: any) {
     this.searchTerm = event.target.value;
+    this.updateUrlParams();
     this.filterCleaners();
   }
 
   onSpecialtyChange(event: any) {
     this.selectedSpecialty = event.target.value;
+    this.updateUrlParams();
     this.filterCleaners();
   }
 
   onSortChange(event: any) {
     this.sortBy = event.target.value;
+    this.updateUrlParams();
     this.sortCleaners();
+  }
+
+  public updateUrlParams() {
+    const queryParams: any = {};
+
+    if (this.searchTerm && this.searchTerm.trim()) {
+      queryParams.search = this.searchTerm.trim();
+    }
+
+    if (this.selectedSpecialty) {
+      queryParams.specialty = this.selectedSpecialty;
+    }
+
+    if (this.sortBy && this.sortBy !== 'rating') {
+      queryParams.sort = this.sortBy;
+    }
+
+    // Update URL without reloading the page
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: queryParams,
+      queryParamsHandling: 'replace',
+    });
   }
 
   filterCleaners() {
     this.filteredCleaners = this.cleaners.filter((cleaner) => {
-      const matchesSearch = cleaner.name
-        .toLowerCase()
-        .includes(this.searchTerm.toLowerCase());
+      // Search term matching (name, specialties)
+      const searchLower = this.searchTerm.toLowerCase();
+      const matchesSearch =
+        !this.searchTerm ||
+        cleaner.name.toLowerCase().includes(searchLower) ||
+        cleaner.specialties.some((specialty) =>
+          specialty.toLowerCase().includes(searchLower)
+        );
+
+      // Specialty filtering
       const matchesSpecialty =
         !this.selectedSpecialty ||
-        cleaner.specialties.includes(this.selectedSpecialty);
+        cleaner.specialties.some((specialty) =>
+          specialty.toLowerCase().includes(this.selectedSpecialty.toLowerCase())
+        );
+
       return matchesSearch && matchesSpecialty;
     });
     this.sortCleaners();

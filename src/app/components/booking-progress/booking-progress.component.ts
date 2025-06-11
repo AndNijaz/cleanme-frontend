@@ -5,7 +5,7 @@ import {
   BookingService,
   BookingProgress,
   StatusHistoryItem,
-} from '../../services/booking.service';
+} from '../../core/services/booking.service';
 
 @Component({
   selector: 'app-booking-progress',
