@@ -3,6 +3,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-user-info',
@@ -11,7 +12,7 @@ import { Router } from '@angular/router';
   templateUrl: './user-info.component.html',
 })
 export class UserInfoComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   @ViewChildren(InputComponent) inputs!: QueryList<InputComponent>;
   @ViewChild('registerForm') registerForm!: NgForm;
@@ -39,6 +40,14 @@ export class UserInfoComponent {
     console.log(this.formPhoneNumber);
     console.log(this.formAddress);
 
-    this.router.navigate(['/dashboard/user']);
+    const role = this.authService.getUserRole();
+    if (role === 'CLIENT') {
+      this.router.navigate(['/user/dashboard']);
+    } else if (role === 'CLEANER') {
+      this.router.navigate(['/cleaner/dashboard']);
+    } else {
+      // Default fallback to user dashboard
+      this.router.navigate(['/user/dashboard']);
+    }
   }
 }

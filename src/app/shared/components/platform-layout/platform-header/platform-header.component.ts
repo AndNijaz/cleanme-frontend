@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-platform-header',
@@ -11,9 +12,17 @@ import { Router } from '@angular/router';
 export class PlatformHeaderComponent {
   @Input() showBrowseCleaners: boolean = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   onBrowseCleaners() {
-    this.router.navigate(['/user/dashboard']);
+    const role = this.authService.getUserRole();
+    if (role === 'CLIENT') {
+      this.router.navigate(['/user/dashboard']);
+    } else if (role === 'CLEANER') {
+      this.router.navigate(['/cleaner/dashboard']);
+    } else {
+      // Default fallback to user dashboard
+      this.router.navigate(['/user/dashboard']);
+    }
   }
 }

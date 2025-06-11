@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { ReviewService } from '../../../core/services/review.service';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { LeaveReviewCardComponent } from '../reviews/leave-review-card.component';
-import { CleanerCardModel } from '../../cleaner/cleaner-card/cleaner-card.component';
+import { CleanerCardModel } from '../../../shared/components/cleaner-card/cleaner-card.component';
 import { MatIconModule } from '@angular/material/icon';
 import { NavigationEnd, Router, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs';
@@ -13,7 +13,7 @@ import { Review, ReviewDto } from '../../../core/services/models/review.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { FavoritesService } from '../../../core/services/favorites.service';
-import { BookingProgressComponent } from '../../../components/booking-progress/booking-progress.component';
+import { BookingProgressComponent } from '../../../shared/components/booking-progress/booking-progress.component';
 
 @Component({
   selector: 'app-bookings-review',
@@ -73,38 +73,20 @@ export class BookingsReviewComponent {
   }
 
   loadBookingsWithReviews() {
-    console.log('📡 Loading bookings with reviews...');
     this.isRefreshing = true;
 
     this.reviewService.getBookingsWithReviews().subscribe({
       next: (bookings) => {
-        console.log('📋 Raw bookings from API:', bookings);
-
-        // Debug: Log all statuses and cleaner info
-        bookings.forEach((b: any, index) => {
-          console.log(
-            `📝 Booking ${index + 1}: Status = "${
-              b.status
-            }" (${typeof b.status})`
-          );
-          console.log(`📝 Booking ${index + 1}: CleanerId = "${b.cleanerId}"`);
-          console.log(
-            `📝 Booking ${index + 1}: CleanerName = "${b.cleanerName}"`
-          );
-        });
-
         this.bookings = bookings.map((b) => ({
           ...b,
           time: b.time, // Already separate
           // message: b.comment, // Alias if needed
         }));
 
-        console.log('✨ Processed bookings:', this.bookings);
         this.buildGroupedData(); // This still works
         this.isRefreshing = false;
       },
       error: (error) => {
-        console.error('❌ Error loading bookings:', error);
         this.isRefreshing = false;
       },
     });
@@ -184,10 +166,6 @@ export class BookingsReviewComponent {
         status: booking.status, // ✅ Ensure status is preserved
       };
 
-      console.log(
-        `📝 Processing booking with status: "${booking.status}" → "${bookingWithReview.status}"`
-      );
-
       if (!groupedMap.has(booking.cleanerName)) {
         groupedMap.set(booking.cleanerName, {
           cleanerId: booking.cleanerId, // or leave out if unused
@@ -208,8 +186,6 @@ export class BookingsReviewComponent {
       });
     });
 
-    // console.log('Grouped bookings by cleaner:', groupedMap);
-
     this.groupedByCleaner = Array.from(groupedMap.values());
   }
 
@@ -221,24 +197,14 @@ export class BookingsReviewComponent {
   leaveReview(group: any, booking: Booking) {
     // Check if review is allowed before opening modal
     if (!this.canLeaveReview(booking)) {
-      console.log('❌ Review not allowed for this booking');
       alert(this.getReviewAvailabilityMessage(booking));
       return;
     }
-
-    console.log('🔍 Leave Review - Group:', group);
-    console.log('🔍 Leave Review - Booking:', booking);
-    console.log('🔍 Cleaner ID being fetched:', group.cleanerId);
-    console.log(
-      '🔍 Full URL:',
-      `${environment['NG_APP_BASE_URL']}/cleaners/${group.cleanerId}`
-    );
 
     this.http
       .get<any>(`${environment['NG_APP_BASE_URL']}/cleaners/${group.cleanerId}`)
       .subscribe({
         next: (cleaner) => {
-          console.log('✅ Successfully fetched cleaner:', cleaner);
           this.selectedCleaner = {
             id: cleaner.id,
             fullName: `${cleaner.firstName} ${cleaner.lastName}`,
@@ -257,13 +223,7 @@ export class BookingsReviewComponent {
           this.isReviewModalOpen = true;
         },
         error: (err) => {
-          console.error('❌ Error fetching cleaner details:', err);
-          console.error('❌ Error status:', err.status);
-          console.error('❌ Error message:', err.message);
-          console.error('❌ Full error object:', err);
-
           // Create fallback cleaner object to allow review submission
-          console.log('⚠️ Using fallback cleaner data to allow review');
           this.selectedCleaner = {
             id: group.cleanerId || 'unknown',
             fullName: booking.cleanerName || 'Unknown Cleaner',
@@ -316,16 +276,8 @@ export class BookingsReviewComponent {
           this.isEditing = true;
           this.isReviewModalOpen = true;
         },
-        error: (err) => {
-          console.error('Error fetching cleaner details:', err);
-        },
+        error: (err) => {},
       });
-
-    console.log(this.selectedBooking);
-    //
-    console.log(review);
-    console.log('amir');
-    console.log(booking);
 
     this.editingReview = review;
     this.initialRating = review.rating;
@@ -357,24 +309,17 @@ export class BookingsReviewComponent {
   }
 
   handleReviewSubmit(payload: ReviewDto) {
-    console.log('Review submit payload:', payload);
     const grb = this.bookings.filter(
       (b) => b.bookingId === this.selectedBooking!.bookingId
     )[0];
 
-    console.log('Selected booking:', grb);
-
-    console.log(this.reviews);
     if (this.isEditing) {
       this.reviewService.updateReview(payload).subscribe({
         next: (response) => {
-          console.log('Review update response:', response);
           this.closeReviewModal();
           this.loadBookingsWithReviews();
         },
-        error: (error) => {
-          console.error('Error updating review:', error);
-        },
+        error: (error) => {},
       });
 
       return;
@@ -394,13 +339,10 @@ export class BookingsReviewComponent {
       })
       .subscribe({
         next: (response) => {
-          console.log('Review submit response:', response);
           this.closeReviewModal();
           this.loadBookingsWithReviews();
         },
-        error: (error) => {
-          console.error('Error submitting review:', error);
-        },
+        error: (error) => {},
       });
   }
 
@@ -421,7 +363,6 @@ export class BookingsReviewComponent {
         this.favoriteCleanerIds = this.favoriteCleanerIds.filter(
           (id) => id !== cleanerId
         );
-        console.log(`Removed ${cleanerName} from favorites`);
       }
     } else {
       const success = this.favoritesService.addToFavorites(
@@ -430,7 +371,6 @@ export class BookingsReviewComponent {
       );
       if (success) {
         this.favoriteCleanerIds.push(cleanerId);
-        console.log(`Added ${cleanerName} to favorites`);
       }
     }
   }
@@ -608,25 +548,18 @@ export class BookingsReviewComponent {
 
   // Review availability logic - Only allow reviews after cleaner marks work as done
   canLeaveReview(booking: any): boolean {
-    console.log('🔍 Checking if review can be left for booking:', booking);
-    console.log('🔍 Booking status:', booking.status, typeof booking.status);
-
     if (booking.review) {
-      console.log('❌ Review already exists');
       return false; // Already has review
     }
 
     const bookingStatus = booking.status?.toLowerCase();
-    console.log('🔍 Normalized status:', bookingStatus);
 
     // Only allow reviews if cleaner marked the job as finished/completed
     if (['finished', 'completed'].includes(bookingStatus)) {
-      console.log('✅ Review allowed - job marked as finished/completed');
       return true;
     }
 
     // For any other status (pending, confirmed, ongoing), reviews are not allowed
-    console.log('❌ Review not allowed - work not yet completed by cleaner');
     return false;
   }
 
@@ -725,7 +658,6 @@ export class BookingsReviewComponent {
   }
 
   refreshBookings(): void {
-    console.log('🔄 Manual refresh triggered by user');
     this.loadBookingsWithReviews();
   }
 }

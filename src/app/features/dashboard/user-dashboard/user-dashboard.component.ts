@@ -5,7 +5,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { FavoritesService } from '../../../core/services/favorites.service';
 import { ReservationService } from '../../../core/services/reservation.service';
 import { BookingService } from '../../../core/services/booking.service';
-import { BookingProgressComponent } from '../../../components/booking-progress/booking-progress.component';
+import { BookingProgressComponent } from '../../../shared/components/booking-progress/booking-progress.component';
 import { forkJoin, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 
@@ -126,12 +126,9 @@ export class UserDashboardComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    console.log('🔄 Starting dashboard data load...');
-
     // Fallback timeout - if loading takes too long, show error
     setTimeout(() => {
       if (this.isLoading) {
-        console.error('⏰ Loading timeout - forcing completion');
         this.isLoading = false;
         this.error = 'Loading took too long. Please refresh the page.';
         this.setFallbackData();
@@ -143,51 +140,40 @@ export class UserDashboardComponent implements OnInit {
       .getFavorites$()
       .pipe(
         catchError((error) => {
-          console.error('❌ Favorites error:', error);
           return of([]); // Return empty array on error
         })
       )
       .subscribe({
         next: (favorites) => {
-          console.log('✅ Favorites loaded:', favorites.length);
           this.favoriteCount = favorites.length;
 
           // Step 2: Load reservations after favorites
           this.loadReservations();
         },
         error: (error) => {
-          console.error('❌ Critical error loading favorites:', error);
           this.handleLoadingError();
         },
       });
   }
 
   private loadReservations() {
-    console.log('🔄 Loading reservations...');
-
     this.reservationService
       .getUserReservations()
       .pipe(
         catchError((error) => {
-          console.error('❌ Reservations error:', error);
           return of([]); // Return empty array on error
         })
       )
       .subscribe({
         next: (reservations) => {
-          console.log('✅ Reservations loaded:', reservations.length);
-
           // Process the data
           this.processReservations(reservations);
 
           // Mark loading as complete
           this.isLoading = false;
           this.error = null;
-
-          console.log('🎉 Dashboard loading COMPLETE!');
         },
         error: (error) => {
-          console.error('❌ Critical error loading reservations:', error);
           this.handleLoadingError();
         },
       });

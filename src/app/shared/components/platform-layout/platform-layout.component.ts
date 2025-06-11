@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component,  OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import {
   SidebarItem,
@@ -193,6 +193,14 @@ export class PlatformLayoutComponent implements OnInit {
   }
 
   onDashboardClick(): void {
-    this.router.navigate(['/user/dashboard']);
+    const role = this.authService.getUserRole();
+    if (role === 'CLIENT') {
+      this.router.navigate(['/user/dashboard']);
+    } else if (role === 'CLEANER') {
+      this.router.navigate(['/cleaner/dashboard']);
+    } else {
+      // Default fallback to user dashboard
+      this.router.navigate(['/user/dashboard']);
+    }
   }
 }

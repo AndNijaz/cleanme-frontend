@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { FavoritesService } from '../../../core/services/favorites.service';
-import { CleanerCardModel } from '../../cleaner/cleaner-card/cleaner-card.component';
+import { CleanerCardModel } from '../../../shared/components/cleaner-card/cleaner-card.component';
 import { ReviewService } from '../../../core/services/review.service';
 import { FormsModule } from '@angular/forms';
 import { Review, ReviewDto } from '../../../core/services/models/review.model';

@@ -1,4 +1,11 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface NotificationToast {
@@ -17,73 +24,9 @@ export interface NotificationToast {
   selector: 'app-notification-toast',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="fixed top-4 right-4 z-50 space-y-4 max-w-sm w-full">
-      <div
-        *ngFor="let notification of notifications"
-        class="transform transition-all duration-300 ease-in-out"
-        [ngClass]="{
-          'translate-x-0 opacity-100': true,
-          'translate-x-full opacity-0': false
-        }"
-      >
-        <div
-          class="bg-white rounded-lg shadow-lg border-l-4 p-4 relative overflow-hidden"
-          [ngClass]="getBorderClass(notification.type)"
-        >
-          <!-- Progress bar for auto-dismiss -->
-          <div
-            *ngIf="notification.duration"
-            class="absolute bottom-0 left-0 h-1 bg-current opacity-30 transition-all linear"
-            [style.width.%]="getProgressWidth(notification.id)"
-            [ngClass]="getAccentClass(notification.type)"
-          ></div>
-
-          <div class="flex items-start">
-            <!-- Icon -->
-            <div class="flex-shrink-0 mr-3">
-              <div
-                class="w-8 h-8 rounded-full flex items-center justify-center"
-                [ngClass]="getIconBgClass(notification.type)"
-              >
-                <i class="text-sm" [ngClass]="getIconClass(notification.type)">
-                </i>
-              </div>
-            </div>
-
-            <!-- Content -->
-            <div class="flex-1 min-w-0">
-              <h4 class="text-sm font-semibold text-gray-900 mb-1">
-                {{ notification.title }}
-              </h4>
-              <p class="text-sm text-gray-700 leading-relaxed">
-                {{ notification.message }}
-              </p>
-
-              <!-- Action Button -->
-              <button
-                *ngIf="notification.action"
-                (click)="notification.action!.handler()"
-                class="mt-3 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors duration-200"
-              >
-                {{ notification.action.label }}
-              </button>
-            </div>
-
-            <!-- Close Button -->
-            <button
-              (click)="dismissNotification(notification.id)"
-              class="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
-            >
-              <i class="fas fa-times text-sm"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './notification-toast.component.html',
 })
-export class NotificationToastComponent {
+export class NotificationToastComponent implements OnInit, OnDestroy {
   @Input() notifications: NotificationToast[] = [];
   @Output() dismiss = new EventEmitter<string>();
 
