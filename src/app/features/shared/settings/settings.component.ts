@@ -76,9 +76,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       next: (user) => {
         this.currentUser = user;
       },
-      error: (error) => {
-        console.error('Error loading user data:', error);
-      },
+      error: (error) => {},
     });
   }
 

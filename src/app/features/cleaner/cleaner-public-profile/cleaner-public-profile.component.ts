@@ -48,7 +48,7 @@ export class CleanerPublicProfileComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe((params) => {
       this.cleanerId = params['id'];
-      console.log('🆔 Loading cleaner profile for ID:', this.cleanerId);
+
       this.loadCleanerProfile();
     });
   }
@@ -59,18 +59,11 @@ export class CleanerPublicProfileComponent implements OnInit {
 
     this.cleanerService.getCleanerPublicProfile(this.cleanerId).subscribe({
       next: (cleaner: PublicCleanerProfile) => {
-        console.log('📋 Backend cleaner data:', cleaner);
         this.cleaner = { ...cleaner, id: this.cleanerId };
         this.checkFavoriteStatus();
         this.loading = false;
       },
       error: (error: any) => {
-        console.error(
-          '❌ Error loading cleaner profile for ID:',
-          this.cleanerId,
-          error
-        );
-
         if (error.status === 404) {
           this.error = `Sorry, this cleaner's profile is not available at the moment. Please try selecting a different cleaner.`;
         } else if (error.status === 0) {
@@ -121,11 +114,8 @@ export class CleanerPublicProfileComponent implements OnInit {
           text: text,
           url: url,
         })
-        .then(() => {
-          console.log('✅ Profile shared successfully');
-        })
+        .then(() => {})
         .catch((error) => {
-          console.log('❌ Error sharing profile:', error);
           this.fallbackShare(url, text);
         });
     } else {
@@ -210,9 +200,6 @@ export class CleanerPublicProfileComponent implements OnInit {
     }
 
     // Navigate to booking page
-    console.log(
-      `🚀 Booking cleaner: ${this.cleaner.fullName} (ID: ${this.cleanerId})`
-    );
     this.router.navigate(['/cleaner', this.cleanerId, 'reserve']);
   }
 
@@ -230,7 +217,6 @@ export class CleanerPublicProfileComponent implements OnInit {
    */
   toggleFavorite(): void {
     if (!this.cleaner) {
-      console.warn('⚠️ Cannot toggle favorite: cleaner data not loaded');
       return;
     }
 
@@ -251,13 +237,11 @@ export class CleanerPublicProfileComponent implements OnInit {
 
     // Provide user feedback
     if (wasAdded) {
-      console.log(`💖 Added ${this.cleaner.fullName} to favorites`);
       // You could show a toast notification here instead of alert
       setTimeout(() => {
         alert(`💖 ${this.cleaner?.fullName} added to your favorites!`);
       }, 100);
     } else {
-      console.log(`💔 Removed ${this.cleaner.fullName} from favorites`);
       setTimeout(() => {
         alert(`💔 ${this.cleaner?.fullName} removed from your favorites`);
       }, 100);

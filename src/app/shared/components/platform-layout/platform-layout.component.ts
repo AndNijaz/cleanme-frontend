@@ -63,7 +63,6 @@ export class PlatformLayoutComponent implements OnInit {
         this.currentUser = user;
       },
       error: (error) => {
-        console.error('Error loading user data:', error);
         // Fallback to auth data if user service fails
         this.currentUser = null;
       },

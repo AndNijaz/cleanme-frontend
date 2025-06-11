@@ -79,10 +79,8 @@ export class FavoritesComponent implements OnInit, OnDestroy {
         next: (favorites) => {
           this.favorites = favorites;
           this.loading = false;
-          console.log(`📋 Loaded ${favorites.length} favorite cleaners`);
         },
         error: (error) => {
-          console.error('❌ Error loading favorites:', error);
           this.favorites = [];
           this.loading = false;
         },

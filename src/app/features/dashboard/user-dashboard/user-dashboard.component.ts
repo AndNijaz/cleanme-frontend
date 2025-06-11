@@ -186,19 +186,8 @@ export class UserDashboardComponent implements OnInit {
   }
 
   private processReservations(reservations: any[]) {
-    console.log('🔄 Processing reservations from backend:', reservations);
-
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-
-    // Debug: Log all raw statuses from backend
-    reservations.forEach((r, index) => {
-      console.log(
-        `📋 Reservation ${index + 1}: Status = "${
-          r.status
-        }" (${typeof r.status})`
-      );
-    });
 
     // Filter and categorize reservations
     const upcomingReservations = reservations.filter((r) => {
@@ -213,11 +202,6 @@ export class UserDashboardComponent implements OnInit {
           'finished',
           'FINISHED',
         ].includes(r.status);
-      console.log(
-        `⏰ Reservation ${
-          r.rid || r.id
-        }: isUpcoming = ${isUpcoming}, status = ${r.status}`
-      );
       return isUpcoming;
     });
 
@@ -226,20 +210,11 @@ export class UserDashboardComponent implements OnInit {
       const isCompleted =
         reservationDate < now ||
         ['completed', 'COMPLETED', 'finished', 'FINISHED'].includes(r.status);
-      console.log(
-        `✅ Reservation ${
-          r.rid || r.id
-        }: isCompleted = ${isCompleted}, status = ${r.status}`
-      );
       return isCompleted;
     });
 
     this.upcomingBookings = upcomingReservations.length;
     this.completedServices = completedReservations.length;
-
-    console.log(
-      `📊 Summary: ${this.upcomingBookings} upcoming, ${this.completedServices} completed`
-    );
 
     // Create recent bookings display (last 5, most recent first)
     const sortedReservations = [...reservations]
@@ -255,22 +230,6 @@ export class UserDashboardComponent implements OnInit {
       const isPast = reservationDate < now;
       const normalizedStatus = this.normalizeStatus(reservation.status);
 
-      console.log(
-        `🔄 Mapping reservation ${reservation.rid || reservation.id}: "${
-          reservation.status
-        }" → "${normalizedStatus}"`
-      );
-
-      // Extra debugging for status mapping
-      console.log(
-        `🔍 DEBUG - Original status: "${
-          reservation.status
-        }" (type: ${typeof reservation.status})`
-      );
-      console.log(
-        `🔍 DEBUG - Normalized status: "${normalizedStatus}" (type: ${typeof normalizedStatus})`
-      );
-
       return {
         rid: reservation.rid || reservation.id, // Include the booking ID
         cleanerName: reservation.cleanerName || 'Cleaner',
@@ -283,8 +242,6 @@ export class UserDashboardComponent implements OnInit {
         totalCost: this.calculateCost(reservation),
       };
     });
-
-    console.log('✨ Final processed bookings:', this.recentBookings);
   }
 
   private parseReservationDate(dateStr: string): Date {
@@ -328,11 +285,8 @@ export class UserDashboardComponent implements OnInit {
     status: string
   ): 'pending' | 'confirmed' | 'completed' | 'cancelled' {
     if (!status) {
-      console.log('⚠️ No status provided, defaulting to pending');
       return 'pending';
     }
-
-    console.log(`🔧 Normalizing status: "${status}" (${typeof status})`);
 
     // Handle backend status values exactly as they come from the API
     const statusUpper = status.toUpperCase();
@@ -340,38 +294,30 @@ export class UserDashboardComponent implements OnInit {
     // Map backend statuses to frontend statuses
     switch (statusUpper) {
       case 'PENDING':
-        console.log('✅ Mapped to: pending');
         return 'pending';
 
       case 'ONGOING':
         // ONGOING means cleaner confirmed and is working
-        console.log('✅ Mapped to: confirmed (cleaner is working)');
         return 'confirmed';
 
       case 'FINISHED':
-        console.log('✅ Mapped to: completed');
         return 'completed';
 
       case 'CANCELLED':
-        console.log('✅ Mapped to: cancelled');
         return 'cancelled';
 
       // Handle any legacy or additional statuses
       case 'CONFIRMED':
-        console.log('✅ Mapped to: confirmed (legacy status)');
         return 'confirmed';
 
       case 'COMPLETED':
-        console.log('✅ Mapped to: completed (legacy status)');
         return 'completed';
 
       case 'IN_PROGRESS':
       case 'IN-PROGRESS':
-        console.log('✅ Mapped to: confirmed (in progress)');
         return 'confirmed';
 
       default:
-        console.log(`⚠️ Unknown status "${status}", defaulting to pending`);
         return 'pending';
     }
   }
@@ -427,16 +373,12 @@ export class UserDashboardComponent implements OnInit {
 
   // Action methods
   refreshDashboard() {
-    console.log('🔄 Manual refresh triggered by user');
-
     // Show loading state
     this.isLoading = true;
     this.error = null;
 
     // Force fresh data reload
     this.loadDashboardData();
-
-    console.log('✅ Manual refresh initiated');
   }
 
   // Progress tracking methods

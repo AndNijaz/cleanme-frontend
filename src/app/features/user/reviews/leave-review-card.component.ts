@@ -59,21 +59,13 @@ export class LeaveReviewCardComponent implements OnInit {
   setRating(star: number) {
     this.currentRating = star;
     this.ratingChange.emit(this.currentRating);
-    console.log('Rating set to:', star);
   }
 
   submitReviewHandler() {
     if (!this.currentRating || this.currentRating === 0) {
-      console.warn('⚠️ Rating is required');
       // You could show a toast notification here
       return;
     }
-
-    console.log('Submitting review:', {
-      rating: this.currentRating,
-      message: this.reviewMessage,
-      personalNote: this.personalNote,
-    });
 
     this.submitReview.emit({
       reviewId: this.reviewId,
@@ -99,7 +91,6 @@ export class LeaveReviewCardComponent implements OnInit {
       const success = this.favoritesService.removeFromFavorites(id);
       if (success) {
         this.cleaner.isFavorite = false;
-        console.log(`💔 Removed ${this.cleaner.fullName} from favorites`);
       }
     } else {
       const success = this.favoritesService.addToFavorites(
@@ -108,7 +99,6 @@ export class LeaveReviewCardComponent implements OnInit {
       );
       if (success) {
         this.cleaner.isFavorite = true;
-        console.log(`💖 Added ${this.cleaner.fullName} to favorites`);
       }
     }
   }

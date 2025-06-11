@@ -107,7 +107,6 @@ export class BrowseCleanersComponent implements OnInit, OnDestroy {
     const favorites = this.favoritesService.getFavorites();
     this.favoriteIds = favorites.map((fav) => fav.cleanerId);
     this.updateFavoriteStatus();
-    console.log('Loaded favorite IDs:', this.favoriteIds);
   }
 
   updateFavoriteStatus() {
@@ -133,7 +132,6 @@ export class BrowseCleanersComponent implements OnInit, OnDestroy {
       if (success) {
         this.favoriteIds = this.favoriteIds.filter((id) => id !== cleanerId);
         this.updateFavoriteStatus();
-        console.log(`Removed ${cleaner.name} from favorites`);
       }
     } else {
       const success = this.favoritesService.addToFavorites(
@@ -145,7 +143,6 @@ export class BrowseCleanersComponent implements OnInit, OnDestroy {
       if (success) {
         this.favoriteIds.push(cleanerId);
         this.updateFavoriteStatus();
-        console.log(`Added ${cleaner.name} to favorites`);
       }
     }
   }
@@ -157,24 +154,8 @@ export class BrowseCleanersComponent implements OnInit, OnDestroy {
 
     this.cleanerService.getCleaners().subscribe({
       next: (cleanerCards: CleanerCardModel[]) => {
-        console.log('🔍 Raw backend data:', cleanerCards);
-
         // Convert CleanerCardModel to our Cleaner interface
         this.cleaners = cleanerCards.map((card) => {
-          console.log(`🔍 Processing ${card.fullName}:`);
-          console.log(
-            `  - Original rating: ${card.rating} (${typeof card.rating})`
-          );
-          console.log(
-            `  - Original price: ${card.price} (${typeof card.price})`
-          );
-          console.log(
-            `  - Original reviewCount: ${
-              card.reviewCount
-            } (${typeof card.reviewCount})`
-          );
-          console.log(`  - Original location: ${card.location}`);
-
           // More robust rating parsing - use backend rating properly
           let parsedRating = 0;
           if (typeof card.rating === 'number') {
@@ -200,8 +181,6 @@ export class BrowseCleanersComponent implements OnInit, OnDestroy {
               cleanPrice = parsedPrice;
             }
           }
-
-          console.log(`  - Parsed price: ${cleanPrice} BAM/hour`);
 
           // Handle review count - use backend count properly
           let reviewCount = 0;
@@ -239,12 +218,6 @@ export class BrowseCleanersComponent implements OnInit, OnDestroy {
             isFavorite: this.favoriteIds.includes(card.id),
           };
 
-          console.log(`✅ Final cleaner: ${cleanerObj.name}`);
-          console.log(`  - Rating: ${cleanerObj.rating}`);
-          console.log(`  - Price: ${cleanerObj.hourlyRate} BAM/hour`);
-          console.log(`  - Reviews: ${cleanerObj.reviewCount}`);
-          console.log(`  - Distance: ${cleanerObj.distance} km`);
-          console.log(`  - Favorite: ${cleanerObj.isFavorite}`);
           return cleanerObj;
         });
 
@@ -261,7 +234,6 @@ export class BrowseCleanersComponent implements OnInit, OnDestroy {
         this.cleanerService.prefetchCleanerProfiles(popularCleaners);
       },
       error: (error) => {
-        console.error('❌ Error loading cleaners from backend:', error);
         this.error =
           'Failed to load cleaners from backend. Please check if the backend server is running.';
         this.loading = false;

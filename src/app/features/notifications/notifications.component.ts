@@ -57,7 +57,7 @@ export class NotificationsComponent implements OnInit {
 
   handleViewDetails(notification: NotificationDto): void {
     const userType = localStorage.getItem('userType');
-    console.log(userType);
+
     const redirectTo =
       userType === 'CLIENT'
         ? '/user/reservations'

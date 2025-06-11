@@ -48,18 +48,12 @@ export class ServiceReservationOneComponentComponent {
       return;
     }
 
-    console.log(
-      '🔧 Initializing reservation component for cleaner ID:',
-      this.cleanerId
-    );
-
     this.generateDates(365);
     this.generateTimeSlots();
 
     // Set the selected date first, then load booked time slots
     if (this.dates.length > 0) {
       this.selectedDate = this.dates[0].date;
-      console.log('📅 Initial selected date set to:', this.selectedDate);
 
       // Small delay to ensure everything is properly initialized
       setTimeout(() => {
@@ -78,28 +72,17 @@ export class ServiceReservationOneComponentComponent {
 
   loadBookedTimeSlots() {
     if (!this.cleanerId || !this.selectedDate) {
-      console.log('Cannot load booked time slots - missing data:', {
-        cleanerId: this.cleanerId,
-        selectedDate: this.selectedDate,
-      });
       this.bookedTimeSlots = new Set();
       return;
     }
-
-    console.log('Loading booked time slots for:', {
-      cleanerId: this.cleanerId,
-      selectedDate: this.selectedDate,
-    });
 
     this.reservationService
       .getBookedTimeSlots(this.cleanerId, this.selectedDate)
       .subscribe({
         next: (bookedTimes) => {
           this.bookedTimeSlots = new Set(bookedTimes);
-          console.log('✅ Successfully loaded booked time slots:', bookedTimes);
         },
         error: (err) => {
-          console.error('❌ Failed to load booked time slots:', err);
           this.bookedTimeSlots = new Set();
         },
       });
@@ -251,7 +234,6 @@ export class ServiceReservationOneComponentComponent {
         }, 2000);
       },
       error: (err) => {
-        console.error('Reservation Error:', err);
         this.formError = 'Something went wrong. Please try again.';
       },
     });
